@@ -1997,6 +1997,7 @@
                 // AGREGAR ESTAS LÍNEAS AL INICIO:
                 setCachedUsedColors([]);
                 setLastCacheVersion(-1);
+                setUsedColorsVersion(v => v + 1);  // ← MOVER AQUÍ PRIMERO
                 
                 try {
                     // Calculate dimensions in beads
@@ -2098,9 +2099,6 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        setUsedColorsVersion(v => v + 1);  // ← MOVER AQUÍ PRIMERO
-                        setCachedUsedColors([]);           // ← Ahora limpiar cache
-                        setLastCacheVersion(-1);           // ← Y resetear versión de cache
                         
                         setResult(data);
                         setIsBlankCanvas(true);
