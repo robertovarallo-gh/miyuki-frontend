@@ -2098,11 +2098,14 @@
                     const data = await response.json();
                     
                     if (data.success) {
+                        setUsedColorsVersion(v => v + 1);  // ← MOVER AQUÍ PRIMERO
+                        setCachedUsedColors([]);           // ← Ahora limpiar cache
+                        setLastCacheVersion(-1);           // ← Y resetear versión de cache
+                        
                         setResult(data);
                         setIsBlankCanvas(true);
-                        setPaletteTab('all');  // ← AGREGAR ESTA LÍNEA
-                        setUsedColorsVersion(v => v + 1);  // ← AGREGAR ESTA LÍNEA
-                        setEditMode(true); // Enable edit mode by default
+                        setPaletteTab('all');
+                        setEditMode(true);
                         setActiveTab('grid');
                         setEditedPattern(data.images.grid); 
                         
