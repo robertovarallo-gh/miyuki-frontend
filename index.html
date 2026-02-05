@@ -1741,17 +1741,16 @@
                     hasCache: cachedUsedColors.length > 0,
                     lastCacheVersion,
                     usedColorsVersion,
-                    hasResult: !!result,
-                    isBlankCanvas,
-                    hasCanvas: !!canvasRef.current
+                    willUseCache: lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0
                 });
 
                 // Si el cache está actualizado, devolverlo
                 if (lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0) {
+                    console.log('✅ Devolviendo cache:', cachedUsedColors.length, 'colores');
                     return cachedUsedColors;
                 }
                 
-                console.time('getUsedColors');
+                console.log('🔄 Recalculando colores desde canvas...');
                 
                 // Si NO hay canvas, devolver vacío
                 if (!canvasRef.current) {
@@ -1794,7 +1793,6 @@
                 }).filter(c => c);
 
                 console.log('🎨 Colores usados en canvas (analizando):', uniqueColors.length);
-                console.timeEnd('getUsedColors');
                 
                 setCachedUsedColors(uniqueColors);
                 setLastCacheVersion(usedColorsVersion);
