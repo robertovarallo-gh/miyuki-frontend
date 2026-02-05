@@ -2101,11 +2101,12 @@
                     
                     if (data.success) {
                         setResult(data);
-                        setEditedPattern(data.images.grid); 
-                        setActiveTab('grid');
-                        setEditMode(true); // Enable edit mode by default
                         setIsBlankCanvas(true);
                         setPaletteTab('all');  // ← AGREGAR ESTA LÍNEA
+                        setUsedColorsVersion(v => v + 1);  // ← AGREGAR ESTA LÍNEA
+                        setEditMode(true); // Enable edit mode by default
+                        setActiveTab('grid');
+                        setEditedPattern(data.images.grid); 
                         
                         // Load full palette
                         const palette = await loadFullPalette();
