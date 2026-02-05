@@ -3620,24 +3620,24 @@
                                                         gap: '5px',
                                                         marginBottom: '15px'
                                                     }}>
-                                                        {!isBlankCanvas && (
-                                                            <button
-                                                                onClick={() => setPaletteTab('used')}
-                                                                style={{
-                                                                    flex: 1,
-                                                                    padding: '8px',
-                                                                    backgroundColor: paletteTab === 'used' ? 'var(--primary)' : '#e0e0e0',
-                                                                    color: paletteTab === 'used' ? '#000000' : '#666666',
-                                                                    border: 'none',
-                                                                    borderRadius: '6px',
-                                                                    fontSize: '0.85rem',
-                                                                    cursor: 'pointer',
-                                                                    fontWeight: paletteTab === 'used' ? 'bold' : 'normal'
-                                                                }}
-                                                            >
-                                                                En Uso ({getUsedColors().length})
-                                                            </button>
-                                                        )}
+                                                        
+                                                        <button
+                                                            onClick={() => setPaletteTab('used')}
+                                                            style={{
+                                                                flex: 1,
+                                                                padding: '8px',
+                                                                backgroundColor: paletteTab === 'used' ? 'var(--primary)' : '#e0e0e0',
+                                                                color: paletteTab === 'used' ? '#000000' : '#666666',
+                                                                border: 'none',
+                                                                borderRadius: '6px',
+                                                                fontSize: '0.85rem',
+                                                                cursor: 'pointer',
+                                                                fontWeight: paletteTab === 'used' ? 'bold' : 'normal'
+                                                            }}
+                                                        >
+                                                            En Uso ({getUsedColors().length})
+                                                        </button>
+                                                        
                                                         <button
                                                             onClick={() => setPaletteTab('all')}
                                                             style={{
