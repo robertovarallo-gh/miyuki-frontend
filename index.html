@@ -759,6 +759,9 @@
 
                         console.log('✅ Grid dibujado en editor');
 
+                        // Invalidar cache para forzar recalcular
+                        setUsedColorsVersion(v => v + 1);
+
                         // AGREGAR ESTOS LOGS:
                         console.log('🔍 Verificando auto-save:', {
                             isBlankCanvas,
