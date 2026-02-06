@@ -2068,10 +2068,10 @@
                         const g = pixels[i + 1];
                         const b = pixels[i + 2];
                         
-                        if (r >= 180 && r <= 249 && g >= 180 && g <= 249 && b >= 180 && b <= 249) {
-                            pixels[i] = 250;
-                            pixels[i + 1] = 250;
-                            pixels[i + 2] = 250;
+                        if (r >= 180 && r <= 255 && g >= 180 && g <= 255 && b >= 180 && b <= 255) {
+                            pixels[i] = 255;
+                            pixels[i + 1] = 255;
+                            pixels[i + 2] = 255;
                             replacedPixels++;
                         }
                     }
