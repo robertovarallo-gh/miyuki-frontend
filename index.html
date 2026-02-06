@@ -1745,8 +1745,10 @@
                     willUseCache: lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0 && !(isBlankCanvas && !editedPattern)
                 });
                 
-                // MODIFICAR ESTA CONDICIÓN - no usar cache si es blank canvas Y no hay editedPattern
-                if (lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0 && !(isBlankCanvas && !editedPattern)) {
+                // No usar cache si acabamos de crear un blank canvas (sin pintar nada aún)
+                const shouldRecalculate = isBlankCanvas && result?.colors?.colors?.length <= 1;
+
+                if (lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0 && !shouldRecalculate) {
                     console.log('✅ Devolviendo cache:', cachedUsedColors.length, 'colores');
                     return cachedUsedColors;
                 }
