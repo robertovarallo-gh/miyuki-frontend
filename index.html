@@ -1788,6 +1788,9 @@
                     }
                 }
 
+                // AGREGAR ESTE LOG:
+                console.log('🎨 Colores RGB únicos encontrados:', Array.from(colorSet));
+
                 const uniqueColors = Array.from(colorSet).map(rgbString => {
                     const [r, g, b] = rgbString.split(',').map(Number);
                     return findClosestColor([r, g, b]);
