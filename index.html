@@ -1736,16 +1736,16 @@
             };
 
             const getUsedColors = useCallback(() => {
-
                 console.log('🔍 getUsedColors llamado:', {
                     hasCache: cachedUsedColors.length > 0,
                     lastCacheVersion,
                     usedColorsVersion,
+                    isBlankCanvas,
                     willUseCache: lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0
                 });
-
-                // Si el cache está actualizado, devolverlo
-                if (lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0) {
+                
+                // MODIFICAR ESTA CONDICIÓN - no usar cache si es blank canvas Y no hay editedPattern
+                if (lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0 && !(isBlankCanvas && !editedPattern)) {
                     console.log('✅ Devolviendo cache:', cachedUsedColors.length, 'colores');
                     return cachedUsedColors;
                 }
@@ -1798,7 +1798,7 @@
                 setLastCacheVersion(usedColorsVersion);
                 
                 return uniqueColors;
-            }, [usedColorsVersion, cachedUsedColors, lastCacheVersion, isBlankCanvas, result]);
+            }, [usedColorsVersion, cachedUsedColors, lastCacheVersion, isBlankCanvas, result, editedPattern]);
 
             const saveEdits = async () => {
                  if (!canvasRef.current) return;
