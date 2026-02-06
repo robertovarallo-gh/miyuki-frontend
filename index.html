@@ -702,62 +702,64 @@
                         ctx.drawImage(img, 0, 0);
                         console.log('✅ Image drawn on canvas');
 
-                        // Dibujar grid en el editor
-                        const beadsWidth = result.pattern.width;
-                        const beadsHeight = result.pattern.height;
-                        const isPeyote = result.pattern_type === 'peyote';
-                        
-                        ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
-                        ctx.lineWidth = 1;
-
-                        if (isPeyote) {
-                            // Grid para PEYOTE (columnas escalonadas verticalmente)
-                            console.log('✅ Dibujando grid PEYOTE');
-                            const pixelWidth = canvas.width / beadsWidth;
-                            const pixelHeight = canvas.height / (beadsHeight + 0.5);
+                        if (!isBlankCanvas) {
+                            // Dibujar grid en el editor
+                            const beadsWidth = result.pattern.width;
+                            const beadsHeight = result.pattern.height;
+                            const isPeyote = result.pattern_type === 'peyote';
                             
-                            // Líneas verticales (columnas)
-                            for (let x = 0; x <= beadsWidth; x++) {
-                                ctx.beginPath();
-                                ctx.moveTo(x * pixelWidth, 0);
-                                ctx.lineTo(x * pixelWidth, canvas.height);
-                                ctx.stroke();
-                            }
+                            ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+                            ctx.lineWidth = 1;
 
-                            // Líneas horizontales escalonadas
-                            for (let x = 0; x < beadsWidth; x++) {
-                                const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
+                            if (isPeyote) {
+                                // Grid para PEYOTE (columnas escalonadas verticalmente)
+                                console.log('✅ Dibujando grid PEYOTE');
+                                const pixelWidth = canvas.width / beadsWidth;
+                                const pixelHeight = canvas.height / (beadsHeight + 0.5);
+                                
+                                // Líneas verticales (columnas)
+                                for (let x = 0; x <= beadsWidth; x++) {
+                                    ctx.beginPath();
+                                    ctx.moveTo(x * pixelWidth, 0);
+                                    ctx.lineTo(x * pixelWidth, canvas.height);
+                                    ctx.stroke();
+                                }
+
+                                // Líneas horizontales escalonadas
+                                for (let x = 0; x < beadsWidth; x++) {
+                                    const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
+                                    for (let y = 0; y <= beadsHeight; y++) {
+                                        ctx.beginPath();
+                                        ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
+                                        ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
+                                        ctx.stroke();
+                                    }
+                                }
+                            } else {
+                                // Grid para CUADRÍCULA (normal)
+                                console.log('✅ Dibujando grid CUADRÍCULA');
+                                const pixelWidth = canvas.width / beadsWidth;
+                                const pixelHeight = canvas.height / beadsHeight;
+
+                                // Líneas verticales
+                                for (let x = 0; x <= beadsWidth; x++) {
+                                    ctx.beginPath();
+                                    ctx.moveTo(x * pixelWidth, 0);
+                                    ctx.lineTo(x * pixelWidth, canvas.height);
+                                    ctx.stroke();
+                                }
+
+                                // Líneas horizontales
                                 for (let y = 0; y <= beadsHeight; y++) {
                                     ctx.beginPath();
-                                    ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
-                                    ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
+                                    ctx.moveTo(0, y * pixelHeight);
+                                    ctx.lineTo(canvas.width, y * pixelHeight);
                                     ctx.stroke();
                                 }
                             }
-                        } else {
-                            // Grid para CUADRÍCULA (normal)
-                            console.log('✅ Dibujando grid CUADRÍCULA');
-                            const pixelWidth = canvas.width / beadsWidth;
-                            const pixelHeight = canvas.height / beadsHeight;
 
-                            // Líneas verticales
-                            for (let x = 0; x <= beadsWidth; x++) {
-                                ctx.beginPath();
-                                ctx.moveTo(x * pixelWidth, 0);
-                                ctx.lineTo(x * pixelWidth, canvas.height);
-                                ctx.stroke();
-                            }
-
-                            // Líneas horizontales
-                            for (let y = 0; y <= beadsHeight; y++) {
-                                ctx.beginPath();
-                                ctx.moveTo(0, y * pixelHeight);
-                                ctx.lineTo(canvas.width, y * pixelHeight);
-                                ctx.stroke();
-                            }
+                            console.log('✅ Grid dibujado en editor');
                         }
-
-                        console.log('✅ Grid dibujado en editor');
                     };
                     
                     img.onerror = () => {
