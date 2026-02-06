@@ -1757,7 +1757,6 @@
                 
                 // Si NO hay canvas, devolver vacío
                 if (!canvasRef.current) {
-                    console.timeEnd('getUsedColors');
                     return [];
                 }
                 
@@ -1765,7 +1764,6 @@
                 if (result && !isBlankCanvas) {
                     const colors = result.colors?.colors || [];
                     console.log('🎨 Usando colores del resultado:', colors.length);
-                    console.timeEnd('getUsedColors');
                     setCachedUsedColors(colors);
                     setLastCacheVersion(usedColorsVersion);
                     return colors;
