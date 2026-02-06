@@ -1785,16 +1785,14 @@
                     const b = pixels[i + 2];
                     const a = pixels[i + 3];
                     
-                    if (a > 0) {
-                        // Filtrar colores del grid (grises ~200-220)
-                        const isGridColor = r > 200 && r < 220 && g > 200 && g < 220 && b > 200 && b < 220;
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        const r = pixels[i];
+                        const g = pixels[i + 1];
+                        const b = pixels[i + 2];
+                        const a = pixels[i + 3];
                         
-                        if (!isGridColor) {
-                            const colorKey = `${r},${g},${b}`;
-                            if (!colorSet.has(colorKey)) {
-                                console.log('🎨 Color encontrado:', {r, g, b});
-                                colorSet.add(colorKey);
-                            }
+                        if (a > 0) {
+                            colorSet.add(`${r},${g},${b}`);
                         }
                     }
                 }
@@ -2062,6 +2060,34 @@
                     }
                     
                     console.log('✅ Grid dibujado en canvas blanco');
+
+                    console.log('🔄 Reemplazando grises del grid por blanco puro...');
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const pixels = imageData.data;
+
+                    let replacedPixels = 0;
+
+                    // Reemplazar todos los grises (180-249) por blanco puro (250, 250, 250)
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        const r = pixels[i];
+                        const g = pixels[i + 1];
+                        const b = pixels[i + 2];
+                        
+                        // Si es gris del grid o antialiasing, convertirlo a blanco
+                        if (r >= 180 && r <= 249 && g >= 180 && g <= 249 && b >= 180 && b <= 249) {
+                            pixels[i] = 250;     // R
+                            pixels[i + 1] = 250; // G
+                            pixels[i + 2] = 250; // B
+                            replacedPixels++;
+                        }
+                    }
+
+                    // Aplicar los cambios al canvas
+                    ctx.putImageData(imageData, 0, 0);
+
+                    console.log(`✅ ${replacedPixels} píxeles grises reemplazados por blanco`);
+
                     console.log('🎨 Verificando canvas antes de enviar....');
 
                     // Verificar que el grid se dibujó
