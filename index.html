@@ -766,12 +766,19 @@
                             shouldAutoSave: isBlankCanvas && !editedPattern
                         });
 
-                        // AGREGAR AQUÍ:
-                        if (isBlankCanvas && !editedPattern) {
+                        // NUEVA CONDICIÓN: Solo si es blank canvas Y acabamos de entrar al editor
+                        if (isBlankCanvas && activeTab === 'editor' && result) {
                             console.log('🔄 Auto-guardando blank canvas para limpiar colores...');
-                            setTimeout(() => {
-                                saveEdits();
-                            }, 500);
+                            
+                            // Solo auto-guardar UNA VEZ usando un flag
+                            const hasAutoSaved = sessionStorage.getItem('blankCanvasAutoSaved');
+                            
+                            if (!hasAutoSaved) {
+                                sessionStorage.setItem('blankCanvasAutoSaved', 'true');
+                                setTimeout(() => {
+                                    saveEdits();
+                                }, 500);
+                            }
                         }
 
                     };
@@ -2011,6 +2018,9 @@
             const createBlankCanvas = async () => {
                 setProcessing(true);
                 setError(null);
+
+                // Limpiar flag de auto-save
+                sessionStorage.removeItem('blankCanvasAutoSaved');
 
                 // AGREGAR ESTAS LÍNEAS AL INICIO:
                 setCachedUsedColors([]);
