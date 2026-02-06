@@ -2022,10 +2022,14 @@
                 // Limpiar flag de auto-save
                 sessionStorage.removeItem('blankCanvasAutoSaved');
 
-                // AGREGAR ESTAS LÍNEAS AL INICIO:
+                // Limpiar TODOS los estados anteriores
+                setResult(null);
+                setEditedPattern(null);
+                setIsBlankCanvas(false);
                 setCachedUsedColors([]);
                 setLastCacheVersion(-1);
                 setUsedColorsVersion(v => v + 1);  // ← MOVER AQUÍ PRIMERO
+                sessionStorage.removeItem('blankCanvasAutoSaved');
                 
                 try {
                     // Calculate dimensions in beads
