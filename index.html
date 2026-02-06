@@ -702,64 +702,62 @@
                         ctx.drawImage(img, 0, 0);
                         console.log('✅ Image drawn on canvas');
 
-                        if (!isBlankCanvas) {
-                            // Dibujar grid en el editor
-                            const beadsWidth = result.pattern.width;
-                            const beadsHeight = result.pattern.height;
-                            const isPeyote = result.pattern_type === 'peyote';
+                        // Dibujar grid en el editor
+                        const beadsWidth = result.pattern.width;
+                        const beadsHeight = result.pattern.height;
+                        const isPeyote = result.pattern_type === 'peyote';
+                        
+                        ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+                        ctx.lineWidth = 1;
+
+                        if (isPeyote) {
+                            // Grid para PEYOTE (columnas escalonadas verticalmente)
+                            console.log('✅ Dibujando grid PEYOTE');
+                            const pixelWidth = canvas.width / beadsWidth;
+                            const pixelHeight = canvas.height / (beadsHeight + 0.5);
                             
-                            ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
-                            ctx.lineWidth = 1;
+                            // Líneas verticales (columnas)
+                            for (let x = 0; x <= beadsWidth; x++) {
+                                ctx.beginPath();
+                                ctx.moveTo(x * pixelWidth, 0);
+                                ctx.lineTo(x * pixelWidth, canvas.height);
+                                ctx.stroke();
+                            }
 
-                            if (isPeyote) {
-                                // Grid para PEYOTE (columnas escalonadas verticalmente)
-                                console.log('✅ Dibujando grid PEYOTE');
-                                const pixelWidth = canvas.width / beadsWidth;
-                                const pixelHeight = canvas.height / (beadsHeight + 0.5);
-                                
-                                // Líneas verticales (columnas)
-                                for (let x = 0; x <= beadsWidth; x++) {
-                                    ctx.beginPath();
-                                    ctx.moveTo(x * pixelWidth, 0);
-                                    ctx.lineTo(x * pixelWidth, canvas.height);
-                                    ctx.stroke();
-                                }
-
-                                // Líneas horizontales escalonadas
-                                for (let x = 0; x < beadsWidth; x++) {
-                                    const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
-                                    for (let y = 0; y <= beadsHeight; y++) {
-                                        ctx.beginPath();
-                                        ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
-                                        ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
-                                        ctx.stroke();
-                                    }
-                                }
-                            } else {
-                                // Grid para CUADRÍCULA (normal)
-                                console.log('✅ Dibujando grid CUADRÍCULA');
-                                const pixelWidth = canvas.width / beadsWidth;
-                                const pixelHeight = canvas.height / beadsHeight;
-
-                                // Líneas verticales
-                                for (let x = 0; x <= beadsWidth; x++) {
-                                    ctx.beginPath();
-                                    ctx.moveTo(x * pixelWidth, 0);
-                                    ctx.lineTo(x * pixelWidth, canvas.height);
-                                    ctx.stroke();
-                                }
-
-                                // Líneas horizontales
+                            // Líneas horizontales escalonadas
+                            for (let x = 0; x < beadsWidth; x++) {
+                                const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
                                 for (let y = 0; y <= beadsHeight; y++) {
                                     ctx.beginPath();
-                                    ctx.moveTo(0, y * pixelHeight);
-                                    ctx.lineTo(canvas.width, y * pixelHeight);
+                                    ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
+                                    ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
                                     ctx.stroke();
                                 }
                             }
+                        } else {
+                            // Grid para CUADRÍCULA (normal)
+                            console.log('✅ Dibujando grid CUADRÍCULA');
+                            const pixelWidth = canvas.width / beadsWidth;
+                            const pixelHeight = canvas.height / beadsHeight;
 
-                            console.log('✅ Grid dibujado en editor');
-                        }    
+                            // Líneas verticales
+                            for (let x = 0; x <= beadsWidth; x++) {
+                                ctx.beginPath();
+                                ctx.moveTo(x * pixelWidth, 0);
+                                ctx.lineTo(x * pixelWidth, canvas.height);
+                                ctx.stroke();
+                            }
+
+                            // Líneas horizontales
+                            for (let y = 0; y <= beadsHeight; y++) {
+                                ctx.beginPath();
+                                ctx.moveTo(0, y * pixelHeight);
+                                ctx.lineTo(canvas.width, y * pixelHeight);
+                                ctx.stroke();
+                            }
+                        }
+
+                        console.log('✅ Grid dibujado en editor');
                     };
                     
                     img.onerror = () => {
@@ -769,7 +767,7 @@
                     console.log('🔍 Loading image:', imageToLoad);
                     img.src = imageToLoad;
                 }
-            }, [activeTab, lastViewedTab, result, isBlankCanvas]); 
+            }, [activeTab, lastViewedTab, result]); 
             
             const checkApiConnection = async () => {
                 try {
@@ -1747,10 +1745,8 @@
                     willUseCache: lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0 && !(isBlankCanvas && !editedPattern)
                 });
                 
-                // No usar cache si acabamos de crear un blank canvas (sin pintar nada aún)
-                const shouldRecalculate = isBlankCanvas && result?.colors?.colors?.length <= 1;
-
-                if (lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0 && !shouldRecalculate) {
+                // MODIFICAR ESTA CONDICIÓN - no usar cache si es blank canvas Y no hay editedPattern
+                if (lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0 && !(isBlankCanvas && !editedPattern)) {
                     console.log('✅ Devolviendo cache:', cachedUsedColors.length, 'colores');
                     return cachedUsedColors;
                 }
@@ -1759,6 +1755,7 @@
                 
                 // Si NO hay canvas, devolver vacío
                 if (!canvasRef.current) {
+                    console.timeEnd('getUsedColors');
                     return [];
                 }
                 
@@ -1766,6 +1763,7 @@
                 if (result && !isBlankCanvas) {
                     const colors = result.colors?.colors || [];
                     console.log('🎨 Usando colores del resultado:', colors.length);
+                    console.timeEnd('getUsedColors');
                     setCachedUsedColors(colors);
                     setLastCacheVersion(usedColorsVersion);
                     return colors;
@@ -1778,22 +1776,15 @@
                 const pixels = imageData.data;
 
                 const colorSet = new Set();
-
+                
                 for (let i = 0; i < pixels.length; i += 4) {
                     const r = pixels[i];
                     const g = pixels[i + 1];
                     const b = pixels[i + 2];
                     const a = pixels[i + 3];
                     
-                    for (let i = 0; i < pixels.length; i += 4) {
-                        const r = pixels[i];
-                        const g = pixels[i + 1];
-                        const b = pixels[i + 2];
-                        const a = pixels[i + 3];
-                        
-                        if (a > 0) {
-                            colorSet.add(`${r},${g},${b}`);
-                        }
+                    if (a > 0) {
+                        colorSet.add(`${r},${g},${b}`);
                     }
                 }
 
@@ -1803,7 +1794,10 @@
                 }).filter(c => c);
 
                 console.log('🎨 Colores usados en canvas (analizando):', uniqueColors.length);
-                              
+                
+                setCachedUsedColors(uniqueColors);
+                setLastCacheVersion(usedColorsVersion);
+                
                 return uniqueColors;
             }, [usedColorsVersion, cachedUsedColors, lastCacheVersion, isBlankCanvas, result, editedPattern]);
 
@@ -2057,34 +2051,6 @@
                     }
                     
                     console.log('✅ Grid dibujado en canvas blanco');
-
-                    console.log('🔄 Reemplazando grises del grid por blanco puro...');
-
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const pixels = imageData.data;
-
-                    let replacedPixels = 0;
-
-                    // Reemplazar todos los grises (180-249) por blanco puro (250, 250, 250)
-                    for (let i = 0; i < pixels.length; i += 4) {
-                        const r = pixels[i];
-                        const g = pixels[i + 1];
-                        const b = pixels[i + 2];
-                        
-                        // Si es gris del grid o antialiasing, convertirlo a blanco
-                        if (r >= 180 && r <= 249 && g >= 180 && g <= 249 && b >= 180 && b <= 249) {
-                            pixels[i] = 250;     // R
-                            pixels[i + 1] = 250; // G
-                            pixels[i + 2] = 250; // B
-                            replacedPixels++;
-                        }
-                    }
-
-                    // Aplicar los cambios al canvas
-                    ctx.putImageData(imageData, 0, 0);
-
-                    console.log(`✅ ${replacedPixels} píxeles grises reemplazados por blanco`);
-
                     console.log('🎨 Verificando canvas antes de enviar....');
 
                     // Verificar que el grid se dibujó
