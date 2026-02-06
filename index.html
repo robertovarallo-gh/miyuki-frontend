@@ -1741,7 +1741,8 @@
                     lastCacheVersion,
                     usedColorsVersion,
                     isBlankCanvas,
-                    willUseCache: lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0
+                    editedPattern: !!editedPattern,
+                    willUseCache: lastCacheVersion === usedColorsVersion && cachedUsedColors.length > 0 && !(isBlankCanvas && !editedPattern)
                 });
                 
                 // MODIFICAR ESTA CONDICIÓN - no usar cache si es blank canvas Y no hay editedPattern
