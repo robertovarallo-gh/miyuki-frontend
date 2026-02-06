@@ -2051,6 +2051,31 @@
                     }
                     
                     console.log('✅ Grid dibujado en canvas blanco');
+
+                    // ESTE BLOQUE DEBE ESTAR AQUÍ:
+                    console.log('🔄 Reemplazando grises del grid por blanco puro...');
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const pixels = imageData.data;
+
+                    let replacedPixels = 0;
+
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        const r = pixels[i];
+                        const g = pixels[i + 1];
+                        const b = pixels[i + 2];
+                        
+                        if (r >= 180 && r <= 249 && g >= 180 && g <= 249 && b >= 180 && b <= 249) {
+                            pixels[i] = 250;
+                            pixels[i + 1] = 250;
+                            pixels[i + 2] = 250;
+                            replacedPixels++;
+                        }
+                    }
+
+                    ctx.putImageData(imageData, 0, 0);
+                    console.log(`✅ ${replacedPixels} píxeles grises reemplazados por blanco`);
+                    
                     console.log('🎨 Verificando canvas antes de enviar....');
 
                     // Verificar que el grid se dibujó
