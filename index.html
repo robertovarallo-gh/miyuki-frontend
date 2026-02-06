@@ -669,12 +669,12 @@
 
             // Draw edited pattern on canvas
             useEffect(() => {
-                console.log('🔍 useEffect canvas - editedPattern:', editedPattern);
-                console.log('🔍 useEffect canvas - canvasRef.current:', canvasRef.current);
-                console.log('🔍 useEffect canvas - activeTab:', activeTab);
-                console.log('🔍 useEffect canvas - lastViewedTab:', lastViewedTab);
-                console.log('🔍 useEffect canvas - isBlankCanvas:', isBlankCanvas);
-                console.log('🔍 useEffect canvas - pattern_type:', result?.pattern_type);
+                // console.log('🔍 useEffect canvas - editedPattern:', editedPattern);
+                // console.log('🔍 useEffect canvas - canvasRef.current:', canvasRef.current);
+                // console.log('🔍 useEffect canvas - activeTab:', activeTab);
+                // console.log('🔍 useEffect canvas - lastViewedTab:', lastViewedTab);
+                // console.log('🔍 useEffect canvas - isBlankCanvas:', isBlankCanvas);
+                // console.log('🔍 useEffect canvas - pattern_type:', result?.pattern_type);
 
                 if (canvasRef.current && activeTab === 'editor' && result?.images) {
                     const canvas = canvasRef.current;
@@ -2158,6 +2158,7 @@
                         
                         setResult(data);
                         setIsBlankCanvas(true);
+                        console.log('✅ setIsBlankCanvas(true) ejecutado');  // ← AGREGAR
                         setPaletteTab('all');
                         setEditMode(true);
                         setActiveTab('grid');
