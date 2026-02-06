@@ -1778,7 +1778,7 @@
                 const pixels = imageData.data;
 
                 const colorSet = new Set();
-                
+
                 for (let i = 0; i < pixels.length; i += 4) {
                     const r = pixels[i];
                     const g = pixels[i + 1];
@@ -1786,7 +1786,16 @@
                     const a = pixels[i + 3];
                     
                     if (a > 0) {
-                        colorSet.add(`${r},${g},${b}`);
+                        // Filtrar colores del grid (grises ~200-220)
+                        const isGridColor = r > 200 && r < 220 && g > 200 && g < 220 && b > 200 && b < 220;
+                        
+                        if (!isGridColor) {
+                            const colorKey = `${r},${g},${b}`;
+                            if (!colorSet.has(colorKey)) {
+                                console.log('🎨 Color encontrado:', {r, g, b});
+                                colorSet.add(colorKey);
+                            }
+                        }
                     }
                 }
 
@@ -1797,8 +1806,8 @@
 
                 console.log('🎨 Colores usados en canvas (analizando):', uniqueColors.length);
                 
-                setCachedUsedColors(uniqueColors);
-                setLastCacheVersion(usedColorsVersion);
+                // setCachedUsedColors(uniqueColors);
+                // setLastCacheVersion(usedColorsVersion);
                 
                 return uniqueColors;
             }, [usedColorsVersion, cachedUsedColors, lastCacheVersion, isBlankCanvas, result, editedPattern]);
