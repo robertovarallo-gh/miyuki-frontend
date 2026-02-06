@@ -758,6 +758,15 @@
                         }
 
                         console.log('✅ Grid dibujado en editor');
+
+                        // AGREGAR AQUÍ:
+                        if (isBlankCanvas && !editedPattern) {
+                            console.log('🔄 Auto-guardando blank canvas para limpiar colores...');
+                            setTimeout(() => {
+                                saveEdits();
+                            }, 500);
+                        }
+
                     };
                     
                     img.onerror = () => {
