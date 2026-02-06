@@ -759,6 +759,13 @@
 
                         console.log('✅ Grid dibujado en editor');
 
+                        // AGREGAR ESTOS LOGS:
+                        console.log('🔍 Verificando auto-save:', {
+                            isBlankCanvas,
+                            editedPattern: !!editedPattern,
+                            shouldAutoSave: isBlankCanvas && !editedPattern
+                        });
+
                         // AGREGAR AQUÍ:
                         if (isBlankCanvas && !editedPattern) {
                             console.log('🔄 Auto-guardando blank canvas para limpiar colores...');
