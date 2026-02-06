@@ -707,7 +707,7 @@
                         const beadsHeight = result.pattern.height;
                         const isPeyote = result.pattern_type === 'peyote';
                         
-                        ctx.strokeStyle = 'rgba(220, 220, 220, 0.3)';
+                        ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
                         ctx.lineWidth = 1;
 
                         if (isPeyote) {
@@ -1782,12 +1782,7 @@
                     const a = pixels[i + 3];
                     
                     if (a > 0) {
-                        // Ignorar grises muy claros del grid (215-255)
-                        const isGridGray = r >= 215 && g >= 215 && b >= 215 && r === g && g === b;
-                        
-                        if (!isGridGray) {
-                            colorSet.add(`${r},${g},${b}`);
-                        }
+                        colorSet.add(`${r},${g},${b}`);  // ← SIN FILTRO
                     }
                 }
 
@@ -2037,7 +2032,7 @@
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                     // Draw grid on blank canvas
-                    ctx.strokeStyle = 'rgb(200, 200, 200)';
+                    ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
                     ctx.lineWidth = 1;
 
                     // Vertical lines
