@@ -2180,6 +2180,9 @@
                             setTimeout(async () => {
                                 // Guardar para limpiar colores
                                 await saveEdits();
+
+                                // AGREGAR ESTO:
+                                setUsedColorsVersion(v => v + 1);  // Forzar recalcular colores
                                 
                                 // Volver a grid
                                 setActiveTab('grid');
