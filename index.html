@@ -2163,7 +2163,27 @@
                         // Load full palette
                         const palette = await loadFullPalette();
                         setFullPalette(palette);
+
+                        // AGREGAR ESTO:
+                        console.log('🔄 Limpiando colores del blank canvas...');
                         
+                        // Pequeño delay para que el canvas se renderice
+                        setTimeout(async () => {
+                            // Cambiar a editor temporalmente para que se dibuje el grid
+                            setActiveTab('editor');
+                            
+                            // Esperar a que se dibuje
+                            setTimeout(async () => {
+                                // Guardar para limpiar colores
+                                await saveEdits();
+                                
+                                // Volver a grid
+                                setActiveTab('grid');
+                                
+                                console.log('✅ Blank canvas listo con 1 color');
+                            }, 300);
+                        }, 300);
+
                         setProcessing(false);
                     } else {
                         setError(data.error || 'Error al crear patrón');
