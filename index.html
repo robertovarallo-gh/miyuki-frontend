@@ -1828,6 +1828,12 @@
             const saveEdits = async () => {
                  if (!canvasRef.current) return;
 
+                // AGREGAR ESTA VERIFICACIÓN:
+                if (!result || !result.pattern_type) {
+                    console.log('⚠️ Result no disponible, saltando saveEdits');
+                    return;
+                }
+
                 const canvas = canvasRef.current;
                 const editedImageData = canvas.toDataURL();
                 
