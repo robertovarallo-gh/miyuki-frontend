@@ -740,56 +740,59 @@
                         const beadsHeight = result.pattern.height;
                         const isPeyote = result.pattern_type === 'peyote';
                         
-                        ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
-                        ctx.lineWidth = 1;
+                        // NO dibujar grid si es blank canvas - evita grises en auto-save
+                        if (!isBlankCanvas) {
+                            ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
+                            ctx.lineWidth = 1;
 
-                        if (isPeyote) {
-                            // Grid para PEYOTE (columnas escalonadas verticalmente)
-                            console.log('✅ Dibujando grid PEYOTE');
-                            const pixelWidth = canvas.width / beadsWidth;
-                            const pixelHeight = canvas.height / (beadsHeight + 0.5);
-                            
-                            // Líneas verticales (columnas)
-                            for (let x = 0; x <= beadsWidth; x++) {
-                                ctx.beginPath();
-                                ctx.moveTo(x * pixelWidth, 0);
-                                ctx.lineTo(x * pixelWidth, canvas.height);
-                                ctx.stroke();
-                            }
+                            if (isPeyote) {
+                                // Grid para PEYOTE (columnas escalonadas verticalmente)
+                                console.log('✅ Dibujando grid PEYOTE');
+                                const pixelWidth = canvas.width / beadsWidth;
+                                const pixelHeight = canvas.height / (beadsHeight + 0.5);
+                                
+                                // Líneas verticales (columnas)
+                                for (let x = 0; x <= beadsWidth; x++) {
+                                    ctx.beginPath();
+                                    ctx.moveTo(x * pixelWidth, 0);
+                                    ctx.lineTo(x * pixelWidth, canvas.height);
+                                    ctx.stroke();
+                                }
 
-                            // Líneas horizontales escalonadas
-                            for (let x = 0; x < beadsWidth; x++) {
-                                const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
+                                // Líneas horizontales escalonadas
+                                for (let x = 0; x < beadsWidth; x++) {
+                                    const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
+                                    for (let y = 0; y <= beadsHeight; y++) {
+                                        ctx.beginPath();
+                                        ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
+                                        ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
+                                        ctx.stroke();
+                                    }
+                                }
+                            } else {
+                                // Grid para CUADRÍCULA (normal)
+                                console.log('✅ Dibujando grid CUADRÍCULA');
+                                const pixelWidth = canvas.width / beadsWidth;
+                                const pixelHeight = canvas.height / beadsHeight;
+
+                                // Líneas verticales
+                                for (let x = 0; x <= beadsWidth; x++) {
+                                    ctx.beginPath();
+                                    ctx.moveTo(x * pixelWidth, 0);
+                                    ctx.lineTo(x * pixelWidth, canvas.height);
+                                    ctx.stroke();
+                                }
+
+                                // Líneas horizontales
                                 for (let y = 0; y <= beadsHeight; y++) {
                                     ctx.beginPath();
-                                    ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
-                                    ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
+                                    ctx.moveTo(0, y * pixelHeight);
+                                    ctx.lineTo(canvas.width, y * pixelHeight);
                                     ctx.stroke();
                                 }
                             }
-                        } else {
-                            // Grid para CUADRÍCULA (normal)
-                            console.log('✅ Dibujando grid CUADRÍCULA');
-                            const pixelWidth = canvas.width / beadsWidth;
-                            const pixelHeight = canvas.height / beadsHeight;
-
-                            // Líneas verticales
-                            for (let x = 0; x <= beadsWidth; x++) {
-                                ctx.beginPath();
-                                ctx.moveTo(x * pixelWidth, 0);
-                                ctx.lineTo(x * pixelWidth, canvas.height);
-                                ctx.stroke();
-                            }
-
-                            // Líneas horizontales
-                            for (let y = 0; y <= beadsHeight; y++) {
-                                ctx.beginPath();
-                                ctx.moveTo(0, y * pixelHeight);
-                                ctx.lineTo(canvas.width, y * pixelHeight);
-                                ctx.stroke();
-                            }
                         }
-
+                        
                         console.log('✅ Grid dibujado en editor');
 
                         // Invalidar cache para forzar recalcular
