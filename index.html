@@ -1905,7 +1905,7 @@
                         }
                     }
                     
-                    // NUEVA LÓGICA: Construir lista de colores desde colorCounts
+                    // Construir lista de colores desde colorCounts
                     const updatedColors = [];
                     
                     for (const colorKey in colorCounts) {
@@ -1936,29 +1936,76 @@
                         }
                     }
                     
-                    // Actualizar resultado
-                    setResult({
-                        ...result,
-                        images: {
-                            ...result.images,
-                            grid: editedImageData,
-                            basic: editedImageData
-                        },
-                        colors: {
-                            ...result.colors,
-                            colors: updatedColors,
-                            unique_colors: updatedColors.length,
-                            total_beads: totalBeads
+                    // AHORA SÍ REGENERAR COORDINATES EN EL BACKEND
+                    setProcessing(true);
+                    
+                    try {
+                        const widthToSend = dimensionMode === 'cm'
+                            ? Number(width)
+                            : Number(((width * beadSize) / 10).toFixed(1));
+
+                        const heightToSend = dimensionMode === 'cm'
+                            ? Number(height)
+                            : Number(((height * beadSize) / 10).toFixed(1));
+
+                        const response = await fetch(`${API_URL}/generate`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                image: editedImageData,
+                                width: widthToSend,
+                                height: heightToSend,
+                                beadSize: beadSize,
+                                numColors: 100,
+                                saturation: 1.0,
+                                brightness: 1.0,
+                                contrast: 1.0,
+                                sharpness: 1.0,
+                                showGrid: true,
+                                showNumbers: false,
+                                colorMode: colorMode,
+                                skipQuantization: true,
+                                pattern_type: 'peyote'
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            // Actualizar con las nuevas imágenes del backend Y los colores calculados
+                            setResult({
+                                ...data,
+                                images: {
+                                    grid: editedImageData,  // Mantener el grid editado
+                                    coordinates: data.images.coordinates,  // Nueva imagen de coordenadas
+                                    basic: editedImageData
+                                },
+                                colors: {
+                                    ...data.colors,
+                                    colors: updatedColors,  // Usar colores calculados en frontend
+                                    unique_colors: updatedColors.length,
+                                    total_beads: totalBeads
+                                }
+                            });
+                            
+                            setEditedPattern(editedImageData);
+                            setActiveTab('grid');
+                            setIsBlankCanvas(false);
+                            setUsedColorsVersion(v => v + 1);
+                            setProcessing(false);
+                            alert('✅ Patrón peyote guardado y coordenadas actualizadas');
                         }
-                    });
+                    } catch (err) {
+                        setError('Error guardando ediciones: ' + err.message);
+                        setProcessing(false);
+                    }
                     
                     setEditMode(false);
-                    setActiveTab('grid');
-                    setUsedColorsVersion(v => v + 1);
-                    setIsBlankCanvas(false);
-                    alert('✅ Patrón peyote guardado y colores actualizados');
                     return;
-                }                
+                }
+
                 // Para CUADRÍCULA, continuar con el flujo normal
                 if (isBlankCanvas) {
                     setProcessing(true);
