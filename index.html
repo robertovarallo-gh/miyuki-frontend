@@ -3225,6 +3225,13 @@
                                                     alt="Pattern Coordinates" 
                                                     className="pattern-canvas"
                                                     style={{display: 'block'}}
+                                                    onLoad={(e) => {
+                                                        console.log('✅ Imagen coordinates cargó');
+                                                        console.log('📐 Dimensiones:', e.target.width, 'x', e.target.height);
+                                                    }}
+                                                    onError={(e) => {
+                                                        console.log('❌ Error cargando imagen coordinates');
+                                                    }}
                                                 />
                                                 {showNumbers && (
                                                     <canvas
