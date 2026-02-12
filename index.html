@@ -8,6 +8,39 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <!-- AGREGAR FIREBASE AQUÍ -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5qU9-h5wh1U2uBXJ_rHGBa6_jFKH25Fs",
+            authDomain: "miyuki-pattern-generator.firebaseapp.com",
+            projectId: "miyuki-pattern-generator",
+            storageBucket: "miyuki-pattern-generator.firebasestorage.app",
+            messagingSenderId: "47166182917",
+            appId: "1:47166182917:web:884d2fe2d2fd49ecc92e6c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Exponer globalmente para que Babel pueda usarlos
+        window.firebaseAuth = auth;
+        window.firebaseDB = db;
+        window.firebaseCreateUser = createUserWithEmailAndPassword;
+        window.firebaseSignIn = signInWithEmailAndPassword;
+        window.firebaseSignOut = signOut;
+        window.firebaseOnAuthStateChanged = onAuthStateChanged;
+        window.firebaseDoc = doc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseUpdateDoc = updateDoc;
+    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;700&display=swap');
         
@@ -1860,7 +1893,6 @@
                     for (let x = 0; x < beadsWidth; x++) {
                         const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
                         for (let y = 0; y < beadsHeight; y++) {
-                            // Obtener color del centro del bead
                             const pixelX = Math.floor(x * pixelWidth + pixelWidth / 2);
                             const pixelY = Math.floor(y * pixelHeight + offsetY + pixelHeight / 2);
                             
@@ -1873,16 +1905,36 @@
                         }
                     }
                     
-                    // Actualizar conteos en result.colors
-                    const updatedColors = result.colors.colors.map(color => {
-                        const colorKey = `${color.rgb[0]},${color.rgb[1]},${color.rgb[2]}`;
-                        const count = colorCounts[colorKey] || 0;
-                        return {
-                            ...color,
-                            count: count,
-                            percentage: ((count / totalBeads) * 100).toFixed(1)
-                        };
-                    }).filter(color => color.count > 0); // Solo mantener colores usados
+                    // NUEVA LÓGICA: Construir lista de colores desde colorCounts
+                    const updatedColors = [];
+                    
+                    for (const colorKey in colorCounts) {
+                        const [r, g, b] = colorKey.split(',').map(Number);
+                        const count = colorCounts[colorKey];
+                        
+                        // Buscar el color en la paleta completa
+                        const paletteColor = fullPalette.find(c => 
+                            c.rgb[0] === r && c.rgb[1] === r && c.rgb[2] === b
+                        );
+                        
+                        if (paletteColor) {
+                            updatedColors.push({
+                                ...paletteColor,
+                                count: count,
+                                percentage: ((count / totalBeads) * 100).toFixed(1)
+                            });
+                        } else {
+                            // Color no está en paleta (RGB custom)
+                            updatedColors.push({
+                                code: `RGB-${r}-${g}-${b}`,
+                                name_es: `RGB (${r}, ${g}, ${b})`,
+                                name_en: `RGB (${r}, ${g}, ${b})`,
+                                rgb: [r, g, b],
+                                count: count,
+                                percentage: ((count / totalBeads) * 100).toFixed(1)
+                            });
+                        }
+                    }
                     
                     // Actualizar resultado
                     setResult({
@@ -1902,12 +1954,11 @@
                     
                     setEditMode(false);
                     setActiveTab('grid');
-                    setUsedColorsVersion(v => v + 1); // Forzar actualización de paleta
-                    setIsBlankCanvas(false);  // ← AGREGAR ESTA LÍNEA
+                    setUsedColorsVersion(v => v + 1);
+                    setIsBlankCanvas(false);
                     alert('✅ Patrón peyote guardado y colores actualizados');
                     return;
-                }
-                
+                }                
                 // Para CUADRÍCULA, continuar con el flujo normal
                 if (isBlankCanvas) {
                     setProcessing(true);
