@@ -2166,6 +2166,8 @@
                     ctx.fillStyle = '#FFFFFF';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+                    // NO dibujar grid en blank canvas - el backend lo agregará
+                    /*
                     // Draw grid on blank canvas
                     ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
                     ctx.lineWidth = 1;
@@ -2177,6 +2179,7 @@
                         ctx.lineTo(x * pixelsPerBead, canvas.height);
                         ctx.stroke();
                     }
+                    */
 
                     // Horizontal lines
                     for (let y = 0; y <= heightBeads; y++) {
@@ -2188,6 +2191,7 @@
                     
                     console.log('✅ Grid dibujado en canvas blanco');
 
+                    /*
                     // ESTE BLOQUE DEBE ESTAR AQUÍ:
                     console.log('🔄 Reemplazando grises del grid por blanco puro...');
 
@@ -2211,7 +2215,8 @@
 
                     ctx.putImageData(imageData, 0, 0);
                     console.log(`✅ ${replacedPixels} píxeles grises reemplazados por blanco`);
-                    
+                    */
+                   
                     console.log('🎨 Verificando canvas antes de enviar....');
 
                     // Verificar que el grid se dibujó
