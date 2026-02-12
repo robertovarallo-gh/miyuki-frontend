@@ -1589,6 +1589,14 @@
                     const pixelWidth = canvas.width / beadsWidth;
                     const pixelHeight = canvas.height / (beadsHeight + 0.5);
                     const offsetY = (beadX % 2 === 1) ? (pixelHeight / 2) : 0;
+
+                    // AGREGAR LOG AQUÍ:
+                    console.log('🎨 Pintando color:', {
+                        code: selectedColor.code,
+                        name: selectedColor.name_es,
+                        rgb_original: selectedColor.rgb,
+                        fillStyle: `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`
+                    });                    
                     
                     ctx.fillStyle = `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`;
                     ctx.fillRect(
@@ -1600,6 +1608,14 @@
                 } else {
                     const pixelWidth = canvas.width / beadsWidth;
                     const pixelHeight = canvas.height / beadsHeight;
+
+                    // AGREGAR LOG AQUÍ TAMBIÉN:
+                    console.log('🎨 Pintando color:', {
+                        code: selectedColor.code,
+                        name: selectedColor.name_es,
+                        rgb_original: selectedColor.rgb,
+                        fillStyle: `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`
+                    });                    
                     
                     ctx.fillStyle = `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`;
                     ctx.fillRect(
