@@ -3642,18 +3642,33 @@
                                         marginTop: '15px',
                                         marginBottom: '15px'
                                     }}>
+
                                         <button 
                                             className="btn"
-                                            onClick={savePattern}
+                                            onClick={() => {
+                                                if (!user) {
+                                                    alert('⚠️ Debes iniciar sesión para guardar patrones');
+                                                    setTimeout(() => setShowAuthModal(true), 0);
+                                                    return;
+                                                }
+                                                if (!isPremiumUser()) {
+                                                    alert('⚠️ Guardar patrones está disponible solo en el plan Premium\n\n💎 Upgrade a Premium para guardar y descargar patrones ilimitados');
+                                                    return;
+                                                }
+                                                savePattern();
+                                            }}
                                             style={{
                                                 width: '100%',
-                                                backgroundColor: 'var(--success)',
+                                                backgroundColor: (!user || !isPremiumUser()) ? '#666' : 'var(--success)',
                                                 color: '#000000',
-                                                padding: '15px'
+                                                padding: '15px',
+                                                opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
+                                                cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
                                             }}
                                         >
-                                            💾 Guardar Patrón Completo
+                                            💾 Guardar Patrón Completo {!isPremiumUser() && '🔒'}
                                         </button>
+
                                     </div>
 
                                     {/* Mensaje informativo sobre guardado */}
