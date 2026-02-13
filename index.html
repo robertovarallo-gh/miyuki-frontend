@@ -836,6 +836,26 @@
                 }
             }, [activeTab, lastViewedTab, result]); 
             
+
+            // Detectar estado de autenticación
+            React.useEffect(() => {
+                const unsubscribe = window.firebaseOnAuthStateChanged(
+                    window.firebaseAuth,
+                    (currentUser) => {
+                        if (currentUser) {
+                            console.log('✅ Usuario autenticado:', currentUser.email);
+                            setUser(currentUser);
+                        } else {
+                            console.log('❌ No hay usuario autenticado');
+                            setUser(null);
+                        }
+                    }
+                );
+                
+                // Cleanup
+                return () => unsubscribe();
+            }, []);
+
             const checkApiConnection = async () => {
                 try {
                     const response = await fetch(`${API_URL}/health`, { 
