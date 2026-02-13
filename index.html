@@ -3486,7 +3486,7 @@
                                                             ref={canvasRef}
                                                             className="editor-canvas"
                                                             onClick={(e) => {
-                                                                    if (lastViewedTab === 'coords') return;
+                                                                    // if (lastViewedTab === 'coords') return;
                                                                     
                                                                     // Cancelar click anterior si existe
                                                                     if (clickTimeout) {
@@ -3516,7 +3516,7 @@
                                                                     handleDoubleClick(e);
                                                                 }}
                                                             onMouseDown={(e) => {
-                                                                if (lastViewedTab === 'coords') return;
+                                                                // if (lastViewedTab === 'coords') return;
                                                                 handleMouseDown(e);
                                                             }}
                                                             onMouseMove={handleMouseMove}
