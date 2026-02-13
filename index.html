@@ -667,6 +667,7 @@
             const [modalSelectedColor, setModalSelectedColor] = useState(null);
             const [cachedUsedColors, setCachedUsedColors] = useState([]);
             const [lastCacheVersion, setLastCacheVersion] = useState(-1);
+            const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
 
             const CATEGORIES = {
                 'all': { emoji: '🎨', name: 'Todos' },
@@ -1605,6 +1606,7 @@
                         Math.ceil(pixelWidth),
                         Math.ceil(pixelHeight)
                     );
+                    setHasUnsavedChanges(true); // Marcar que hay cambios sin guardar
                 } else {
                     const pixelWidth = canvas.width / beadsWidth;
                     const pixelHeight = canvas.height / beadsHeight;
@@ -1624,6 +1626,7 @@
                         Math.ceil(pixelWidth),
                         Math.ceil(pixelHeight)
                     );
+                    setHasUnsavedChanges(true); // Marcar que hay cambios sin guardar
                 }
 
                 setUsedColorsVersion(v => v + 1);
@@ -1774,6 +1777,8 @@
                 // Pegar imageData
                 ctx.putImageData(clipboard.imageData, x, y);
 
+                setHasUnsavedChanges(true);  // ← AGREGAR ESTA LÍNEA
+
                 setUsedColorsVersion(v => v + 1); // Actualizar colores usados 
                 
                 // Guardar cambios
@@ -1808,6 +1813,7 @@
                     Math.ceil(pixelWidth), 
                     Math.ceil(pixelHeight)
                 );
+                setHasUnsavedChanges(true); // Marcar que hay cambios sin guardar
 
                 const newPattern = canvas.toDataURL();
                 setEditedPattern(newPattern);
@@ -2014,6 +2020,7 @@
                             setIsBlankCanvas(false);
                             setUsedColorsVersion(v => v + 1);
                             setProcessing(false);
+                            setHasUnsavedChanges(false);
                             alert('✅ Patrón peyote guardado y coordenadas actualizadas');
                         }
                     } catch (err) {
@@ -2022,6 +2029,7 @@
                     }
                     
                     setEditMode(false);
+                    setHasUnsavedChanges(false);
                     return;
                 }
 
@@ -2078,12 +2086,14 @@
                             setIsBlankCanvas(false);  // ← AGREGAR ESTA LÍNEA
                             setUsedColorsVersion(v => v + 1);  // ← Y ESTA TAMBIÉN (para actualizar cache)
                             setProcessing(false);
+                            setHasUnsavedChanges(false);
                             alert('✅ Cambios guardados y guías actualizadas.');
                         }
                     } catch (err) {
                         setError('Error guardando ediciones: ' + err.message);
                         setProcessing(false);
                     }
+                    setHasUnsavedChanges(false);
                     return;
                 }
                 
@@ -2139,7 +2149,28 @@
                 } finally {
                     setProcessing(false);
                 }
+                setHasUnsavedChanges(false);
             };
+
+            const handleTabChange = (newTab) => {
+                if (editMode && hasUnsavedChanges) {
+                    const confirmLeave = window.confirm(
+                        '⚠️ Tienes cambios sin guardar.\n\n' +
+                        '¿Deseas salir del Editor sin guardar?\n\n' +
+                        'Los cambios se perderán.'
+                    );
+                    
+                    if (!confirmLeave) {
+                        return; // No cambiar de tab
+                    }
+                    
+                    // Si confirma salir, resetear el flag
+                    setHasUnsavedChanges(false);
+                }
+                
+                setActiveTab(newTab);
+            };
+
 
             const createBlankCanvas = async () => {
                 setProcessing(true);
@@ -3086,7 +3117,7 @@
                                         <button 
                                             className={`tab ${activeTab === 'grid' ? 'active' : ''}`}
                                             onClick={() => {
-                                                setActiveTab('grid');
+                                                handleTabChange('grid');
                                                 setLastViewedTab('grid');
                                             }}
                                         >
@@ -3095,7 +3126,7 @@
                                         <button 
                                             className={`tab ${activeTab === 'coords' ? 'active' : ''}`}
                                             onClick={() => {
-                                                setActiveTab('coords');
+                                                handleTabChange('coords');
                                                 setLastViewedTab('coords');
                                             }}
                                         >
@@ -3103,14 +3134,14 @@
                                         </button>
                                         <button 
                                             className={`tab ${activeTab === 'colors' ? 'active' : ''}`}
-                                            onClick={() => setActiveTab('colors')}
+                                            onClick={() => handleTabChange('colors')}
                                         >
                                             🎨 Colores
                                         </button>
                                         {result.pattern_type !== 'peyote' && (
                                             <button 
                                                 className={`tab ${activeTab === 'guide' ? 'active' : ''}`}
-                                                onClick={() => setActiveTab('guide')}
+                                                onClick={() => handleTabChange('guide')}
                                             >
                                                 📋 Guía
                                             </button>
@@ -3120,7 +3151,7 @@
                                             onClick={async () => {
                                                 console.log('🖱️ Click en Editor - lastViewedTab:', lastViewedTab);
                                                 setEditMode(true);
-                                                setActiveTab('editor');
+                                                handleTabChange('editor');
 
                                                 // Resetear herramientas a valores iniciales
                                                 setToolMode('paint');           // Pincel activado
@@ -3842,6 +3873,8 @@
                                                                     ctx.putImageData(imageData, 0, 0);
                                                                     const newPattern = canvas.toDataURL();
                                                                     setEditedPattern(newPattern);
+
+                                                                    setHasUnsavedChanges(true);  // ← AGREGAR ESTA LÍNEA
                                                                     
                                                                     const beadsReplaced = Math.floor(replacedCount / (canvas.width * canvas.height / (result.pattern.width * result.pattern.height)));
                                                                     alert(`✅ Color reemplazado (≈${beadsReplaced} beads afectados)`);
@@ -4333,6 +4366,7 @@
                                                                         Math.ceil(pixelWidth),
                                                                         Math.ceil(pixelHeight)
                                                                     );
+                                                                    setHasUnsavedChanges(true); // Marcar que hay cambios sin guardar
                                                                 } else {
                                                                     const pixelWidth = canvas.width / beadsWidth;
                                                                     const pixelHeight = canvas.height / beadsHeight;
@@ -4344,6 +4378,7 @@
                                                                         Math.ceil(pixelWidth),
                                                                         Math.ceil(pixelHeight)
                                                                     );
+                                                                    setHasUnsavedChanges(true); // Marcar que hay cambios sin guardar
                                                                 }
                                                                 
                                                                 setUsedColorsVersion(v => v + 1);
