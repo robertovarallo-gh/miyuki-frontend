@@ -1029,7 +1029,14 @@
 
                 // AGREGAR ESTAS LÍNEAS:
                 setCachedUsedColors([]);
-                setLastCacheVersion(-1);                
+                setLastCacheVersion(-1);
+                
+                // AGREGAR VERIFICACIÓN DE LÍMITES AQUÍ:
+                const canProceed = await checkUserLimits('photo');
+                if (!canProceed) {
+                    setProcessing(false);
+                    return;
+                }                
                 
                 // console.log('🔍 Frontend - colorMode antes de enviar:', colorMode);
 
@@ -1070,6 +1077,23 @@
                     
                     if (data.success) {
                         setResult(data);
+
+                        // AGREGAR AQUÍ:
+                        if (user) {
+                            try {
+                                const userRef = window.firebaseDoc(window.firebaseDB, 'users', user.uid);
+                                const userSnap = await window.firebaseGetDoc(userRef);
+                                const userData = userSnap.data();
+                                
+                                await window.firebaseUpdateDoc(userRef, {
+                                    patternsFromPhoto: (userData.patternsFromPhoto || 0) + 1
+                                });
+                                console.log('✅ Contador desde foto incrementado');
+                            } catch (error) {
+                                console.error('Error incrementando contador:', error);
+                            }
+                        }
+
                         setEditedPattern(null);
                         // Set first color as selected by default
                         if (data.colors.colors.length > 0) {
@@ -1089,6 +1113,69 @@
                     setProcessing(false);
                 }
             };
+
+            const checkUserLimits = async (patternType) => {
+                if (!user) {
+                    alert('⚠️ Debes iniciar sesión para crear patrones');
+                    setShowAuthModal(true);
+                    return false;
+                }
+                
+                try {
+                    // Obtener datos del usuario de Firestore
+                    const userRef = window.firebaseDoc(window.firebaseDB, 'users', user.uid);
+                    const userSnap = await window.firebaseGetDoc(userRef);
+                    
+                    if (!userSnap.exists()) {
+                        alert('❌ Error: Usuario no encontrado en la base de datos');
+                        return false;
+                    }
+                    
+                    const userData = userSnap.data();
+                    
+                    // Si es plan PRO, permitir todo
+                    if (userData.plan === 'pro') {
+                        return true;
+                    }
+                    
+                    // Verificar si necesita resetear contadores (30 días)
+                    const lastReset = new Date(userData.lastReset);
+                    const now = new Date();
+                    const daysSinceReset = (now - lastReset) / (1000 * 60 * 60 * 24);
+                    
+                    if (daysSinceReset >= 30) {
+                        // Resetear contadores
+                        await window.firebaseUpdateDoc(userRef, {
+                            patternsFromPhoto: 0,
+                            patternsFromScratch: 0,
+                            lastReset: now.toISOString()
+                        });
+                        console.log('✅ Contadores reseteados');
+                        return true;
+                    }
+                    
+                    // Verificar límites según tipo de patrón
+                    if (patternType === 'photo') {
+                        if (userData.patternsFromPhoto >= 1) {
+                            alert('⚠️ Has alcanzado tu límite de 1 patrón desde foto por mes.\n\n💎 Upgrade a PRO para patrones ilimitados.');
+                            return false;
+                        }
+                    } else if (patternType === 'scratch') {
+                        if (userData.patternsFromScratch >= 3) {
+                            alert('⚠️ Has alcanzado tu límite de 3 patrones desde cero por mes.\n\n💎 Upgrade a PRO para patrones ilimitados.');
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                    
+                } catch (error) {
+                    console.error('Error verificando límites:', error);
+                    alert('❌ Error al verificar límites: ' + error.message);
+                    return false;
+                }
+            };
+
 
             const downloadImage = (imageData, filename) => {
                 const link = document.createElement('a');
@@ -2211,6 +2298,13 @@
                 setLastCacheVersion(-1);
                 setUsedColorsVersion(v => v + 1);  // ← MOVER AQUÍ PRIMERO
                 sessionStorage.removeItem('blankCanvasAutoSaved');
+
+                // AGREGAR VERIFICACIÓN DE LÍMITES AQUÍ:
+                const canProceed = await checkUserLimits('photo');
+                if (!canProceed) {
+                    setProcessing(false);
+                    return;
+                }                
                 
                 try {
                     // Calculate dimensions in beads
@@ -2345,6 +2439,23 @@
                     if (data.success) {
                         
                         setResult(data);
+
+                        // AGREGAR AQUÍ:
+                        if (user) {
+                            try {
+                                const userRef = window.firebaseDoc(window.firebaseDB, 'users', user.uid);
+                                const userSnap = await window.firebaseGetDoc(userRef);
+                                const userData = userSnap.data();
+                                
+                                await window.firebaseUpdateDoc(userRef, {
+                                    patternsFromPhoto: (userData.patternsFromPhoto || 0) + 1
+                                });
+                                console.log('✅ Contador desde foto incrementado');
+                            } catch (error) {
+                                console.error('Error incrementando contador:', error);
+                            }
+                        }
+
                         setIsBlankCanvas(true);
                         console.log('✅ setIsBlankCanvas(true) ejecutado');  // ← AGREGAR
                         setPaletteTab('all');
