@@ -2559,25 +2559,26 @@
                                     👤 Iniciar Sesión / Registrarse
                                 </h2>
                                 
-                                <form onSubmit={async (e) => {
-                                    e.preventDefault();
-                                    const email = e.target.email.value;
-                                    const password = e.target.password.value;
-                                    
-                                    try {
-                                        // Intentar login primero
+                                <form 
+                                    onSubmit={async (e) => {
+                                        e.preventDefault();
+                                        const email = e.target.email.value;
+                                        const password = e.target.password.value;
+                                        const isLogin = e.nativeEvent.submitter.name === 'login';
+                                        
                                         try {
-                                            const userCredential = await window.firebaseSignIn(
-                                                window.firebaseAuth,
-                                                email,
-                                                password
-                                            );
-                                            setUser(userCredential.user);
-                                            setShowAuthModal(false);
-                                            alert('✅ Sesión iniciada correctamente');
-                                        } catch (loginError) {
-                                            // Si falla login, intentar registro
-                                            if (loginError.code === 'auth/user-not-found' || loginError.code === 'auth/wrong-password') {
+                                            if (isLogin) {
+                                                // Modo LOGIN
+                                                const userCredential = await window.firebaseSignIn(
+                                                    window.firebaseAuth,
+                                                    email,
+                                                    password
+                                                );
+                                                setUser(userCredential.user);
+                                                setShowAuthModal(false);
+                                                alert('✅ Sesión iniciada correctamente');
+                                            } else {
+                                                // Modo REGISTRO
                                                 const userCredential = await window.firebaseCreateUser(
                                                     window.firebaseAuth,
                                                     email,
@@ -2598,14 +2599,19 @@
                                                 setUser(userCredential.user);
                                                 setShowAuthModal(false);
                                                 alert('✅ Cuenta creada correctamente');
+                                            }
+                                        } catch (error) {
+                                            console.error('Error:', error);
+                                            if (error.code === 'auth/invalid-credential') {
+                                                alert('❌ Email o contraseña incorrectos');
+                                            } else if (error.code === 'auth/email-already-in-use') {
+                                                alert('❌ Este email ya está registrado. Intenta iniciar sesión.');
+                                            } else if (error.code === 'auth/weak-password') {
+                                                alert('❌ La contraseña debe tener al menos 6 caracteres');
                                             } else {
-                                                throw loginError;
+                                                alert('❌ Error: ' + error.message);
                                             }
                                         }
-                                    } catch (error) {
-                                        console.error('Error:', error);
-                                        alert('❌ Error: ' + error.message);
-                                    }
                                 }}>
                                     <div style={{marginBottom: '20px'}}>
                                         <label style={{
@@ -2664,13 +2670,25 @@
                                         </small>
                                     </div>
                                     
-                                    <button
-                                        type="submit"
-                                        className="btn"
-                                        style={{marginBottom: '15px'}}
-                                    >
-                                        Continuar
-                                    </button>
+                                    <div style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
+                                        <button
+                                            type="submit"
+                                            name="login"
+                                            className="btn"
+                                            style={{flex: 1}}
+                                        >
+                                            Iniciar Sesión
+                                        </button>
+                                        
+                                        <button
+                                            type="submit"
+                                            name="register"
+                                            className="btn"
+                                            style={{flex: 1, background: 'linear-gradient(135deg, var(--accent) 0%, #ff4081 100%)'}}
+                                        >
+                                            Registrarse
+                                        </button>
+                                    </div>
                                     
                                     <button
                                         type="button"
