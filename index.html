@@ -2156,8 +2156,10 @@
                 if (editMode && hasUnsavedChanges) {
                     const confirmLeave = window.confirm(
                         '⚠️ Tienes cambios sin guardar.\n\n' +
-                        '¿Deseas salir del Editor sin guardar?\n\n' +
-                        'Los cambios se perderán.'
+                        '¿Deseas salir del Editor sin guardar?\n' +
+                        'Los cambios se perderán.\n\n' +
+                        'Si deseas guardalos, clique en Cancelar para volver al editor y\n.' +
+                        'clique en "Guardar Ediciones".\n.'
                     );
                     
                     if (!confirmLeave) {
