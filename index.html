@@ -1154,15 +1154,20 @@
                         return true;
                     }
                     
-                    // Verificar límites según tipo de patrón
                     if (patternType === 'photo') {
-                        if (userData.patternsFromPhoto >= 1) {
-                            alert('⚠️ Has alcanzado tu límite de 1 patrón desde foto por mes.\n\n💎 Upgrade a PRO para patrones ilimitados.');
+                        const used = userData.patternsFromPhoto || 0;
+                        const limit = 1;
+                        
+                        if (used >= limit) {
+                            alert(`⚠️ Has alcanzado tu límite de patrones desde FOTO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a PRO para patrones ilimitados.`);
                             return false;
                         }
                     } else if (patternType === 'scratch') {
-                        if (userData.patternsFromScratch >= 3) {
-                            alert('⚠️ Has alcanzado tu límite de 3 patrones desde cero por mes.\n\n💎 Upgrade a PRO para patrones ilimitados.');
+                        const used = userData.patternsFromScratch || 0;
+                        const limit = 3;
+                        
+                        if (used >= limit) {
+                            alert(`⚠️ Has alcanzado tu límite de patrones DESDE CERO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a PRO para patrones ilimitados.`);
                             return false;
                         }
                     }
