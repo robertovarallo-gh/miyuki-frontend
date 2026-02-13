@@ -669,6 +669,7 @@
             const [lastCacheVersion, setLastCacheVersion] = useState(-1);
             const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
             const [user, setUser] = React.useState(null);
+            const [userData, setUserData] = React.useState(null);
             const [showAuthModal, setShowAuthModal] = React.useState(false);
 
             const CATEGORIES = {
@@ -841,18 +842,31 @@
             React.useEffect(() => {
                 const unsubscribe = window.firebaseOnAuthStateChanged(
                     window.firebaseAuth,
-                    (currentUser) => {
+                    async (currentUser) => {
                         if (currentUser) {
                             console.log('✅ Usuario autenticado:', currentUser.email);
                             setUser(currentUser);
+                            
+                            // Cargar datos de Firestore
+                            try {
+                                const userRef = window.firebaseDoc(window.firebaseDB, 'users', currentUser.uid);
+                                const userSnap = await window.firebaseGetDoc(userRef);
+                                
+                                if (userSnap.exists()) {
+                                    setUserData(userSnap.data());
+                                    console.log('✅ Datos de usuario cargados:', userSnap.data());
+                                }
+                            } catch (error) {
+                                console.error('Error cargando datos de usuario:', error);
+                            }
                         } else {
                             console.log('❌ No hay usuario autenticado');
                             setUser(null);
+                            setUserData(null);
                         }
                     }
                 );
                 
-                // Cleanup
                 return () => unsubscribe();
             }, []);
 
@@ -1132,8 +1146,8 @@
                     
                     const userData = userSnap.data();
                     
-                    // Si es plan PRO, permitir todo
-                    if (userData.plan === 'pro') {
+                    // Si es plan PREMIUM, permitir todo
+                    if (userData.plan === 'premium') {
                         return true;
                     }
                     
@@ -1158,7 +1172,7 @@
                         const limit = 1;
                         
                         if (used >= limit) {
-                            alert(`⚠️ Has alcanzado tu límite de patrones desde FOTO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a PRO para patrones ilimitados.`);
+                            alert(`⚠️ Has alcanzado tu límite de patrones desde FOTO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a Premium para patrones ilimitados.`);
                             return false;
                         }
                     } else if (patternType === 'scratch') {
@@ -1166,7 +1180,7 @@
                         const limit = 3;
                         
                         if (used >= limit) {
-                            alert(`⚠️ Has alcanzado tu límite de patrones DESDE CERO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a PRO para patrones ilimitados.`);
+                            alert(`⚠️ Has alcanzado tu límite de patrones DESDE CERO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a Premium para patrones ilimitados.`);
                             return false;
                         }
                     }
@@ -1180,6 +1194,9 @@
                 }
             };
 
+            const isPremiumUser = () => {
+                return userData?.plan === 'premium';
+            };
 
             const downloadImage = (imageData, filename) => {
                 const link = document.createElement('a');
@@ -2593,7 +2610,7 @@
                                                 {user.email}
                                             </div>
                                             <div style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>
-                                                Plan: Gratis
+                                                Plan: {userData?.plan === 'premium' ? '💎 Premium' : '🆓 Free'}
                                             </div>
                                         </div>
                                         <button
@@ -3670,10 +3687,25 @@
                                             </div>
                                             <button 
                                                 className="btn"
-                                                onClick={() => downloadImage(result.images.grid, 'patron-cuadricula.png')}
-                                                style={{marginTop: '20px'}}
+                                                onClick={() => {
+                                                    if (!user) {
+                                                        alert('⚠️ Debes iniciar sesión para descargar patrones');
+                                                        setTimeout(() => setShowAuthModal(true), 0);
+                                                        return;
+                                                    }
+                                                    if (!isPremiumUser()) {
+                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                        return;
+                                                    }    
+                                                    downloadImage(result.images.grid, 'patron-cuadricula.png');
+                                                }}
+                                                style={{
+                                                    marginTop: '20px',
+                                                    opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
+                                                    cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
+                                                }}
                                             >
-                                                💾 Descargar
+                                                💾 Descargar {!isPremiumUser() && '🔒'}
                                             </button>
                                         </div>
                                     )}
@@ -3702,18 +3734,51 @@
                                             <div style={{marginBottom: '15px', display: 'flex', gap: '10px'}}>
                                                 <button 
                                                     className="btn"
-                                                    onClick={() => downloadImage(result.images.coordinates, 'patron-coordenadas.png')}
+                                                    onClick={() => {
+                                                        if (!user) {
+                                                                    alert('⚠️ Debes iniciar sesión para descargar patrones');
+                                                                    setTimeout(() => setShowAuthModal(true), 0);
+                                                                    return;
+                                                                }
+                                                                if (!isPremiumUser()) {
+                                                                    alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                                    return;
+                                                                }                                                        
+                                                        downloadImage(result.images.coordinates, 'patron-coordenadas.png');
+                                                    }}
+                                                    style={{
+                                                        marginTop: '20px',
+                                                        opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
+                                                        cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
+                                                    }}
                                                 >
-                                                    💾 Descargar Imagen
+                                                    💾 Descargar Imagen {!isPremiumUser() && '🔒'}
                                                 </button>
+
                                                 {showNumbers && (
                                                     <button 
-                                                        className="btn"
-                                                        onClick={downloadImageWithNumbers}
-                                                        style={{backgroundColor: 'var(--success)', color: '#000000'}}
-                                                    >
-                                                        💾 Descargar con Números
-                                                    </button>
+                                                            className="btn"
+                                                            onClick={() => {
+                                                                if (!user) {
+                                                                    alert('⚠️ Debes iniciar sesión para descargar patrones');
+                                                                    setTimeout(() => setShowAuthModal(true), 0);
+                                                                    return;
+                                                                }
+                                                                if (!isPremiumUser()) {
+                                                                    alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                                    return;
+                                                                }
+                                                                downloadImageWithNumbers();
+                                                            }}
+                                                            style={{
+                                                                backgroundColor: (!user || !isPremiumUser()) ? '#666' : 'var(--success)',
+                                                                color: '#000000',
+                                                                opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
+                                                                cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
+                                                            }}
+                                                        >
+                                                            💾 Descargar con Números {!isPremiumUser() && '🔒'}
+                                                        </button>
                                                 )}
                                             </div>
 
@@ -3783,13 +3848,30 @@
                                                     </div>
                                                 ))}
                                             </div>
+
                                             <button 
                                                 className="btn"
-                                                onClick={downloadColorGuide}
-                                                style={{marginTop: '20px'}}
+                                                onClick={() => {
+                                                    if (!user) {
+                                                        alert('⚠️ Debes iniciar sesión para descargar patrones');
+                                                        setTimeout(() => setShowAuthModal(true), 0);
+                                                        return;
+                                                    }
+                                                    if (!isPremiumUser()) {
+                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                        return;
+                                                    }
+                                                    downloadColorGuide();
+                                                }}
+                                                style={{
+                                                    marginTop: '20px',
+                                                    opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
+                                                    cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
+                                                }}
                                             >
-                                                📄 Descargar Guía de Colores (PDF)
+                                                📄 Descargar Guía de Colores (PDF) {!isPremiumUser() && '🔒'}
                                             </button>
+
                                         </div>
                                     )}
 
@@ -3833,13 +3915,30 @@
                                                     </div>
                                                 ))}
                                             </div>
+
                                             <button 
                                                 className="btn"
-                                                onClick={downloadAssemblyGuide}
-                                                style={{marginTop: '20px'}}
+                                                onClick={() => {
+                                                    if (!user) {
+                                                        alert('⚠️ Debes iniciar sesión para descargar patrones');
+                                                        setTimeout(() => setShowAuthModal(true), 0);
+                                                        return;
+                                                    }
+                                                    if (!isPremiumUser()) {
+                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                        return;
+                                                    }
+                                                    downloadAssemblyGuide();
+                                                }}
+                                                style={{
+                                                    marginTop: '20px',
+                                                    opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
+                                                    cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
+                                                }}
                                             >
-                                                📄 Descargar Guía de Montaje (PDF)
+                                                📄 Descargar Guía de Montaje (PDF) {!isPremiumUser() && '🔒'}
                                             </button>
+
                                         </div>
                                     )}
 
