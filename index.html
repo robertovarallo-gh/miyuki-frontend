@@ -2305,7 +2305,7 @@
                 sessionStorage.removeItem('blankCanvasAutoSaved');
 
                 // AGREGAR VERIFICACIÓN DE LÍMITES AQUÍ:
-                const canProceed = await checkUserLimits('photo');
+                const canProceed = await checkUserLimits('scratch');
                 if (!canProceed) {
                     setProcessing(false);
                     return;
@@ -2453,7 +2453,7 @@
                                 const userData = userSnap.data();
                                 
                                 await window.firebaseUpdateDoc(userRef, {
-                                    patternsFromPhoto: (userData.patternsFromPhoto || 0) + 1
+                                    patternsFromScratch: (userData.patternsFromScratch || 0) + 1
                                 });
                                 console.log('✅ Contador desde foto incrementado');
                             } catch (error) {
