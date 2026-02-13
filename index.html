@@ -1130,7 +1130,13 @@
 
             const checkUserLimits = async (patternType) => {
                 if (!user) {
-                    alert('⚠️ Debes iniciar sesión para crear patrones');
+                    alert('⚠️ Debes iniciar sesión para crear patrones.\n\nClick en "Iniciar Sesión", arriba a la derecha.');
+                    return false;
+                }
+
+                // AGREGAR: Verificar email
+                if (!user.emailVerified) {
+                    alert('⚠️ Debes verificar tu email antes de crear patrones\n\n📧 Revisa tu bandeja de entrada y haz click en el enlace de verificación.\n\nDespués, refresca esta página.');
                     return false;
                 }
                 
@@ -2716,6 +2722,9 @@
                                                     email,
                                                     password
                                                 );
+
+                                                // Enviar email de verificación
+                                                await userCredential.user.sendEmailVerification();                        
                                                 
                                                 // Crear documento de usuario en Firestore
                                                 const userRef = window.firebaseDoc(window.firebaseDB, 'users', userCredential.user.uid);
@@ -2730,7 +2739,7 @@
                                                 
                                                 setUser(userCredential.user);
                                                 setShowAuthModal(false);
-                                                alert('✅ Cuenta creada correctamente');
+                                                alert('✅ Cuenta creada correctamente\n\n📧 Revisa tu email para verificar tu cuenta antes de usar la app.');
                                             }
                                         } catch (error) {
                                             console.error('Error:', error);
