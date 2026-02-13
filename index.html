@@ -742,6 +742,7 @@
                         const isPeyote = result.pattern_type === 'peyote';
                         
                         // NO dibujar grid si es blank canvas - evita grises en auto-save
+                        /* 
                         if (!isBlankCanvas) {
                             ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
                             ctx.lineWidth = 1;
@@ -793,6 +794,7 @@
                                 }
                             }
                         }
+                        */
                         
                         console.log('✅ Grid dibujado en editor');
 
@@ -3457,8 +3459,9 @@
                                                     display: 'inline-block'
                                                 }}>
                                                     <div style={{position: 'relative', display: 'inline-block'}}>
-
-                                                        {/* Advertencia si viene de coordenadas */}
+                                                        
+                                                        {/* YA NO ES NECESARIO - Grid de coordenadas funciona bien ahora
+                                                        Advertencia si viene de coordenadas
                                                         {lastViewedTab === 'coords' && (
                                                             <div style={{
                                                                 padding: '15px',
@@ -3477,6 +3480,7 @@
                                                                 </span>
                                                             </div>
                                                         )}
+                                                        */}
 
                                                         <canvas
                                                             ref={canvasRef}
