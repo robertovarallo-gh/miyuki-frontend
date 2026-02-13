@@ -12,7 +12,7 @@
     <!-- AGREGAR FIREBASE AQUÍ -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
         import { getFirestore, doc, setDoc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
         const firebaseConfig = {
@@ -35,6 +35,7 @@
         window.firebaseSignIn = signInWithEmailAndPassword;
         window.firebaseSignOut = signOut;
         window.firebaseOnAuthStateChanged = onAuthStateChanged;
+        window.firebaseSendEmailVerification = sendEmailVerification;
         window.firebaseDoc = doc;
         window.firebaseSetDoc = setDoc;
         window.firebaseGetDoc = getDoc;
@@ -2724,7 +2725,7 @@
                                                 );
 
                                                 // Enviar email de verificación
-                                                await userCredential.user.sendEmailVerification();                        
+                                                await window.firebaseSendEmailVerification(userCredential.user);                      
                                                 
                                                 // Crear documento de usuario en Firestore
                                                 const userRef = window.firebaseDoc(window.firebaseDB, 'users', userCredential.user.uid);
