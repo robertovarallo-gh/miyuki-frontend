@@ -2725,7 +2725,13 @@
                                                 );
 
                                                 // Enviar email de verificación
-                                                await window.firebaseSendEmailVerification(userCredential.user);                      
+                                                try {
+                                                    await window.firebaseSendEmailVerification(userCredential.user);
+                                                    console.log('✅ Email de verificación enviado');
+                                                } catch (emailError) {
+                                                    console.error('❌ Error enviando email:', emailError);
+                                                    alert('⚠️ Cuenta creada pero hubo un error enviando el email de verificación: ' + emailError.message);
+                                                }                     
                                                 
                                                 // Crear documento de usuario en Firestore
                                                 const userRef = window.firebaseDoc(window.firebaseDB, 'users', userCredential.user.uid);
