@@ -787,6 +787,15 @@
 
             // Dibujar grid overlay
             React.useEffect(() => {
+
+                console.log('🔍 Grid View useEffect ejecutado:', {
+                    hasCanvas: !!gridViewCanvasRef.current,
+                    hasResult: !!result,
+                    activeTab,
+                    showGridInView,
+                    imageUrl: result?.images?.grid?.substring(0, 50)
+                });
+
                 if (!gridCanvasRef.current || !canvasRef.current || !result) return;
                 
                 const gridCanvas = gridCanvasRef.current;
