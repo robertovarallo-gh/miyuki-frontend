@@ -2159,7 +2159,7 @@
                                 brightness: 1.0,
                                 contrast: 1.0,
                                 sharpness: 1.0,
-                                showGrid: true,
+                                showGrid: false,
                                 showNumbers: false,
                                 colorMode: colorMode,
                                 skipQuantization: true,
@@ -2233,7 +2233,7 @@
                                 brightness: 1.0,
                                 contrast: 1.0,
                                 sharpness: 1.0,
-                                showGrid: true,
+                                showGrid: false,
                                 showNumbers: false,
                                 colorMode: colorMode,
                                 skipQuantization: true,
@@ -2607,6 +2607,9 @@
                         }
                     }
                     
+                    // Cambiar a pestaña Grid primero
+                    setActiveTab('grid');
+
                     setEditedPattern(null);
                     setIsBlankCanvas(false);
                     setEditMode(true);
