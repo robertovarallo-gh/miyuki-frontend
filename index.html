@@ -1213,7 +1213,7 @@
                     
                     if (data.success) {
                         setResult(data);
-                        setShowGridInView(true);  // Resetear para mostrar grid en la vista de cuadrícula
+                        setTimeout(() => setShowGridInView(true), 200);
 
                         // AGREGAR AQUÍ:
                         if (user) {
@@ -2541,7 +2541,7 @@
                     if (data.success) {
                         
                         setResult(data);
-                        setShowGridInView(true);  // Resetear para mostrar grid en la vista de cuadrícula
+                        setTimeout(() => setShowGridInView(true), 200);
 
                         // AGREGAR AQUÍ:
                         if (user) {
@@ -2634,7 +2634,7 @@
                         pattern_type: pattern.patternType
                     });
 
-                    setShowGridInView(true);  // ← AGREGAR AQUÍ
+                    setTimeout(() => setShowGridInView(true), 200);
                     
                     // Incrementar contador
                     if (user) {
