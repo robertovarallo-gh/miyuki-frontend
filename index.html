@@ -1048,6 +1048,24 @@
                     const marginTop = Math.floor(backendMargin * scaleY);
                     const drawWidth = gridCanvas.width - marginLeft * 2;
                     const drawHeight = gridCanvas.height - marginTop * 2;
+
+                    // AGREGAR LOGS:
+                    console.log('🔍 Debugging grid Coordenadas:', {
+                        backendImageWidth,
+                        backendImageHeight,
+                        canvasWidth: gridCanvas.width,
+                        canvasHeight: gridCanvas.height,
+                        scaleX,
+                        scaleY,
+                        marginLeft,
+                        marginTop,
+                        drawWidth,
+                        drawHeight,
+                        beadsWidth,
+                        beadsHeight,
+                        pixelWidth: drawWidth / beadsWidth,
+                        pixelHeight: drawHeight / beadsHeight
+                    });
                     
                     const beadsWidth = result.pattern.width;
                     const beadsHeight = result.pattern.height;
