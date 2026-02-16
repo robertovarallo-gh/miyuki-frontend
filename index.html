@@ -1023,6 +1023,12 @@
                     
                     const ctx = gridCanvas.getContext('2d');
                     ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+
+                    // Calcular márgenes (aprox. 30mm = ~113 píxeles en cada lado)
+                    const marginLeft = Math.floor(gridCanvas.width * 0.05);  // 5% margen izquierdo
+                    const marginTop = Math.floor(gridCanvas.height * 0.05);  // 5% margen superior
+                    const drawWidth = gridCanvas.width - marginLeft * 2;
+                    const drawHeight = gridCanvas.height - marginTop * 2;
                     
                     const beadsWidth = result.pattern.width;
                     const beadsHeight = result.pattern.height;
@@ -1032,40 +1038,44 @@
                     ctx.lineWidth = 1;
                     
                     if (isPeyote) {
-                        const pixelWidth = gridCanvas.width / beadsWidth;
-                        const pixelHeight = gridCanvas.height / (beadsHeight + 0.5);
+                        const pixelWidth = drawWidth / beadsWidth;
+                        const pixelHeight = drawHeight / (beadsHeight + 0.5);
                         
+                        // Líneas verticales
                         for (let x = 0; x <= beadsWidth; x++) {
                             ctx.beginPath();
-                            ctx.moveTo(x * pixelWidth, 0);
-                            ctx.lineTo(x * pixelWidth, gridCanvas.height);
+                            ctx.moveTo(marginLeft + x * pixelWidth, marginTop);
+                            ctx.lineTo(marginLeft + x * pixelWidth, marginTop + drawHeight);
                             ctx.stroke();
                         }
                         
+                        // Líneas horizontales escalonadas
                         for (let x = 0; x < beadsWidth; x++) {
                             const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
                             for (let y = 0; y <= beadsHeight; y++) {
                                 ctx.beginPath();
-                                ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
-                                ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
+                                ctx.moveTo(marginLeft + x * pixelWidth, marginTop + y * pixelHeight + offsetY);
+                                ctx.lineTo(marginLeft + (x + 1) * pixelWidth, marginTop + y * pixelHeight + offsetY);
                                 ctx.stroke();
                             }
                         }
                     } else {
-                        const pixelWidth = gridCanvas.width / beadsWidth;
-                        const pixelHeight = gridCanvas.height / beadsHeight;
+                        const pixelWidth = drawWidth / beadsWidth;
+                        const pixelHeight = drawHeight / beadsHeight;
                         
+                        // Líneas verticales
                         for (let x = 0; x <= beadsWidth; x++) {
                             ctx.beginPath();
-                            ctx.moveTo(x * pixelWidth, 0);
-                            ctx.lineTo(x * pixelWidth, gridCanvas.height);
+                            ctx.moveTo(marginLeft + x * pixelWidth, marginTop);
+                            ctx.lineTo(marginLeft + x * pixelWidth, marginTop + drawHeight);
                             ctx.stroke();
                         }
                         
+                        // Líneas horizontales
                         for (let y = 0; y <= beadsHeight; y++) {
                             ctx.beginPath();
-                            ctx.moveTo(0, y * pixelHeight);
-                            ctx.lineTo(gridCanvas.width, y * pixelHeight);
+                            ctx.moveTo(marginLeft, marginTop + y * pixelHeight);
+                            ctx.lineTo(marginLeft + drawWidth, marginTop + y * pixelHeight);
                             ctx.stroke();
                         }
                     }
