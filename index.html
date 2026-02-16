@@ -680,6 +680,8 @@
             const [showGridInView, setShowGridInView] = React.useState(true);
             const gridViewCanvasRef = React.useRef(null);
             const [gridViewReady, setGridViewReady] = React.useState(false);
+            const gridCoordsCanvasRef = React.useRef(null);
+            const [gridCoordsReady, setGridCoordsReady] = React.useState(false);
 
 
             const CATEGORIES = {
@@ -1005,6 +1007,79 @@
                 img.src = result.images.grid;
                 
             }, [gridViewReady, result, showGridInView]);
+
+            // Dibujar grid en vista Coordenadas
+            React.useEffect(() => {
+                if (!gridCoordsCanvasRef.current || !result) return;
+                
+                console.log('✅ Dibujando grid en Coordenadas');
+                
+                const gridCanvas = gridCoordsCanvasRef.current;
+                const img = new Image();
+                
+                img.onload = () => {
+                    gridCanvas.width = img.width;
+                    gridCanvas.height = img.height;
+                    
+                    const ctx = gridCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+                    
+                    const beadsWidth = result.pattern.width;
+                    const beadsHeight = result.pattern.height;
+                    const isPeyote = result.pattern_type === 'peyote';
+                    
+                    ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
+                    ctx.lineWidth = 1;
+                    
+                    if (isPeyote) {
+                        const pixelWidth = gridCanvas.width / beadsWidth;
+                        const pixelHeight = gridCanvas.height / (beadsHeight + 0.5);
+                        
+                        for (let x = 0; x <= beadsWidth; x++) {
+                            ctx.beginPath();
+                            ctx.moveTo(x * pixelWidth, 0);
+                            ctx.lineTo(x * pixelWidth, gridCanvas.height);
+                            ctx.stroke();
+                        }
+                        
+                        for (let x = 0; x < beadsWidth; x++) {
+                            const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
+                            for (let y = 0; y <= beadsHeight; y++) {
+                                ctx.beginPath();
+                                ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
+                                ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
+                                ctx.stroke();
+                            }
+                        }
+                    } else {
+                        const pixelWidth = gridCanvas.width / beadsWidth;
+                        const pixelHeight = gridCanvas.height / beadsHeight;
+                        
+                        for (let x = 0; x <= beadsWidth; x++) {
+                            ctx.beginPath();
+                            ctx.moveTo(x * pixelWidth, 0);
+                            ctx.lineTo(x * pixelWidth, gridCanvas.height);
+                            ctx.stroke();
+                        }
+                        
+                        for (let y = 0; y <= beadsHeight; y++) {
+                            ctx.beginPath();
+                            ctx.moveTo(0, y * pixelHeight);
+                            ctx.lineTo(gridCanvas.width, y * pixelHeight);
+                            ctx.stroke();
+                        }
+                    }
+                    
+                    console.log('✅ Grid dibujado en Coordenadas');
+                };
+                
+                img.onerror = () => {
+                    console.error('❌ Error cargando imagen para grid en Coordenadas');
+                };
+                
+                img.src = result.images.coordinates;
+                
+            }, [gridCoordsReady, result]);
 
             const checkApiConnection = async () => {
                 try {
@@ -4109,6 +4184,24 @@
                                                         console.log('❌ Error cargando imagen coordinates');
                                                     }}
                                                 />
+
+                                                {/* AGREGAR: Grid overlay (siempre visible en coordenadas) */}
+                                                {result && (
+                                                    <canvas
+                                                        ref={(el) => {
+                                                            gridCoordsCanvasRef.current = el;
+                                                            if (el) setGridCoordsReady(true);
+                                                        }}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            pointerEvents: 'none',
+                                                            imageRendering: 'pixelated'
+                                                        }}
+                                                    />
+                                                )}
+
                                                 {showNumbers && (
                                                     <canvas
                                                         ref={(canvas) => {
