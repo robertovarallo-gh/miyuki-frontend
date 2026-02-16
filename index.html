@@ -1049,8 +1049,8 @@
                     const scaleY = gridCanvas.height / backendImageHeight;
                     
                     // Márgenes escalados
-                    const marginLeft = Math.floor(backendMargin * scaleX);
-                    const marginTop = Math.floor(backendMargin * scaleY);
+                    const marginLeft = Math.round(backendMargin * scaleX);
+                    const marginTop = Math.round(backendMargin * scaleY);
                     const drawWidth = gridCanvas.width - marginLeft * 2;
                     const drawHeight = gridCanvas.height - marginTop * 2;
 
