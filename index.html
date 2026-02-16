@@ -1023,10 +1023,22 @@
                     
                     const ctx = gridCanvas.getContext('2d');
                     ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-
-                    // Calcular márgenes (aprox. 30mm = ~113 píxeles en cada lado)
-                    const marginLeft = 50;
-                    const marginTop = 50;
+                    
+                    // Backend usa: margin=50, cell_size=22
+                    const backendMargin = 50;
+                    const backendCellSize = 22;
+                    
+                    // Tamaño original de la imagen del backend
+                    const backendImageWidth = result.pattern.width * backendCellSize + backendMargin * 2;
+                    const backendImageHeight = result.pattern.height * backendCellSize + backendMargin * 2;
+                    
+                    // Factor de escala (cuánto se escaló la imagen en el navegador)
+                    const scaleX = gridCanvas.width / backendImageWidth;
+                    const scaleY = gridCanvas.height / backendImageHeight;
+                    
+                    // Márgenes escalados
+                    const marginLeft = Math.floor(backendMargin * scaleX);
+                    const marginTop = Math.floor(backendMargin * scaleY);
                     const drawWidth = gridCanvas.width - marginLeft * 2;
                     const drawHeight = gridCanvas.height - marginTop * 2;
                     
