@@ -879,7 +879,7 @@
                 const loadGalleryPatterns = async () => {
                     try {
                         const patternsRef = window.firebaseCollectionFirestore(window.firebaseDB, 'patterns');
-                        const querySnapshot = await window.getDocs(patternsRef);
+                        const querySnapshot = await window.firebaseGetDocs(patternsRef);
                         
                         const patterns = [];
                         querySnapshot.forEach((doc) => {
