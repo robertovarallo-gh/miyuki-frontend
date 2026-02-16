@@ -989,7 +989,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [result, activeTab, showGridInView]);
+            }, [result, activeTab, showGridInView, result?.images?.grid]);
 
             const checkApiConnection = async () => {
                 try {
@@ -1213,6 +1213,7 @@
                     
                     if (data.success) {
                         setResult(data);
+                        setShowGridInView(true);  // Resetear para mostrar grid en la vista de cuadrícula
 
                         // AGREGAR AQUÍ:
                         if (user) {
@@ -2540,6 +2541,7 @@
                     if (data.success) {
                         
                         setResult(data);
+                        setShowGridInView(true);  // Resetear para mostrar grid en la vista de cuadrícula
 
                         // AGREGAR AQUÍ:
                         if (user) {
@@ -2631,6 +2633,8 @@
                         rowGuide: pattern.fullData?.rowGuide || { rows: [] },
                         pattern_type: pattern.patternType
                     });
+
+                    setShowGridInView(true);  // ← AGREGAR AQUÍ
                     
                     // Incrementar contador
                     if (user) {
