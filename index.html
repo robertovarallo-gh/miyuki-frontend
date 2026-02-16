@@ -1054,6 +1054,9 @@
                     const drawWidth = gridCanvas.width - marginLeft * 2;
                     const drawHeight = gridCanvas.height - marginTop * 2;
 
+                    const beadsWidth = result.pattern.width;
+                    const beadsHeight = result.pattern.height;
+
                     // AGREGAR LOGS:
                     console.log('🔍 Debugging grid Coordenadas:', {
                         backendImageWidth,
@@ -1072,8 +1075,6 @@
                         pixelHeight: drawHeight / beadsHeight
                     });
                     
-                    const beadsWidth = result.pattern.width;
-                    const beadsHeight = result.pattern.height;
                     const isPeyote = result.pattern_type === 'peyote';
                     
                     ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
