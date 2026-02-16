@@ -1151,7 +1151,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [gridViewReady, result, showGridInView]);
+            }, [gridViewReady, result, showGridInView, activeTab]);
 
             // Dibujar grid en vista Coordenadas
             React.useEffect(() => {
@@ -1234,6 +1234,13 @@
                 img.src = result.images.grid;
                 
             }, [gridCoordsReady, result, activeTab]);
+
+            // Resetear showGridInView al cargar nuevo patrón
+            React.useEffect(() => {
+                if (result) {
+                    setShowGridInView(true);
+                }
+            }, [result]);
 
             const checkApiConnection = async () => {
                 try {
