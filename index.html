@@ -882,8 +882,10 @@
                     if (!imgElement) return;
                     
                     const rect = imgElement.getBoundingClientRect();
-                    canvas.width = rect.width;
-                    canvas.height = rect.height;
+                    const margin = 40;  // Espacio para coordenadas
+                    
+                    canvas.width = rect.width + margin;
+                    canvas.height = rect.height + margin;
                     
                     const ctx = canvas.getContext('2d');
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -892,9 +894,9 @@
                     const beadsWidth = result.pattern.width;
                     const beadsHeight = result.pattern.height;
                     
-                    // Cada celda ocupa esto en píxeles del canvas
-                    const cellWidth = canvas.width / beadsWidth;
-                    const cellHeight = canvas.height / beadsHeight;
+                    // Cada celda ocupa esto en píxeles
+                    const cellWidth = rect.width / beadsWidth;
+                    const cellHeight = rect.height / beadsHeight;
                     
                     // Estilo de texto
                     ctx.fillStyle = 'black';
@@ -902,39 +904,40 @@
                     ctx.textBaseline = 'middle';
                     ctx.font = '11px Arial';
                     
-                    // Coordenadas X - ENCIMA de la imagen
+                    // Coordenadas X (cada 5)
                     for (let x = 0; x < beadsWidth; x++) {
                         if ((x + 1) % 5 === 0) {
-                            const xPos = (x + 0.5) * cellWidth;
-                            ctx.fillText(String(x + 1), xPos, -15);  // Negativo = fuera arriba
+                            const xPos = margin + (x + 0.5) * cellWidth;
+                            ctx.fillText(String(x + 1), xPos, 20);
                         }
                     }
                     
-                    // Coordenadas Y - A LA IZQUIERDA de la imagen
+                    // Coordenadas Y (cada 5)
                     for (let y = 0; y < beadsHeight; y++) {
                         if ((y + 1) % 5 === 0) {
-                            const yPos = (y + 0.5) * cellHeight;
-                            ctx.fillText(String(y + 1), -15, yPos);  // Negativo = fuera izquierda
+                            const yPos = margin + (y + 0.5) * cellHeight;
+                            ctx.fillText(String(y + 1), 20, yPos);
                         }
                     }
                     
-                    // M en X
+                    // Punto medio X
                     const midX = Math.floor(beadsWidth / 2);
-                    const midXPos = (midX + 0.5) * cellWidth;
+                    const midXPos = margin + (midX + 0.5) * cellWidth;
                     ctx.fillStyle = 'red';
                     ctx.font = 'bold 13px Arial';
-                    ctx.fillText('M', midXPos, -25);
+                    ctx.fillText('M', midXPos, 10);
                     
-                    // M en Y
+                    // Punto medio Y
                     const midY = Math.floor(beadsHeight / 2);
-                    const midYPos = (midY + 0.5) * cellHeight;
-                    ctx.fillText('M', -25, midYPos);
+                    const midYPos = margin + (midY + 0.5) * cellHeight;
+                    ctx.fillText('M', 10, midYPos);
+                    
+                    console.log('✅ Coordenadas dibujadas en frontend');
                 };
                 
                 img.src = result.images.grid;
                 
-            }, [coordsTextReady, result]);            
-            
+            }, [coordsTextReady, result]);           
 
             // Detectar estado de autenticación
             React.useEffect(() => {
