@@ -888,58 +888,47 @@
                     const ctx = canvas.getContext('2d');
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     
-                    // Configuración
-                    const backendMargin = 70;
-                    const backendCellSize = 20;
+                    // Dimensiones del patrón
                     const beadsWidth = result.pattern.width;
                     const beadsHeight = result.pattern.height;
                     
-                    const backendImageWidth = beadsWidth * backendCellSize + backendMargin * 2;
-                    const backendImageHeight = beadsHeight * backendCellSize + backendMargin * 2;
-                    
-                    const scaleX = canvas.width / backendImageWidth;
-                    const scaleY = canvas.height / backendImageHeight;
-                    
-                    const marginLeft = Math.round(backendMargin * scaleX);
-                    const marginTop = Math.round(backendMargin * scaleY);
-                    const cellWidth = (canvas.width - marginLeft * 2) / beadsWidth;
-                    const cellHeight = (canvas.height - marginTop * 2) / beadsHeight;
+                    // Cada celda ocupa esto en píxeles del canvas
+                    const cellWidth = canvas.width / beadsWidth;
+                    const cellHeight = canvas.height / beadsHeight;
                     
                     // Estilo de texto
                     ctx.fillStyle = 'black';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.font = '12px Arial';
+                    ctx.font = '11px Arial';
                     
-                    // Coordenadas X (cada 5)
+                    // Coordenadas X - ENCIMA de la imagen
                     for (let x = 0; x < beadsWidth; x++) {
                         if ((x + 1) % 5 === 0) {
-                            const xPos = marginLeft + (x + 0.5) * cellWidth;
-                            ctx.fillText(String(x + 1), xPos, marginTop * 0.4);  // 0.4 en lugar de 0.6 (más arriba)
+                            const xPos = (x + 0.5) * cellWidth;
+                            ctx.fillText(String(x + 1), xPos, -15);  // Negativo = fuera arriba
                         }
                     }
                     
-                    // Coordenadas Y (cada 5)
+                    // Coordenadas Y - A LA IZQUIERDA de la imagen
                     for (let y = 0; y < beadsHeight; y++) {
                         if ((y + 1) % 5 === 0) {
-                            const yPos = marginTop + (y + 0.5) * cellHeight;
-                            ctx.fillText(String(y + 1), marginLeft * 0.5, yPos);
+                            const yPos = (y + 0.5) * cellHeight;
+                            ctx.fillText(String(y + 1), -15, yPos);  // Negativo = fuera izquierda
                         }
                     }
                     
-                    // Punto medio X
+                    // M en X
                     const midX = Math.floor(beadsWidth / 2);
-                    const midXPos = marginLeft + (midX + 0.5) * cellWidth;
+                    const midXPos = (midX + 0.5) * cellWidth;
                     ctx.fillStyle = 'red';
-                    ctx.font = 'bold 14px Arial';
-                    ctx.fillText('M', midXPos, marginTop * 0.3);
+                    ctx.font = 'bold 13px Arial';
+                    ctx.fillText('M', midXPos, -25);
                     
-                    // Punto medio Y
+                    // M en Y
                     const midY = Math.floor(beadsHeight / 2);
-                    const midYPos = marginTop + (midY + 0.5) * cellHeight;
-                    ctx.fillText('M', marginLeft * 0.2, midYPos);
-                    
-                    console.log('✅ Coordenadas dibujadas en frontend');
+                    const midYPos = (midY + 0.5) * cellHeight;
+                    ctx.fillText('M', -25, midYPos);
                 };
                 
                 img.src = result.images.grid;
@@ -4286,11 +4275,7 @@
                                                     src={result.images.grid}  // Usar grid en lugar de coordinates
                                                     alt="Pattern Coordinates" 
                                                     className="pattern-canvas"
-                                                    style={{
-                                                        display: 'block',
-                                                        marginLeft: '44px',
-                                                        marginTop: '44px'    
-                                                    }}
+                                                    style={{display: 'block'}}
                                                     onLoad={(e) => {
                                                         console.log('✅ Imagen coordinates cargó');
                                                         console.log('📐 Dimensiones:', e.target.width, 'x', e.target.height);
