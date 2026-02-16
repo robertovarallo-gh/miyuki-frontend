@@ -926,15 +926,16 @@
                 loadGalleryPatterns();
             }, []);
 
-            // Dibujar grid overlay en vista Cuadrícula
+            // Dibujar grid cuando el canvas aparece
             React.useEffect(() => {
-                if (!gridViewCanvasRef.current || !result || activeTab !== 'grid' || !showGridInView) return;
+                if (!gridViewCanvasRef.current || !result || !showGridInView) return;
+                
+                console.log('✅ Canvas disponible, dibujando grid');
                 
                 const gridCanvas = gridViewCanvasRef.current;
                 const img = new Image();
                 
                 img.onload = () => {
-                    // Igualar dimensiones a la imagen
                     gridCanvas.width = img.width;
                     gridCanvas.height = img.height;
                     
@@ -949,11 +950,9 @@
                     ctx.lineWidth = 1;
                     
                     if (isPeyote) {
-                        // Grid para PEYOTE
                         const pixelWidth = gridCanvas.width / beadsWidth;
                         const pixelHeight = gridCanvas.height / (beadsHeight + 0.5);
                         
-                        // Líneas verticales
                         for (let x = 0; x <= beadsWidth; x++) {
                             ctx.beginPath();
                             ctx.moveTo(x * pixelWidth, 0);
@@ -961,7 +960,6 @@
                             ctx.stroke();
                         }
                         
-                        // Líneas horizontales escalonadas
                         for (let x = 0; x < beadsWidth; x++) {
                             const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
                             for (let y = 0; y <= beadsHeight; y++) {
@@ -972,11 +970,9 @@
                             }
                         }
                     } else {
-                        // Grid para CUADRÍCULA
                         const pixelWidth = gridCanvas.width / beadsWidth;
                         const pixelHeight = gridCanvas.height / beadsHeight;
                         
-                        // Líneas verticales
                         for (let x = 0; x <= beadsWidth; x++) {
                             ctx.beginPath();
                             ctx.moveTo(x * pixelWidth, 0);
@@ -984,7 +980,6 @@
                             ctx.stroke();
                         }
                         
-                        // Líneas horizontales
                         for (let y = 0; y <= beadsHeight; y++) {
                             ctx.beginPath();
                             ctx.moveTo(0, y * pixelHeight);
@@ -992,13 +987,11 @@
                             ctx.stroke();
                         }
                     }
-                    
-                    console.log('✅ Grid overlay dibujado en vista Cuadrícula');
                 };
                 
                 img.src = result.images.grid;
                 
-            }, [result, activeTab, showGridInView, result?.images?.grid]);
+            }, [gridViewCanvasRef.current, result, showGridInView]);
 
             const checkApiConnection = async () => {
                 try {
