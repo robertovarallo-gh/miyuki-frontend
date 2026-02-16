@@ -941,9 +941,9 @@
                 
             }, [coordsTextReady, result, activeTab]);     
             
-            // Dibujar números internos (1, 2, 3... por color)
+            // Dibujar números internos usando rowGuide
             React.useEffect(() => {
-                if (!numbersCanvasRef.current || !result || !showNumbers) return;
+                if (!numbersCanvasRef.current || !result || !showNumbers || !result.rowGuide) return;
                 
                 const canvas = numbersCanvasRef.current;
                 const img = new Image();
@@ -966,13 +966,6 @@
                     const cellWidth = rect.width / beadsWidth;
                     const cellHeight = rect.height / beadsHeight;
                     
-                    // Crear canvas temporal para leer píxeles de la imagen
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = beadsWidth;
-                    tempCanvas.height = beadsHeight;
-                    const tempCtx = tempCanvas.getContext('2d');
-                    tempCtx.drawImage(img, 0, 0, beadsWidth, beadsHeight);
-                    
                     // Calcular tamaño de fuente
                     const fontSize = Math.max(8, Math.min(cellWidth, cellHeight) * 0.4);
                     ctx.font = `bold ${fontSize}px Arial`;
@@ -980,46 +973,46 @@
                     ctx.textBaseline = 'middle';
                     
                     // Función para obtener color de contraste
-                    const getContrastColor = (r, g, b) => {
-                        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                    const getContrastColor = (rgb) => {
+                        const brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
                         return brightness > 128 ? 'black' : 'white';
                     };
                     
-                    // Dibujar números píxel por píxel
-                    for (let y = 0; y < beadsHeight; y++) {
-                        let currentColor = null;
-                        let counter = 0;
-                        
-                        for (let x = 0; x < beadsWidth; x++) {
-                            // Leer color del píxel
-                            const imageData = tempCtx.getImageData(x, y, 1, 1);
-                            const [r, g, b] = imageData.data;
-                            const colorKey = `${r},${g},${b}`;
-                            
-                            // Detectar cambio de color
-                            if (colorKey !== currentColor) {
-                                counter = 1;
-                                currentColor = colorKey;
-                            } else {
-                                counter++;
-                            }
-                            
-                            // Dibujar número
-                            const xPos = margin + (x + 0.5) * cellWidth;
-                            const yPos = margin + (y + 0.5) * cellHeight;
-                            
-                            ctx.fillStyle = getContrastColor(r, g, b);
-                            ctx.fillText(String(counter), xPos, yPos);
-                        }
+                    // Cargar paleta completa para obtener RGB
+                    const colorMap = {};
+                    if (result.colors && result.colors.colors) {
+                        result.colors.colors.forEach(c => {
+                            colorMap[c.code] = c.rgb;
+                        });
                     }
                     
-                    console.log('✅ Números internos dibujados');
+                    // Dibujar números usando rowGuide
+                    result.rowGuide.rows.forEach((row, rowIndex) => {
+                        let xPos = 0;
+                        
+                        row.sequence.forEach(segment => {
+                            const rgb = colorMap[segment.code] || [128, 128, 128];
+                            const textColor = getContrastColor(rgb);
+                            
+                            for (let i = 0; i < segment.count; i++) {
+                                const x = xPos + i;
+                                const canvasX = margin + (x + 0.5) * cellWidth;
+                                const canvasY = margin + (rowIndex + 0.5) * cellHeight;
+                                
+                                ctx.fillStyle = textColor;
+                                ctx.fillText(String(i + 1), canvasX, canvasY);
+                            }
+                            
+                            xPos += segment.count;
+                        });
+                    });
+                    
+                    console.log('✅ Números internos dibujados desde rowGuide');
                 };
                 
                 img.src = result.images.grid;
                 
-            }, [numbersReady, result, showNumbers, activeTab]);            
-
+            }, [numbersReady, result, showNumbers, activeTab]);
 
             // Detectar estado de autenticación
             React.useEffect(() => {
