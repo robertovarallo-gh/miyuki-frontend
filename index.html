@@ -4237,14 +4237,19 @@
                                                 id="coordinate-image-container"
                                                 style={{
                                                     position: 'relative', 
-                                                    display: 'inline-block'
+                                                    display: 'inline-block',
+                                                    backgroundColor: 'white'  // ← AGREGAR
                                                 }}    
                                             >
                                                 <img 
                                                     src={result.images.grid}  // Usar grid en lugar de coordinates
                                                     alt="Pattern Coordinates" 
                                                     className="pattern-canvas"
-                                                    style={{display: 'block'}}
+                                                    style={{
+                                                        display: 'block',
+                                                        marginLeft: '40px',   // ← AGREGAR
+                                                        marginTop: '40px'     // ← AGREGAR                                                        
+                                                    }}
                                                     onLoad={(e) => {
                                                         console.log('✅ Imagen coordinates cargó');
                                                         console.log('📐 Dimensiones:', e.target.width, 'x', e.target.height);
