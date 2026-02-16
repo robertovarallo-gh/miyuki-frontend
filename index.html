@@ -714,12 +714,6 @@
 
             // Draw edited pattern on canvas
             useEffect(() => {
-                // console.log('🔍 useEffect canvas - editedPattern:', editedPattern);
-                // console.log('🔍 useEffect canvas - canvasRef.current:', canvasRef.current);
-                // console.log('🔍 useEffect canvas - activeTab:', activeTab);
-                // console.log('🔍 useEffect canvas - lastViewedTab:', lastViewedTab);
-                // console.log('🔍 useEffect canvas - isBlankCanvas:', isBlankCanvas);
-                // console.log('🔍 useEffect canvas - pattern_type:', result?.pattern_type);
 
                 if (canvasRef.current && activeTab === 'editor' && result?.images) {
                     const canvas = canvasRef.current;
@@ -922,6 +916,80 @@
                 
                 loadGalleryPatterns();
             }, []);
+
+            // Dibujar grid overlay en vista Cuadrícula
+            React.useEffect(() => {
+                if (!gridViewCanvasRef.current || !result || activeTab !== 'grid' || !showGridInView) return;
+                
+                const gridCanvas = gridViewCanvasRef.current;
+                const img = new Image();
+                
+                img.onload = () => {
+                    // Igualar dimensiones a la imagen
+                    gridCanvas.width = img.width;
+                    gridCanvas.height = img.height;
+                    
+                    const ctx = gridCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+                    
+                    const beadsWidth = result.pattern.width;
+                    const beadsHeight = result.pattern.height;
+                    const isPeyote = result.pattern_type === 'peyote';
+                    
+                    ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
+                    ctx.lineWidth = 1;
+                    
+                    if (isPeyote) {
+                        // Grid para PEYOTE
+                        const pixelWidth = gridCanvas.width / beadsWidth;
+                        const pixelHeight = gridCanvas.height / (beadsHeight + 0.5);
+                        
+                        // Líneas verticales
+                        for (let x = 0; x <= beadsWidth; x++) {
+                            ctx.beginPath();
+                            ctx.moveTo(x * pixelWidth, 0);
+                            ctx.lineTo(x * pixelWidth, gridCanvas.height);
+                            ctx.stroke();
+                        }
+                        
+                        // Líneas horizontales escalonadas
+                        for (let x = 0; x < beadsWidth; x++) {
+                            const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
+                            for (let y = 0; y <= beadsHeight; y++) {
+                                ctx.beginPath();
+                                ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
+                                ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
+                                ctx.stroke();
+                            }
+                        }
+                    } else {
+                        // Grid para CUADRÍCULA
+                        const pixelWidth = gridCanvas.width / beadsWidth;
+                        const pixelHeight = gridCanvas.height / beadsHeight;
+                        
+                        // Líneas verticales
+                        for (let x = 0; x <= beadsWidth; x++) {
+                            ctx.beginPath();
+                            ctx.moveTo(x * pixelWidth, 0);
+                            ctx.lineTo(x * pixelWidth, gridCanvas.height);
+                            ctx.stroke();
+                        }
+                        
+                        // Líneas horizontales
+                        for (let y = 0; y <= beadsHeight; y++) {
+                            ctx.beginPath();
+                            ctx.moveTo(0, y * pixelHeight);
+                            ctx.lineTo(gridCanvas.width, y * pixelHeight);
+                            ctx.stroke();
+                        }
+                    }
+                    
+                    console.log('✅ Grid overlay dibujado en vista Cuadrícula');
+                };
+                
+                img.src = result.images.grid;
+                
+            }, [result, activeTab, showGridInView]);
 
             const checkApiConnection = async () => {
                 try {
