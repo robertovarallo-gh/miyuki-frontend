@@ -915,7 +915,7 @@
                     for (let x = 0; x < beadsWidth; x++) {
                         if ((x + 1) % 5 === 0) {
                             const xPos = marginLeft + (x + 0.5) * cellWidth;
-                            ctx.fillText(String(x + 1), xPos, marginTop * 0.6);
+                            ctx.fillText(String(x + 1), xPos, marginTop * 0.4);  // 0.4 en lugar de 0.6 (más arriba)
                         }
                     }
                     
@@ -923,7 +923,7 @@
                     for (let y = 0; y < beadsHeight; y++) {
                         if ((y + 1) % 5 === 0) {
                             const yPos = marginTop + (y + 0.5) * cellHeight;
-                            ctx.fillText(String(y + 1), marginLeft * 0.4, yPos);
+                            ctx.fillText(String(y + 1), marginLeft * 0.5, yPos);
                         }
                     }
                     
