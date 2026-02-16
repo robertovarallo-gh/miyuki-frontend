@@ -4279,16 +4279,18 @@
                                                 id="coordinate-image-container"
                                                 style={{
                                                     position: 'relative', 
-                                                    display: 'inline-block',
-                                                    paddingLeft: '44px',  // Espacio para coordenadas Y
-                                                    paddingTop: '44px'    // Espacio para coordenadas X}}
+                                                    display: 'inline-block'
                                                 }}    
                                             >
                                                 <img 
                                                     src={result.images.grid}  // Usar grid en lugar de coordinates
                                                     alt="Pattern Coordinates" 
                                                     className="pattern-canvas"
-                                                    style={{display: 'block'}}
+                                                    style={{
+                                                        display: 'block',
+                                                        marginLeft: '44px',
+                                                        marginTop: '44px'    
+                                                    }}
                                                     onLoad={(e) => {
                                                         console.log('✅ Imagen coordinates cargó');
                                                         console.log('📐 Dimensiones:', e.target.width, 'x', e.target.height);
