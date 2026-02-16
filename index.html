@@ -1025,8 +1025,8 @@
                     ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
 
                     // Calcular márgenes (aprox. 30mm = ~113 píxeles en cada lado)
-                    const marginLeft = Math.floor(gridCanvas.width * 0.05);  // 5% margen izquierdo
-                    const marginTop = Math.floor(gridCanvas.height * 0.05);  // 5% margen superior
+                    const marginLeft = 50;
+                    const marginTop = 50;
                     const drawWidth = gridCanvas.width - marginLeft * 2;
                     const drawHeight = gridCanvas.height - marginTop * 2;
                     
