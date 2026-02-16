@@ -679,6 +679,8 @@
             const gridCanvasRef = React.useRef(null);
             const [showGridInView, setShowGridInView] = React.useState(true);
             const gridViewCanvasRef = React.useRef(null);
+            const [gridViewReady, setGridViewReady] = React.useState(false);
+
 
             const CATEGORIES = {
                 'all': { emoji: '🎨', name: 'Todos' },
@@ -1002,7 +1004,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [gridViewCanvasRef.current, result, showGridInView]);
+            }, [gridViewReady, result, showGridInView]);
 
             const checkApiConnection = async () => {
                 try {
@@ -3999,7 +4001,10 @@
                                                 
                                                 {showGridInView && (
                                                     <canvas
-                                                        ref={gridViewCanvasRef}
+                                                        ref={(el) => {
+                                                                gridViewCanvasRef.current = el;
+                                                                if (el) setGridViewReady(true);
+                                                        }}
                                                         style={{
                                                             position: 'absolute',
                                                             top: 0,
