@@ -1018,6 +1018,11 @@
                 const img = new Image();
                 
                 img.onload = () => {
+
+                    console.log('🔍 Result en Coordenadas:', result);
+                    console.log('🔍 Pattern:', result.pattern);
+                    console.log('🔍 Width/Height:', result.pattern?.width, result.pattern?.height);
+
                     // Obtener dimensiones REALES de cómo se muestra la imagen en el navegador
                     const imgElement = document.querySelector('#coordinate-image-container img');
                     if (!imgElement) return;
