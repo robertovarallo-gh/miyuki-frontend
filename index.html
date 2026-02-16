@@ -1092,16 +1092,6 @@
                             ctx.stroke();
                         }
                         
-                        // Líneas horizontales escalonadas
-                        for (let x = 0; x < beadsWidth; x++) {
-                            const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
-                            for (let y = 0; y <= beadsHeight; y++) {
-                                ctx.beginPath();
-                                ctx.moveTo(marginLeft + x * pixelWidth, marginTop + y * pixelHeight + offsetY);
-                                ctx.lineTo(marginLeft + (x + 1) * pixelWidth, marginTop + y * pixelHeight + offsetY);
-                                ctx.stroke();
-                            }
-                        }
                     } else {
                         const pixelWidth = drawWidth / beadsWidth;
                         const pixelHeight = drawHeight / beadsHeight;
