@@ -677,6 +677,7 @@
             const [galleryPatterns, setGalleryPatterns] = React.useState([]);
             const [isFromGallery, setIsFromGallery] = React.useState(false);
             const gridCanvasRef = React.useRef(null);
+            const [showGridInView, setShowGridInView] = React.useState(true);
 
             const CATEGORIES = {
                 'all': { emoji: '🎨', name: 'Todos' },
@@ -3936,36 +3937,44 @@
 
                                     {activeTab === 'grid' && (
                                         <div>
+                                            {/* Botón toggle grid */}
+                                            <button
+                                                onClick={() => setShowGridInView(!showGridInView)}
+                                                style={{
+                                                    marginBottom: '15px',
+                                                    padding: '10px 20px',
+                                                    background: showGridInView ? 'var(--primary)' : '#e0e0e0',
+                                                    color: showGridInView ? '#000000' : '#666666',
+                                                    border: 'none',
+                                                    borderRadius: '8px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: showGridInView ? 'bold' : 'normal'
+                                                }}
+                                            >
+                                                {showGridInView ? '👁️ Ocultar Grid' : '👁️ Mostrar Grid'}
+                                            </button>
+                                            
+                                            {/* Canvas con grid overlay */}
                                             <div style={{position: 'relative', display: 'inline-block'}}>
                                                 <img 
-                                                    src={result.images.basic} 
-                                                    alt="Pattern Grid" 
+                                                    src={result.images.grid} 
                                                     className="pattern-canvas"
                                                     style={{display: 'block'}}
                                                 />
+                                                
+                                                {showGridInView && (
+                                                    <canvas
+                                                        ref={gridViewCanvasRef}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            pointerEvents: 'none',
+                                                            imageRendering: 'pixelated'
+                                                        }}
+                                                    />
+                                                )}
                                             </div>
-                                            <button 
-                                                className="btn"
-                                                onClick={() => {
-                                                    if (!user) {
-                                                        alert('⚠️ Debes iniciar sesión para descargar patrones');
-                                                        setTimeout(() => setShowAuthModal(true), 0);
-                                                        return;
-                                                    }
-                                                    if (!isPremiumUser()) {
-                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
-                                                        return;
-                                                    }    
-                                                    downloadImage(result.images.grid, 'patron-cuadricula.png');
-                                                }}
-                                                style={{
-                                                    marginTop: '20px',
-                                                    opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
-                                                    cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
-                                                }}
-                                            >
-                                                💾 Descargar {!isPremiumUser() && '🔒'}
-                                            </button>
                                         </div>
                                     )}
 
