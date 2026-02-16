@@ -4277,7 +4277,12 @@
                                             {/* Contenedor de la imagen con overlays */}
                                             <div 
                                                 id="coordinate-image-container"
-                                                style={{position: 'relative', display: 'inline-block'}}
+                                                style={{
+                                                    position: 'relative', 
+                                                    display: 'inline-block',
+                                                    paddingLeft: '44px',  // Espacio para coordenadas Y
+                                                    paddingTop: '44px'    // Espacio para coordenadas X}}
+                                                }}    
                                             >
                                                 <img 
                                                     src={result.images.grid}  // Usar grid en lugar de coordinates
