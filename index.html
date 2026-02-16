@@ -1088,97 +1088,63 @@
                 const img = new Image();
                 
                 img.onload = () => {
-
-                    console.log('🔍 Result en Coordenadas:', result);
-                    console.log('🔍 Pattern:', result.pattern);
-                    console.log('🔍 Width/Height:', result.pattern?.width, result.pattern?.height);
-
-                    // Obtener dimensiones REALES de cómo se muestra la imagen en el navegador
                     const imgElement = document.querySelector('#coordinate-image-container img');
                     if (!imgElement) return;
                     
                     const rect = imgElement.getBoundingClientRect();
+                    const margin = 40;  // Mismo margin que coordenadas
                     
-                    // Igualar canvas a las dimensiones MOSTRADAS (no naturales)
-                    gridCanvas.width = rect.width;
-                    gridCanvas.height = rect.height;
+                    gridCanvas.width = rect.width + margin;
+                    gridCanvas.height = rect.height + margin;
                     
                     const ctx = gridCanvas.getContext('2d');
                     ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
                     
-                    // Backend usa: margin=70, cell_size=22
-                    const backendMargin = 70;
-                    const backendCellSize = 35;
-                    
-                    // Tamaño original de la imagen del backend
-                    const backendImageWidth = result.pattern.width * backendCellSize + backendMargin * 2;
-                    const backendImageHeight = result.pattern.height * backendCellSize + backendMargin * 2;
-                    
-                    // Factor de escala (cuánto se escaló la imagen en el navegador)
-                    const scaleX = gridCanvas.width / backendImageWidth;
-                    const scaleY = gridCanvas.height / backendImageHeight;
-                    
-                    // Márgenes escalados
-                    const marginLeft = Math.round(backendMargin * scaleX);
-                    const marginTop = Math.round(backendMargin * scaleY);
-                    const drawWidth = gridCanvas.width - marginLeft * 2;
-                    const drawHeight = gridCanvas.height - marginTop * 2;
-
                     const beadsWidth = result.pattern.width;
                     const beadsHeight = result.pattern.height;
-
-                    // AGREGAR LOGS:
-                    console.log('🔍 Debugging grid Coordenadas:', {
-                        backendImageWidth,
-                        backendImageHeight,
-                        canvasWidth: gridCanvas.width,
-                        canvasHeight: gridCanvas.height,
-                        scaleX,
-                        scaleY,
-                        marginLeft,
-                        marginTop,
-                        drawWidth,
-                        drawHeight,
-                        beadsWidth,
-                        beadsHeight,
-                        pixelWidth: drawWidth / beadsWidth,
-                        pixelHeight: drawHeight / beadsHeight
-                    });
-                    
                     const isPeyote = result.pattern_type === 'peyote';
+                    
+                    const cellWidth = rect.width / beadsWidth;
+                    const cellHeight = rect.height / beadsHeight;
                     
                     ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
                     ctx.lineWidth = 1;
                     
                     if (isPeyote) {
-                        const pixelWidth = drawWidth / beadsWidth;
-                        const pixelHeight = drawHeight / (beadsHeight + 0.5);
+                        const pixelHeight = cellHeight / (beadsHeight + 0.5) * beadsHeight;
                         
                         // Líneas verticales
                         for (let x = 0; x <= beadsWidth; x++) {
                             ctx.beginPath();
-                            ctx.moveTo(marginLeft + x * pixelWidth, marginTop);
-                            ctx.lineTo(marginLeft + x * pixelWidth, marginTop + drawHeight);
+                            ctx.moveTo(margin + x * cellWidth, margin);
+                            ctx.lineTo(margin + x * cellWidth, margin + rect.height);
                             ctx.stroke();
                         }
                         
+                        // Líneas horizontales escalonadas
+                        for (let x = 0; x < beadsWidth; x++) {
+                            const offsetY = (x % 2 === 1) ? (cellHeight / 2) : 0;
+                            for (let y = 0; y <= beadsHeight; y++) {
+                                ctx.beginPath();
+                                ctx.moveTo(margin + x * cellWidth, margin + y * cellHeight + offsetY);
+                                ctx.lineTo(margin + (x + 1) * cellWidth, margin + y * cellHeight + offsetY);
+                                ctx.stroke();
+                            }
+                        }
                     } else {
-                        const pixelWidth = drawWidth / beadsWidth;
-                        const pixelHeight = drawHeight / beadsHeight;
-                        
                         // Líneas verticales
                         for (let x = 0; x <= beadsWidth; x++) {
                             ctx.beginPath();
-                            ctx.moveTo(marginLeft + x * pixelWidth, marginTop);
-                            ctx.lineTo(marginLeft + x * pixelWidth, marginTop + drawHeight);
+                            ctx.moveTo(margin + x * cellWidth, margin);
+                            ctx.lineTo(margin + x * cellWidth, margin + rect.height);
                             ctx.stroke();
                         }
                         
                         // Líneas horizontales
                         for (let y = 0; y <= beadsHeight; y++) {
                             ctx.beginPath();
-                            ctx.moveTo(marginLeft, marginTop + y * pixelHeight);
-                            ctx.lineTo(marginLeft + drawWidth, marginTop + y * pixelHeight);
+                            ctx.moveTo(margin, margin + y * cellHeight);
+                            ctx.lineTo(margin + rect.width, margin + y * cellHeight);
                             ctx.stroke();
                         }
                     }
