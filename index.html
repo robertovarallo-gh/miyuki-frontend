@@ -676,6 +676,7 @@
             const [showAuthModal, setShowAuthModal] = React.useState(false);
             const [galleryPatterns, setGalleryPatterns] = React.useState([]);
             const [isFromGallery, setIsFromGallery] = React.useState(false);
+            const gridCanvasRef = React.useRef(null);
 
             const CATEGORIES = {
                 'all': { emoji: '🎨', name: 'Todos' },
@@ -841,6 +842,76 @@
                     img.src = imageToLoad;
                 }
             }, [activeTab, lastViewedTab, result]); 
+
+            // Dibujar grid overlay
+            React.useEffect(() => {
+                if (!gridCanvasRef.current || !canvasRef.current || !result) return;
+                
+                const gridCanvas = gridCanvasRef.current;
+                const mainCanvas = canvasRef.current;
+                
+                // Igualar dimensiones
+                gridCanvas.width = mainCanvas.width;
+                gridCanvas.height = mainCanvas.height;
+                
+                const ctx = gridCanvas.getContext('2d');
+                ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+                
+                const beadsWidth = result.pattern.width;
+                const beadsHeight = result.pattern.height;
+                const isPeyote = result.pattern_type === 'peyote';
+                
+                ctx.strokeStyle = 'rgba(230, 230, 230, 0.6)';
+                ctx.lineWidth = 1;
+                
+                if (isPeyote) {
+                    // Grid para PEYOTE
+                    const pixelWidth = gridCanvas.width / beadsWidth;
+                    const pixelHeight = gridCanvas.height / (beadsHeight + 0.5);
+                    
+                    // Líneas verticales
+                    for (let x = 0; x <= beadsWidth; x++) {
+                        ctx.beginPath();
+                        ctx.moveTo(x * pixelWidth, 0);
+                        ctx.lineTo(x * pixelWidth, gridCanvas.height);
+                        ctx.stroke();
+                    }
+                    
+                    // Líneas horizontales escalonadas
+                    for (let x = 0; x < beadsWidth; x++) {
+                        const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
+                        for (let y = 0; y <= beadsHeight; y++) {
+                            ctx.beginPath();
+                            ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
+                            ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
+                            ctx.stroke();
+                        }
+                    }
+                } else {
+                    // Grid para CUADRÍCULA
+                    const pixelWidth = gridCanvas.width / beadsWidth;
+                    const pixelHeight = gridCanvas.height / beadsHeight;
+                    
+                    // Líneas verticales
+                    for (let x = 0; x <= beadsWidth; x++) {
+                        ctx.beginPath();
+                        ctx.moveTo(x * pixelWidth, 0);
+                        ctx.lineTo(x * pixelWidth, gridCanvas.height);
+                        ctx.stroke();
+                    }
+                    
+                    // Líneas horizontales
+                    for (let y = 0; y <= beadsHeight; y++) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, y * pixelHeight);
+                        ctx.lineTo(gridCanvas.width, y * pixelHeight);
+                        ctx.stroke();
+                    }
+                }
+                
+                console.log('✅ Grid overlay dibujado');
+                
+            }, [result, canvasRef.current?.width, canvasRef.current?.height]);            
             
 
             // Detectar estado de autenticación
@@ -2400,57 +2471,7 @@
                     ctx.fillStyle = '#FFFFFF';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                    // NO dibujar grid en blank canvas - el backend lo agregará
-                    /*
-                    // Draw grid on blank canvas
-                    ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
-                    ctx.lineWidth = 1;
-
-                    // Vertical lines
-                    for (let x = 0; x <= widthBeads; x++) {
-                        ctx.beginPath();
-                        ctx.moveTo(x * pixelsPerBead, 0);
-                        ctx.lineTo(x * pixelsPerBead, canvas.height);
-                        ctx.stroke();
-                    }
-                    
-
-                    // Horizontal lines
-                    for (let y = 0; y <= heightBeads; y++) {
-                        ctx.beginPath();
-                        ctx.moveTo(0, y * pixelsPerBead);
-                        ctx.lineTo(canvas.width, y * pixelsPerBead);
-                        ctx.stroke();
-                    }
-                    */
-
                     console.log('✅ Canvas blanco creado (sin Grid)');
-
-                    /*
-                    // ESTE BLOQUE DEBE ESTAR AQUÍ:
-                    console.log('🔄 Reemplazando grises del grid por blanco puro...');
-
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const pixels = imageData.data;
-
-                    let replacedPixels = 0;
-
-                    for (let i = 0; i < pixels.length; i += 4) {
-                        const r = pixels[i];
-                        const g = pixels[i + 1];
-                        const b = pixels[i + 2];
-                        
-                        if (r >= 180 && r <= 255 && g >= 180 && g <= 255 && b >= 180 && b <= 255) {
-                            pixels[i] = 255;
-                            pixels[i + 1] = 255;
-                            pixels[i + 2] = 255;
-                            replacedPixels++;
-                        }
-                    }
-
-                    ctx.putImageData(imageData, 0, 0);
-                    console.log(`✅ ${replacedPixels} píxeles grises reemplazados por blanco`);
-                    */
 
                     console.log('🎨 Verificando canvas antes de enviar....');
 
@@ -4264,31 +4285,14 @@
                                                             
                                                             {/* Grid overlay con CSS */}
                                                             {result && (
-                                                                <div
+                                                                <canvas
+                                                                    ref={gridCanvasRef}
                                                                     style={{
                                                                         position: 'absolute',
                                                                         top: 0,
                                                                         left: 0,
-                                                                        width: '100%',
-                                                                        height: '100%',
                                                                         pointerEvents: 'none',
-                                                                        backgroundImage: `
-                                                                            repeating-linear-gradient(
-                                                                                0deg,
-                                                                                rgba(230, 230, 230, 0.5) 0px,
-                                                                                rgba(230, 230, 230, 0.5) 1px,
-                                                                                transparent 1px,
-                                                                                transparent calc(100% / ${result.pattern.height})
-                                                                            ),
-                                                                            repeating-linear-gradient(
-                                                                                90deg,
-                                                                                rgba(230, 230, 230, 0.5) 0px,
-                                                                                rgba(230, 230, 230, 0.5) 1px,
-                                                                                transparent 1px,
-                                                                                transparent calc(100% / ${result.pattern.width})
-                                                                            )
-                                                                        `,
-                                                                        backgroundSize: `100% calc(100% / ${result.pattern.height}), calc(100% / ${result.pattern.width}) 100%`
+                                                                        imageRendering: 'pixelated'
                                                                     }}
                                                                 />
                                                             )}
