@@ -4222,19 +4222,6 @@
                                             {console.log('🔍 Images disponibles:', result.images)}
                                             {console.log('🔍 Coordinates existe?:', !!result.images.coordinates)}
                                             
-                                            {/* Verificar si existe coordinates */}
-                                            {!result.images.coordinates && (
-                                                <div style={{
-                                                    padding: '15px',
-                                                    backgroundColor: 'rgba(255, 107, 157, 0.1)',
-                                                    borderRadius: '8px',
-                                                    marginBottom: '15px',
-                                                    border: '1px solid var(--accent)'
-                                                }}>
-                                                    ⚠️ La vista de coordenadas aún no está disponible para patrones Peyote.
-                                                </div>
-                                            )}
-
                                             {/* Botones de descarga primero */}
                                             <div style={{marginBottom: '15px', display: 'flex', gap: '10px'}}>
                                                 <button 
