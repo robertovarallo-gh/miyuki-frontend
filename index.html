@@ -928,6 +928,13 @@
 
             // Dibujar grid cuando el canvas aparece
             React.useEffect(() => {
+
+                console.log('🔍 Grid View useEffect (nuevo):', {
+                    hasCanvas: !!gridViewCanvasRef.current,
+                    hasResult: !!result,
+                    showGridInView
+                });   
+
                 if (!gridViewCanvasRef.current || !result || !showGridInView) return;
                 
                 console.log('✅ Canvas disponible, dibujando grid');
@@ -988,6 +995,10 @@
                         }
                     }
                 };
+                
+                img.onerror = () => {
+                    console.error('❌ Error cargando imagen para grid');
+                };                
                 
                 img.src = result.images.grid;
                 
