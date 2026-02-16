@@ -627,6 +627,8 @@
             const [fullPalette, setFullPalette] = useState(null);
             const [patternType, setPatternType] = useState('grid'); // 'grid' o 'peyote'
             const [imageDimensions, setImageDimensions] = useState(null);
+            const coordsTextCanvasRef = React.useRef(null);
+            const [coordsTextReady, setCoordsTextReady] = React.useState(false);
             
             // Color adjustment controls
             const [saturation, setSaturation] = useState(1.2);
@@ -866,7 +868,83 @@
                 
                 console.log('✅ Grid overlay dibujado');
                 
-            }, [result, canvasRef.current?.width, canvasRef.current?.height]);            
+            }, [result, canvasRef.current?.width, canvasRef.current?.height]);         
+            
+            // Dibujar coordenadas (números 5, 10, 15, M)
+            React.useEffect(() => {
+                if (!coordsTextCanvasRef.current || !result) return;
+                
+                const canvas = coordsTextCanvasRef.current;
+                const img = new Image();
+                
+                img.onload = () => {
+                    const imgElement = document.querySelector('#coordinate-image-container img');
+                    if (!imgElement) return;
+                    
+                    const rect = imgElement.getBoundingClientRect();
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Configuración
+                    const backendMargin = 70;
+                    const backendCellSize = 20;
+                    const beadsWidth = result.pattern.width;
+                    const beadsHeight = result.pattern.height;
+                    
+                    const backendImageWidth = beadsWidth * backendCellSize + backendMargin * 2;
+                    const backendImageHeight = beadsHeight * backendCellSize + backendMargin * 2;
+                    
+                    const scaleX = canvas.width / backendImageWidth;
+                    const scaleY = canvas.height / backendImageHeight;
+                    
+                    const marginLeft = Math.round(backendMargin * scaleX);
+                    const marginTop = Math.round(backendMargin * scaleY);
+                    const cellWidth = (canvas.width - marginLeft * 2) / beadsWidth;
+                    const cellHeight = (canvas.height - marginTop * 2) / beadsHeight;
+                    
+                    // Estilo de texto
+                    ctx.fillStyle = 'black';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = '12px Arial';
+                    
+                    // Coordenadas X (cada 5)
+                    for (let x = 0; x < beadsWidth; x++) {
+                        if ((x + 1) % 5 === 0) {
+                            const xPos = marginLeft + (x + 0.5) * cellWidth;
+                            ctx.fillText(String(x + 1), xPos, marginTop * 0.6);
+                        }
+                    }
+                    
+                    // Coordenadas Y (cada 5)
+                    for (let y = 0; y < beadsHeight; y++) {
+                        if ((y + 1) % 5 === 0) {
+                            const yPos = marginTop + (y + 0.5) * cellHeight;
+                            ctx.fillText(String(y + 1), marginLeft * 0.4, yPos);
+                        }
+                    }
+                    
+                    // Punto medio X
+                    const midX = Math.floor(beadsWidth / 2);
+                    const midXPos = marginLeft + (midX + 0.5) * cellWidth;
+                    ctx.fillStyle = 'red';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.fillText('M', midXPos, marginTop * 0.3);
+                    
+                    // Punto medio Y
+                    const midY = Math.floor(beadsHeight / 2);
+                    const midYPos = marginTop + (midY + 0.5) * cellHeight;
+                    ctx.fillText('M', marginLeft * 0.2, midYPos);
+                    
+                    console.log('✅ Coordenadas dibujadas en frontend');
+                };
+                
+                img.src = result.images.grid;
+                
+            }, [coordsTextReady, result]);            
             
 
             // Detectar estado de autenticación
@@ -1120,7 +1198,7 @@
                     console.error('❌ Error cargando imagen para grid en Coordenadas');
                 };
                 
-                img.src = result.images.coordinates;
+                img.src = result.images.grid;
                 
             }, [gridCoordsReady, result]);
 
@@ -4215,7 +4293,7 @@
                                                 style={{position: 'relative', display: 'inline-block'}}
                                             >
                                                 <img 
-                                                    src={result.images.coordinates} 
+                                                    src={result.images.grid}  // Usar grid en lugar de coordinates
                                                     alt="Pattern Coordinates" 
                                                     className="pattern-canvas"
                                                     style={{display: 'block'}}
@@ -4244,6 +4322,23 @@
                                                         }}
                                                     />
                                                 )}
+
+                                                {/* AGREGAR: Coordenadas overlay (números) */}
+                                                {result && (
+                                                    <canvas
+                                                        ref={(el) => {
+                                                            coordsTextCanvasRef.current = el;
+                                                            if (el) setCoordsTextReady(true);
+                                                        }}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            pointerEvents: 'none',
+                                                            imageRendering: 'auto'  // No pixelated para texto
+                                                        }}
+                                                    />
+                                                )}                                                
 
                                                 {showNumbers && (
                                                     <canvas
