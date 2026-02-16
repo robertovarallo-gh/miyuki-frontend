@@ -1018,8 +1018,15 @@
                 const img = new Image();
                 
                 img.onload = () => {
-                    gridCanvas.width = img.width;
-                    gridCanvas.height = img.height;
+                    // Obtener dimensiones REALES de cómo se muestra la imagen en el navegador
+                    const imgElement = document.querySelector('#coordinate-image-container img');
+                    if (!imgElement) return;
+                    
+                    const rect = imgElement.getBoundingClientRect();
+                    
+                    // Igualar canvas a las dimensiones MOSTRADAS (no naturales)
+                    gridCanvas.width = rect.width;
+                    gridCanvas.height = rect.height;
                     
                     const ctx = gridCanvas.getContext('2d');
                     ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
