@@ -1213,7 +1213,8 @@
                     
                     if (data.success) {
                         setResult(data);
-                        setTimeout(() => setShowGridInView(true), 200);
+                        setShowGridInView(false);  // Primero apagar
+                        setTimeout(() => setShowGridInView(true), 100);  // Luego encender
 
                         // AGREGAR AQUÍ:
                         if (user) {
@@ -2541,7 +2542,8 @@
                     if (data.success) {
                         
                         setResult(data);
-                        setTimeout(() => setShowGridInView(true), 200);
+                        setShowGridInView(false);  // Primero apagar
+                        setTimeout(() => setShowGridInView(true), 100);  // Luego encender
 
                         // AGREGAR AQUÍ:
                         if (user) {
@@ -2634,7 +2636,8 @@
                         pattern_type: pattern.patternType
                     });
 
-                    setTimeout(() => setShowGridInView(true), 200);
+                    setShowGridInView(false);  // Primero apagar
+                    setTimeout(() => setShowGridInView(true), 100);  // Luego encender
                     
                     // Incrementar contador
                     if (user) {
