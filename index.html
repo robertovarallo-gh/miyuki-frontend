@@ -675,6 +675,7 @@
             const [userData, setUserData] = React.useState(null);
             const [showAuthModal, setShowAuthModal] = React.useState(false);
             const [galleryPatterns, setGalleryPatterns] = React.useState([]);
+            const [isFromGallery, setIsFromGallery] = React.useState(false);
 
             const CATEGORIES = {
                 'all': { emoji: '🎨', name: 'Todos' },
@@ -1070,6 +1071,7 @@
             const generatePattern = async () => {
                 if (!image || !apiConnected) return;
                 
+                setIsFromGallery(false);  // Resetear bandera
                 setProcessing(true);
                 setError(null);
                 setEditMode(false);
@@ -2159,7 +2161,7 @@
                                 brightness: 1.0,
                                 contrast: 1.0,
                                 sharpness: 1.0,
-                                showGrid: false,
+                                showGrid: !isFromGallery,  // Mostrar grid solo si no viene de galería (porque en galería ya se ve el grid)
                                 showNumbers: false,
                                 colorMode: colorMode,
                                 skipQuantization: true,
@@ -2233,7 +2235,7 @@
                                 brightness: 1.0,
                                 contrast: 1.0,
                                 sharpness: 1.0,
-                                showGrid: false,
+                                showGrid: !isFromGallery,  // Mostrar grid solo si no viene de galería (porque en galería ya se ve el grid)
                                 showNumbers: false,
                                 colorMode: colorMode,
                                 skipQuantization: true,
@@ -2346,6 +2348,8 @@
 
 
             const createBlankCanvas = async () => {
+                
+                setIsFromGallery(false);  // Resetear bandera
                 setProcessing(true);
                 setError(null);
 
@@ -2612,6 +2616,7 @@
 
                     setEditedPattern(null);
                     setIsBlankCanvas(false);
+                    setIsFromGallery(true);  // ← AGREGAR AQUÍ
                     setEditMode(true);
                     
                     // Cargar paleta completa
