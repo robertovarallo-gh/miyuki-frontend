@@ -1205,7 +1205,9 @@
                     ctx.lineWidth = 1;
                     
                     if (isPeyote) {
-                        const pixelHeight = cellHeight / (beadsHeight + 0.5) * beadsHeight;
+                        // Grid para PEYOTE (igual que Editor)
+                        const pixelWidth = rect.width / beadsWidth;
+                        const pixelHeight = rect.height / (beadsHeight + 0.5);
                         
                         // Líneas verticales
                         for (let x = 0; x <= beadsWidth; x++) {
@@ -1217,29 +1219,13 @@
                         
                         // Líneas horizontales escalonadas
                         for (let x = 0; x < beadsWidth; x++) {
-                            const offsetY = (x % 2 === 1) ? (cellHeight / 2) : 0;
+                            const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
                             for (let y = 0; y <= beadsHeight; y++) {
                                 ctx.beginPath();
                                 ctx.moveTo(margin + x * pixelWidth, margin + y * pixelHeight + offsetY);
                                 ctx.lineTo(margin + (x + 1) * pixelWidth, margin + y * pixelHeight + offsetY);
                                 ctx.stroke();
                             }
-                        }
-                    } else {
-                        // Líneas verticales
-                        for (let x = 0; x <= beadsWidth; x++) {
-                            ctx.beginPath();
-                            ctx.moveTo(margin + x * cellWidth, margin);
-                            ctx.lineTo(margin + x * cellWidth, margin + rect.height);
-                            ctx.stroke();
-                        }
-                        
-                        // Líneas horizontales
-                        for (let y = 0; y <= beadsHeight; y++) {
-                            ctx.beginPath();
-                            ctx.moveTo(margin, margin + y * cellHeight);
-                            ctx.lineTo(margin + rect.width, margin + y * cellHeight);
-                            ctx.stroke();
                         }
                     }
                     
