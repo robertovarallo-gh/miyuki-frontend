@@ -2609,6 +2609,7 @@
                             });
                             setEditedPattern(editedImageData);
                             setActiveTab('grid');
+                            setGridViewReady(false);
                             setIsBlankCanvas(false);  // ← AGREGAR ESTA LÍNEA
                             setUsedColorsVersion(v => v + 1);  // ← Y ESTA TAMBIÉN (para actualizar cache)
                             setProcessing(false);
@@ -2666,6 +2667,7 @@
                         setEditedPattern(data.images.grid);
                         setEditMode(false);
                         setActiveTab('grid');
+                        setGridViewReady(false);
 
                         const palette = await loadFullPalette();
                         setFullPalette(palette);
