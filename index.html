@@ -1464,7 +1464,11 @@
                     
                     if (data.success) {
                         setResult(data);
+                        
                         setActiveTab('grid');  // ← AGREGAR
+                        setGridViewReady(false);  // ← AGREGAR
+                        setTimeout(() => setGridViewReady(true), 100);  // ← AGREGAR
+
                         setShowGridInView(false);  // Primero apagar
                         setTimeout(() => setShowGridInView(true), 100);  // Luego encender
 
@@ -2794,7 +2798,11 @@
                     if (data.success) {
                         
                         setResult(data);
+
                         setActiveTab('grid');  // ← AGREGAR
+                        setGridViewReady(false);  // ← AGREGAR
+                        setTimeout(() => setGridViewReady(true), 100);  // ← AGREGAR
+
                         setShowGridInView(false);  // Primero apagar
                         setTimeout(() => setShowGridInView(true), 100);  // Luego encender
 
@@ -2890,6 +2898,9 @@
                     });
 
                     setActiveTab('grid');  // ← AGREGAR
+                    setGridViewReady(false);  // ← AGREGAR
+                    setTimeout(() => setGridViewReady(true), 100);  // ← AGREGAR
+
                     setShowGridInView(false);  // Primero apagar
                     setTimeout(() => setShowGridInView(true), 100);  // Luego encender
                     
