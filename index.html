@@ -4119,6 +4119,25 @@
                                                 {showNumbers ? '🔢 Ocultar Números' : '🔢 Mostrar Números'}
                                             </button>
                                         )}
+
+                                        {/* AGREGAR AQUÍ: */}
+                                        {activeTab === 'grid' && (
+                                            <button 
+                                                onClick={() => setShowGridInView(!showGridInView)}
+                                                style={{
+                                                    marginLeft: '10px',
+                                                    padding: '10px 20px',
+                                                    backgroundColor: showGridInView ? 'var(--primary)' : 'var(--surface-light)',
+                                                    color: showGridInView ? '#000000' : 'var(--text)',
+                                                    border: 'none',
+                                                    borderRadius: '8px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: showGridInView ? 'bold' : 'normal'
+                                                }}
+                                            >
+                                                {showGridInView ? '👁️ Ocultar Grid' : '👁️ Mostrar Grid'}
+                                            </button>
+                                        )}
                                     </div>
 
                                     {/* Botones de edición cuando está en modo Editor */}
@@ -4209,24 +4228,7 @@
                                     </div>
 
                                     {activeTab === 'grid' && (
-                                        <div>
-                                            {/* Botón toggle grid */}
-                                            <button
-                                                onClick={() => setShowGridInView(!showGridInView)}
-                                                style={{
-                                                    marginBottom: '15px',
-                                                    padding: '10px 20px',
-                                                    background: showGridInView ? 'var(--primary)' : '#e0e0e0',
-                                                    color: showGridInView ? '#000000' : '#666666',
-                                                    border: 'none',
-                                                    borderRadius: '8px',
-                                                    cursor: 'pointer',
-                                                    fontWeight: showGridInView ? 'bold' : 'normal'
-                                                }}
-                                            >
-                                                {showGridInView ? '👁️ Ocultar Grid' : '👁️ Mostrar Grid'}
-                                            </button>
-                                            
+                                        <div>                                           
                                             {/* Canvas con grid overlay */}
                                             <div style={{position: 'relative', display: 'inline-block'}}>
                                                 <img 
