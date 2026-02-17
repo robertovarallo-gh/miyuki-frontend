@@ -686,6 +686,7 @@
             const [gridCoordsReady, setGridCoordsReady] = React.useState(false);
             const numbersCanvasRef = React.useRef(null);
             const [numbersReady, setNumbersReady] = React.useState(false);
+            const [patternVersion, setPatternVersion] = React.useState(0);
 
 
             const CATEGORIES = {
@@ -1151,7 +1152,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [gridViewReady, result, showGridInView, activeTab]);
+            }, [gridViewReady, result, showGridInView, activeTab, patternVersion]);
 
             // Dibujar grid en vista Coordenadas
             React.useEffect(() => {
@@ -1466,10 +1467,7 @@
                         setResult(data);
                         
                         setActiveTab('grid');  // ← AGREGAR
-                        setShowGridInView(false);  // Primero apagar
-
-                        setShowGridInView(false);  // Primero apagar
-                        setTimeout(() => setShowGridInView(true), 100);  // Luego encender
+                        setPatternVersion(v => v + 1);
 
                         // AGREGAR AQUÍ:
                         if (user) {
@@ -2799,10 +2797,7 @@
                         setResult(data);
 
                         setActiveTab('grid');  // ← AGREGAR
-                        setShowGridInView(false);
-
-                        setShowGridInView(false);  // Primero apagar
-                        setTimeout(() => setShowGridInView(true), 100);  // Luego encender
+                        setPatternVersion(v => v + 1);
 
                         // AGREGAR AQUÍ:
                         if (user) {
@@ -2896,10 +2891,7 @@
                     });
 
                     setActiveTab('grid');  // ← AGREGAR
-                    setShowGridInView(false);
-
-                    setShowGridInView(false);  // Primero apagar
-                    setTimeout(() => setShowGridInView(true), 100);  // Luego encender
+                    setPatternVersion(v => v + 1);
                     
                     // Incrementar contador
                     if (user) {
