@@ -2554,6 +2554,7 @@
                     }
                     
                     setEditMode(false);
+                    setGridViewReady(false);
                     setHasUnsavedChanges(false);
                     return;
                 }
@@ -4177,9 +4178,11 @@
                                                     // Salir SIN guardar
                                                     if (isBlankCanvas) {
                                                         setActiveTab('grid');
+                                                        setGridViewReady(false);
                                                     } else {
                                                         setEditMode(false);
                                                         setActiveTab('grid');
+                                                        setGridViewReady(false);
                                                     }
                                                 }}
                                                 style={{flex: 1}}
