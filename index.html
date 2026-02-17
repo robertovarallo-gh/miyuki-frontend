@@ -1464,6 +1464,7 @@
                     
                     if (data.success) {
                         setResult(data);
+                        setActiveTab('grid');  // ← AGREGAR
                         setShowGridInView(false);  // Primero apagar
                         setTimeout(() => setShowGridInView(true), 100);  // Luego encender
 
@@ -2793,6 +2794,7 @@
                     if (data.success) {
                         
                         setResult(data);
+                        setActiveTab('grid');  // ← AGREGAR
                         setShowGridInView(false);  // Primero apagar
                         setTimeout(() => setShowGridInView(true), 100);  // Luego encender
 
@@ -2887,6 +2889,7 @@
                         pattern_type: pattern.patternType
                     });
 
+                    setActiveTab('grid');  // ← AGREGAR
                     setShowGridInView(false);  // Primero apagar
                     setTimeout(() => setShowGridInView(true), 100);  // Luego encender
                     
