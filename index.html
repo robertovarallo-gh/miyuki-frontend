@@ -1079,13 +1079,18 @@
             // Dibujar grid cuando el canvas aparece
             React.useEffect(() => {
 
-                console.log('🔍 Grid View useEffect (nuevo):', {
-                    hasCanvas: !!gridViewCanvasRef.current,
+                console.log('🔍 Grid Cuadrícula useEffect:', {
+                    gridViewReady,
                     hasResult: !!result,
-                    showGridInView
-                });   
-
-                if (!gridViewCanvasRef.current || !result || !showGridInView) return;
+                    showGridInView,
+                    activeTab,
+                    patternVersion
+                });
+                
+                if (!gridViewCanvasRef.current || !result || !showGridInView) {
+                    console.log('❌ Saliendo - condiciones no cumplidas');
+                    return;
+                }
                 
                 console.log('✅ Canvas disponible, dibujando grid');
                 
