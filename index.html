@@ -1088,7 +1088,11 @@
                 });
                 
                 if (!gridViewCanvasRef.current || !result || !showGridInView) {
-                    console.log('❌ Saliendo - condiciones no cumplidas');
+                        console.log('❌ Detalles:', {
+                            hasCanvas: !!gridViewCanvasRef.current,
+                            hasResult: !!result,
+                            showGridInView
+                        });
                     return;
                 }
                 
