@@ -4120,7 +4120,7 @@
                                         >
                                             ✏️ Editor
                                         </button>
-                                       {activeTab === 'coords' && (
+                                       {activeTab === 'coords' && result.pattern_type !== 'peyote' && (
                                             <button 
                                                 onClick={() => setShowNumbers(!showNumbers)}
                                                 style={{
