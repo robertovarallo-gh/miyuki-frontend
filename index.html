@@ -1200,6 +1200,14 @@
                     
                     gridCanvas.width = rect.width + margin;
                     gridCanvas.height = rect.height + margin;
+
+                    console.log('🔍 Canvas grid dimensiones:', {
+                        canvasWidth: gridCanvas.width,
+                        canvasHeight: gridCanvas.height,
+                        rectWidth: rect.width,
+                        rectHeight: rect.height,
+                        margin
+                    });                    
                     
                     const ctx = gridCanvas.getContext('2d');
                     ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
