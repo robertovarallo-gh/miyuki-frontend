@@ -3730,11 +3730,26 @@
                                                     )}
                                                 </div>
 
-                                                <div className="info-text">
-                                                    <strong>📊 Patrón:</strong><br/>
-                                                    {widthBeads} x {heightBeads} beads<br/>
-                                                    Total: {totalBeads.toLocaleString()} cuentas
-                                                </div>
+                                                {/* AGREGAR AQUÍ: */}
+                                                {(() => {
+                                                    const displayWidthBeads = dimensionMode === 'beads'
+                                                        ? Number(width)
+                                                        : Math.round((Number(width) * 10) / beadSize);
+
+                                                    const displayHeightBeads = dimensionMode === 'beads'
+                                                        ? Number(height)
+                                                        : Math.round((Number(height) * 10) / beadSize);
+
+                                                    const displayTotalBeads = displayWidthBeads * displayHeightBeads;
+
+                                                    return (
+                                                        <div className="info-text">
+                                                            <strong>📊 Patrón:</strong><br/>
+                                                            {displayWidthBeads} x {displayHeightBeads} beads<br/>
+                                                            Total: {displayTotalBeads.toLocaleString()} cuentas
+                                                        </div>
+                                                    );
+                                                })()}
 
                                                 <button 
                                                     className="btn"
