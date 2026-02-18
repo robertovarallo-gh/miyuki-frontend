@@ -1174,7 +1174,17 @@
 
             // Dibujar grid en vista Coordenadas
             React.useEffect(() => {
-                if (!gridCoordsCanvasRef.current || !result) return;
+
+                console.log('🔍 Grid Coordenadas useEffect:', {
+                    gridCoordsReady,
+                    hasResult: !!result,
+                    activeTab
+                });
+                
+                if (!gridCoordsCanvasRef.current || !result) {
+                    console.log('❌ Saliendo - no hay canvas o result');
+                    return;
+                }
                 
                 console.log('✅ Dibujando grid en Coordenadas');
                 
