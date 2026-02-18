@@ -1211,9 +1211,12 @@
                     const cellWidth = rect.width / beadsWidth;
                     const cellHeight = rect.height / beadsHeight;
                     
-                    ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
-                    ctx.lineWidth = 1;
+                    // ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
+                    // ctx.lineWidth = 1;
                     
+                    ctx.strokeStyle = 'red';  // Temporal para debugging
+                    ctx.lineWidth = 3;        // Más grueso
+
                     if (isPeyote) {
                         // Grid para PEYOTE (igual que Editor)
                         const pixelWidth = rect.width / beadsWidth;
