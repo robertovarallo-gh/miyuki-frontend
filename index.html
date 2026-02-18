@@ -1237,6 +1237,8 @@
                             ctx.lineTo(margin + x * pixelWidth, margin + rect.height);
                             ctx.stroke();
                         }
+
+                        console.log('✅ Dibujadas', beadsWidth + 1, 'líneas verticales');
                         
                         // Líneas horizontales escalonadas
                         for (let x = 0; x < beadsWidth; x++) {
@@ -1248,8 +1250,33 @@
                                 ctx.stroke();
                             }
                         }
+
+                        console.log('✅ Dibujadas', beadsHeight + 1, 'líneas horizontales');
+                    } else {
+                        // AGREGAR TODO ESTE BLOQUE:
+                        console.log('🔍 Dibujando grid CUADRÍCULA');
+                        
+                        // Líneas verticales
+                        for (let x = 0; x <= beadsWidth; x++) {
+                            ctx.beginPath();
+                            ctx.moveTo(margin + x * cellWidth, margin);
+                            ctx.lineTo(margin + x * cellWidth, margin + rect.height);
+                            ctx.stroke();
+                        }
+                        
+                        console.log('✅ Dibujadas', beadsWidth + 1, 'líneas verticales');
+                        
+                        // Líneas horizontales
+                        for (let y = 0; y <= beadsHeight; y++) {
+                            ctx.beginPath();
+                            ctx.moveTo(margin, margin + y * cellHeight);
+                            ctx.lineTo(margin + rect.width, margin + y * cellHeight);
+                            ctx.stroke();
+                        }
+                        
+                        console.log('✅ Dibujadas', beadsHeight + 1, 'líneas horizontales');
                     }
-                    
+   
                     console.log('✅ Grid dibujado en Coordenadas');
                 };
                 
