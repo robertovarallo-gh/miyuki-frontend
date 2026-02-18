@@ -1185,7 +1185,7 @@
                     console.log('❌ Saliendo - no hay canvas o result');
                     return;
                 }
-                
+
                 console.log('✅ Dibujando grid en Coordenadas');
                 
                 const gridCanvas = gridCoordsCanvasRef.current;
@@ -4399,7 +4399,8 @@
                                                             top: '-1px',      // ← AGREGAR
                                                             left: '-1px',     // ← AGREGAR
                                                             pointerEvents: 'none',
-                                                            imageRendering: 'pixelated'
+                                                            imageRendering: 'pixelated',
+                                                            zIndex: 1
                                                         }}
                                                     />
                                                 )}
