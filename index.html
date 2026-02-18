@@ -4249,7 +4249,10 @@
                                                 <img 
                                                     src={result.images.grid} 
                                                     className="pattern-canvas"
-                                                    style={{display: 'block'}}
+                                                    style={{
+                                                        display: 'block',
+                                                        imageRendering: 'pixelated'  // ← AGREGAR
+                                                    }}
                                                 />
                                                 
                                                 {showGridInView && (
@@ -4346,7 +4349,9 @@
                                                     style={{
                                                         display: 'block',
                                                         marginLeft: '40px',   // ← AGREGAR
-                                                        marginTop: '40px'     // ← AGREGAR                                                        
+                                                        marginTop: '40px',   // ← AGREGAR
+                                                        imageRendering: 'pixelated'  // ← AGREGAR
+                                                                                                                
                                                     }}
                                                     onLoad={(e) => {
                                                         console.log('✅ Imagen coordinates cargó');
