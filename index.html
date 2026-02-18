@@ -1219,11 +1219,8 @@
                     const cellWidth = rect.width / beadsWidth;
                     const cellHeight = rect.height / beadsHeight;
                     
-                    // ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
-                    // ctx.lineWidth = 1;
-                    
-                    ctx.strokeStyle = 'red';  // Temporal para debugging
-                    ctx.lineWidth = 3;        // Más grueso
+                    ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
+                    ctx.lineWidth = 1;
 
                     if (isPeyote) {
                         // Grid para PEYOTE (igual que Editor)
@@ -4438,9 +4435,7 @@
                                                             left: '-1px',     // ← AGREGAR
                                                             pointerEvents: 'none',
                                                             imageRendering: 'pixelated',
-                                                            zIndex: 1,
-                                                            background: 'rgba(255, 0, 0, 0.1)',  // ← AGREGAR (fondo rojo transparente)
-                                                            border: '2px solid blue'               // ← AGREGAR (borde azul)
+                                                            zIndex: 1
                                                         }}
                                                     />
                                                 )}
