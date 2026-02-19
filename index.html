@@ -9,6 +9,7 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
 
     <!-- AGREGAR FIREBASE AQUÍ -->
     <script type="module">
@@ -630,6 +631,7 @@
             const [imageDimensions, setImageDimensions] = useState(null);
             const coordsTextCanvasRef = React.useRef(null);
             const [coordsTextReady, setCoordsTextReady] = React.useState(false);
+            const [showUpgradeModal, setShowUpgradeModal] = React.useState(false);
             
             // Color adjustment controls
             const [saturation, setSaturation] = useState(1.2);
@@ -1555,6 +1557,43 @@
                     setProcessing(false);
                 }
             };
+
+            const handleUpgrade = async (plan) => {
+                if (!user) {
+                    alert('Debes iniciar sesión primero');
+                    return;
+                }
+
+                try {
+                    const priceId = plan === 'monthly' 
+                        ? 'price_1T2ZcF8hc5PM7463OHDxSErz'  // Mensual
+                        : 'price_1T2ZcF8hc5PM7463MDrONqhk'; // Anual
+
+                    // Llamar al backend para crear sesión de checkout
+                    const response = await fetch(`${API_URL}/create-checkout-session`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            priceId: priceId,
+                            email: user.email
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.sessionId) {
+                        // Redirigir a Stripe Checkout
+                        const stripe = window.Stripe('pk_test_51T2ZWR8hc5PM7463mrf9AMTwqHiHN0z1qoy44aC3icBVk8uT9srkzGgQYM1UTkzaGR4YJQfdmNlNxpnSkO7mxW6100af9wc4Y0');
+                        stripe.redirectToCheckout({ sessionId: data.sessionId });
+                    } else {
+                        alert('Error al crear sesión de pago: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('Error al conectar con el servidor: ' + error.message);
+                }
+            };            
 
             const checkUserLimits = async (patternType) => {
                 if (!user) {
@@ -3118,6 +3157,26 @@
                                                 Plan: {userData?.plan === 'premium' ? '💎 Premium' : '🆓 Free'}
                                             </div>
                                         </div>
+
+                                        {/* Botón Upgrade a Premium - solo si es Free */}
+                                        {userData?.plan !== 'premium' && (
+                                            <button
+                                                onClick={() => setShowUpgradeModal(true)}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    background: 'linear-gradient(135deg, var(--primary) 0%, #FFD93D 100%)',
+                                                    border: 'none',
+                                                    borderRadius: '8px',
+                                                    color: '#000000',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.85rem',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
+                                                💎 Upgrade a Premium
+                                            </button>
+                                        )}
+
                                         <button
                                             onClick={() => {
                                                 window.firebaseSignOut(window.firebaseAuth);
@@ -5699,6 +5758,145 @@
                             MIYUKI Co., Ltd - Japón
                         </div>
                     </footer>
+
+                    {/* Modal de Upgrade a Premium */}
+                    {showUpgradeModal && (
+                        <div style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0, 0, 0, 0.8)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 9999
+                        }}>
+                            <div style={{
+                                background: 'var(--surface)',
+                                borderRadius: '16px',
+                                padding: '30px',
+                                maxWidth: '600px',
+                                width: '90%',
+                                maxHeight: '90vh',
+                                overflow: 'auto'
+                            }}>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                                    <h2 style={{margin: 0}}>💎 Upgrade a Premium</h2>
+                                    <button 
+                                        onClick={() => setShowUpgradeModal(false)}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            fontSize: '24px',
+                                            cursor: 'pointer',
+                                            color: 'var(--text)'
+                                        }}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+
+                                <p style={{color: 'var(--text-dim)', marginBottom: '30px'}}>
+                                    Desbloquea todas las funciones de Easy Cuentas
+                                </p>
+
+                                {/* Comparación Free vs Premium */}
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 1fr',
+                                    gap: '20px',
+                                    marginBottom: '30px'
+                                }}>
+                                    {/* Plan Free */}
+                                    <div style={{
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '12px',
+                                        padding: '20px'
+                                    }}>
+                                        <h3>🆓 Free</h3>
+                                        <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
+                                            $0
+                                        </div>
+                                        <ul style={{listStyle: 'none', padding: 0, color: 'var(--text-dim)', fontSize: '0.9rem'}}>
+                                            <li>✅ 1 patrón/mes desde foto</li>
+                                            <li>✅ 3 patrones/mes desde cero</li>
+                                            <li>❌ Sin descargas</li>
+                                            <li>❌ Galería limitada</li>
+                                        </ul>
+                                    </div>
+
+                                    {/* Plan Premium */}
+                                    <div style={{
+                                        border: '2px solid var(--primary)',
+                                        borderRadius: '12px',
+                                        padding: '20px',
+                                        background: 'linear-gradient(135deg, rgba(0, 206, 209, 0.1) 0%, rgba(255, 217, 61, 0.1) 100%)'
+                                    }}>
+                                        <h3>💎 Premium</h3>
+                                        <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
+                                            $4.99<span style={{fontSize: '1rem', fontWeight: 'normal'}}>/mes</span>
+                                        </div>
+                                        <ul style={{listStyle: 'none', padding: 0, fontSize: '0.9rem'}}>
+                                            <li>✅ Patrones ilimitados</li>
+                                            <li>✅ Descargas ilimitadas</li>
+                                            <li>✅ Galería completa</li>
+                                            <li>✅ Soporte prioritario</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Botones de pago */}
+                                <div style={{display: 'flex', gap: '15px'}}>
+                                    <button
+                                        onClick={() => handleUpgrade('monthly')}
+                                        style={{
+                                            flex: 1,
+                                            padding: '15px',
+                                            background: 'var(--primary)',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            color: '#000000',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold',
+                                            fontSize: '1rem'
+                                        }}
+                                    >
+                                        Mensual - $4.99/mes
+                                    </button>
+                                    <button
+                                        onClick={() => handleUpgrade('yearly')}
+                                        style={{
+                                            flex: 1,
+                                            padding: '15px',
+                                            background: 'linear-gradient(135deg, var(--primary) 0%, #FFD93D 100%)',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            color: '#000000',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold',
+                                            fontSize: '1rem'
+                                        }}
+                                    >
+                                        Anual - $48/año
+                                        <div style={{fontSize: '0.75rem', fontWeight: 'normal'}}>
+                                            (Ahorra 20%)
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <p style={{
+                                    fontSize: '0.75rem',
+                                    color: 'var(--text-dim)',
+                                    textAlign: 'center',
+                                    marginTop: '20px'
+                                }}>
+                                    Pago seguro procesado por Stripe
+                                </p>
+                            </div>
+                        </div>
+                    )}                    
 
                 </div>                                
             );
