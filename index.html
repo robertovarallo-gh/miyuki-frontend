@@ -4080,19 +4080,6 @@
 
                                 </> 
                             )}
-
-                            {/* AGREGAR DISCLAIMER AQUÍ */}
-                            <div style={{
-                                textAlign: 'center', 
-                                color: '#888', 
-                                fontSize: '12px', 
-                                marginTop: '20px', 
-                                padding: '10px',
-                                width: '100%'
-                            }}>
-                                Miyuki® es una marca registrada de MIYUKI Co.,Ltd - Japón
-                            </div>
-
                         </div>
 
                         <div className="card">
@@ -5642,24 +5629,38 @@
                     </div>
 
                     {/* Footer */}
-                    <footer style={{
-                        marginTop: '60px',
-                        padding: '20px',
-                        textAlign: 'center',
-                        borderTop: '1px solid var(--border)',
-                        color: 'var(--text-dim)',
-                        fontSize: '0.9rem'
-                    }}>
-                        ¿Dudas o sugerencias?<br/>
-                        📧 <a 
-                            href="mailto:arapystudio@gmail.com"
-                            style={{
-                                color: 'var(--primary)',
-                                textDecoration: 'none'
-                            }}
-                        >
-                            arapystudio@gmail.com
-                        </a>
+                    <footer 
+                        style={{
+                            marginTop: '60px',
+                            padding: '20px',
+                            borderTop: '1px solid var(--border)',
+                            color: 'var(--text-dim)',
+                            fontSize: '0.85rem',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            gap: '20px',
+                            flexWrap: 'wrap'
+                        }}>
+                        {/* Izquierda: Contacto */}
+                        <div style={{textAlign: 'left'}}>
+                            ¿Dudas o sugerencias?<br/>
+                            📧 <a 
+                                href="mailto:arapystudio@gmail.com"
+                                style={{
+                                    color: 'var(--primary)',
+                                    textDecoration: 'none'
+                                }}
+                            >
+                                arapystudio@gmail.com
+                            </a>
+                        </div>
+                        
+                        {/* Derecha: Copyright */}
+                        <div style={{textAlign: 'right'}}>
+                            Miyuki® es una marca registrada de<br/>
+                            MIYUKI Co., Ltd - Japón
+                        </div>
                     </footer>
 
                 </div>                                
