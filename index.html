@@ -620,6 +620,7 @@
             const [width, setWidth] = useState(5.0);
             const [height, setHeight] = useState(5.0);            
             const [beadSize, setBeadSize] = useState(1.5);
+            const [beadSizeVersion, setBeadSizeVersion] = React.useState(0);
             const [dimensionMode, setDimensionMode] = useState('cm'); // 'cm' o 'beads'
             const [colorCount, setColorCount] = useState(10);
             const [colorMode, setColorMode] = useState('miyuki'); // 'miyuki' or 'rgb'
@@ -883,7 +884,7 @@
                 
                 console.log('✅ Grid overlay dibujado');
                 
-            }, [result, canvasRef.current?.width, canvasRef.current?.height, beadSize]);         
+            }, [result, canvasRef.current?.width, canvasRef.current?.height, beadSize, beadSizeVersion]);         
             
             // Dibujar coordenadas (números 5, 10, 15, M)
             React.useEffect(() => {
@@ -952,7 +953,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [coordsTextReady, result, activeTab, beadSize]);     
+            }, [coordsTextReady, result, activeTab, beadSize, beadSizeVersion]);     
             
             // Dibujar números internos usando rowGuide
             React.useEffect(() => {
@@ -1025,7 +1026,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [numbersReady, result, showNumbers, activeTab, beadSize]);
+            }, [numbersReady, result, showNumbers, activeTab, beadSize, beadSizeVersion]);
 
             // Detectar estado de autenticación
             React.useEffect(() => {
@@ -1286,7 +1287,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [gridCoordsReady, result, activeTab, beadSize]);
+            }, [gridCoordsReady, result, activeTab, beadSize, beadSizeVersion]);
 
             // Resetear showGridInView al cargar nuevo patrón
             React.useEffect(() => {
@@ -4075,7 +4076,13 @@
 
                                                 <div className="controls-group">
                                                     <label>Tamaño de Cuenta</label>
-                                                    <select value={beadSize} onChange={(e) => setBeadSize(parseFloat(e.target.value))}>
+                                                    <select 
+                                                        value={beadSize} 
+                                                        onChange={(e) => {
+                                                            setBeadSize(parseFloat(e.target.value));
+                                                            setBeadSizeVersion(v => v + 1);
+                                                        }}
+                                                    >
                                                         <option value={2.0}>2.0mm - Miyuki Delica</option>
                                                         <option value={1.5}>1.5mm - Seed Beads 15/0</option>
                                                         <option value={1.0}>1.0mm - Seed Beads 18/0</option>
