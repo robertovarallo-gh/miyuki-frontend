@@ -4536,7 +4536,9 @@
                                                         display: 'block',
                                                         marginLeft: '40px',   // ← AGREGAR
                                                         marginTop: '40px',   // ← AGREGAR
-                                                        imageRendering: 'pixelated'  // ← AGREGAR
+                                                        imageRendering: 'pixelated',  // ← AGREGAR
+                                                        maxWidth: 'calc(100% - 80px)',  // ← AGREGAR (resta los márgenes)
+                                                        height: 'auto'                   // ← AGREGAR                                                        
                                                                                                                 
                                                     }}
                                                     onLoad={(e) => {
