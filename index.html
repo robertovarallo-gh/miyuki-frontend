@@ -826,7 +826,7 @@
                 img.onload = () => {
                     console.log('🔍 Entrando en img.onload de Cuadrícula');
 
-                    const imgElement = document.querySelector('#grid-view-container img');
+                    const imgElement = gridViewCanvasRef.current?.parentElement?.querySelector('img');
                     if (!imgElement) {
                         console.log('❌ No se encontró imagen en #grid-view-container');
                         return;
