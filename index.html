@@ -883,7 +883,7 @@
                 
                 console.log('✅ Grid overlay dibujado');
                 
-            }, [result, canvasRef.current?.width, canvasRef.current?.height]);         
+            }, [result, canvasRef.current?.width, canvasRef.current?.height, beadSize]);         
             
             // Dibujar coordenadas (números 5, 10, 15, M)
             React.useEffect(() => {
@@ -952,7 +952,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [coordsTextReady, result, activeTab]);     
+            }, [coordsTextReady, result, activeTab, beadSize]);     
             
             // Dibujar números internos usando rowGuide
             React.useEffect(() => {
@@ -1025,7 +1025,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [numbersReady, result, showNumbers, activeTab]);
+            }, [numbersReady, result, showNumbers, activeTab, beadSize]);
 
             // Detectar estado de autenticación
             React.useEffect(() => {
@@ -1286,7 +1286,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [gridCoordsReady, result, activeTab]);
+            }, [gridCoordsReady, result, activeTab, beadSize]);
 
             // Resetear showGridInView al cargar nuevo patrón
             React.useEffect(() => {
