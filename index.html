@@ -824,11 +824,22 @@
                 const img = new Image();
                 
                 img.onload = () => {
+                    console.log('🔍 Entrando en img.onload de Cuadrícula');
 
                     const imgElement = document.querySelector('#grid-view-container img');
-                    if (!imgElement) return;
+                    if (!imgElement) {
+                        console.log('❌ No se encontró imagen en #grid-view-container');
+                        return;
+                    }
                     
                     const rect = imgElement.getBoundingClientRect();
+
+                    console.log('🔍 Grid Cuadrícula dimensiones:', {
+                        rectWidth: rect.width,
+                        rectHeight: rect.height,
+                        beadsWidth: result.pattern.width,
+                        beadsHeight: result.pattern.height
+                    });                    
                     
                     gridCanvas.width = rect.width;
                     gridCanvas.height = rect.height;
