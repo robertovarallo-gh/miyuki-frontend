@@ -824,9 +824,15 @@
                 const img = new Image();
                 
                 img.onload = () => {
-                    gridCanvas.width = img.width;
-                    gridCanvas.height = img.height;
+
+                    const imgElement = document.querySelector('#grid-view-container img');
+                    if (!imgElement) return;
                     
+                    const rect = imgElement.getBoundingClientRect();
+                    
+                    gridCanvas.width = rect.width;
+                    gridCanvas.height = rect.height;
+
                     const ctx = gridCanvas.getContext('2d');
                     ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
                     
