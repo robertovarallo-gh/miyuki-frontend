@@ -833,6 +833,13 @@
                     const beadsWidth = result.pattern.width;
                     const beadsHeight = result.pattern.height;
                     const isPeyote = result.pattern_type === 'peyote';
+
+                    console.log('🔍 Grid Cuadrícula dimensiones:', {
+                        imgWidth: img.width,
+                        imgHeight: img.height,
+                        beadsWidth: result.pattern.width,
+                        beadsHeight: result.pattern.height
+                    });
                     
                     ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
                     ctx.lineWidth = 1;
