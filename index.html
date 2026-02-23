@@ -3033,6 +3033,9 @@
                         pattern_type: pattern.patternType
                     });
 
+                    setWidth(pattern.width);
+                    setHeight(pattern.height);  
+
                     setActiveTab('grid');  // ← AGREGAR
                     setGridViewReady(false);  // Resetear
                     setPatternVersion(v => v + 1);
