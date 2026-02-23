@@ -1336,6 +1336,14 @@
                 }
             }, [result]);
 
+            // Mostrar modal de auth cuando no hay usuario
+            React.useEffect(() => {
+                if (!user) {
+                    setShowAuthModal(true);
+                }
+            }, [user]);
+
+
             const checkApiConnection = async () => {
                 try {
                     const response = await fetch(`${API_URL}/health`, { 
