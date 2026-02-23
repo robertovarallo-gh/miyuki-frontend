@@ -1285,6 +1285,14 @@
                             console.log('❌ No hay usuario autenticado');
                             setUser(null);
                             setUserData(null);
+                                                        
+                            // Limpiar estados
+                            setResult(null);
+                            setEditedPattern(null);
+                            setEditMode(false);
+                            setActiveTab('grid');
+                            setIsBlankCanvas(false);                            
+
                         }
                     }
                 );
@@ -3212,6 +3220,15 @@
 
                                         <button
                                             onClick={() => {
+                                                // Limpiar todos los estados
+                                                setResult(null);
+                                                setEditedPattern(null);
+                                                setEditMode(false);
+                                                setActiveTab('grid');
+                                                setIsBlankCanvas(false);
+                                                setPatternsFromPhoto(0);
+                                                setPatternsFromScratch(0);
+
                                                 window.firebaseSignOut(window.firebaseAuth);
                                                 setUser(null);
                                             }}
