@@ -1615,8 +1615,8 @@
 
                 try {
                     const priceId = plan === 'monthly' 
-                        ? 'price_1T2ZcF8hc5PM7463OHDxSErz'  // Mensual
-                        : 'price_1T2ZcF8hc5PM7463MDrONqhk'; // Anual
+                        ? 'price_1T45eV6r7v0eroiuzzu2uchp'  // Live mensual
+                        : 'price_1T45ff6r7v0eroiuiH3IOeqg'; // Live anual
 
                     // Llamar al backend para crear sesión de checkout
                     const response = await fetch(`${API_URL}/create-checkout-session`, {
@@ -1634,7 +1634,7 @@
 
                     if (data.sessionId) {
                         // Redirigir a Stripe Checkout
-                        const stripe = window.Stripe('pk_test_51T2ZWR8hc5PM7463mrf9AMTwqHiHN0z1qoy44aC3icBVk8uT9srkzGgQYM1UTkzaGR4YJQfdmNlNxpnSkO7mxW6100af9wc4Y0');
+                        const stripe = window.Stripe('pk_live_51T2ZWG6r7v0eroiuAu9BtWwNCjouKcdEWX0OAJTxJpxiD6vVJ4re9z8GSY6hJ5lKjIyxdFoQtXbWkB6sjl8zMGY700z243YfEC');
                         stripe.redirectToCheckout({ sessionId: data.sessionId });
                     } else {
                         alert('Error al crear sesión de pago: ' + data.error);
