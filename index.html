@@ -3539,7 +3539,10 @@
                                     <div className="card" style={{marginBottom: '20px'}}>
                                         <div style={{display: 'flex', gap: '10px'}}>
                                             <button 
-                                                onClick={() => setCreationMode('photo')}
+                                                onClick={() => {
+                                                    setCreationMode('photo');
+                                                    setResult(null);  // ← AGREGAR
+                                                }}
                                                 style={{
                                                     flex: 1,
                                                     padding: '15px',
@@ -3555,7 +3558,10 @@
                                                 📸 Desde Foto
                                             </button>
                                             <button 
-                                                onClick={() => setCreationMode('scratch')}
+                                                onClick={() => {
+                                                    setCreationMode('scratch');
+                                                    setResult(null);  // ← AGREGAR
+                                                }}
                                                 style={{
                                                     flex: 1,
                                                     padding: '15px',
