@@ -3533,7 +3533,7 @@
                             </button>
 
                             {/* Contenido del menú (ocultar si está colapsado) */}
-                            {!menuCollapsed && !result && (
+                            {!menuCollapsed && (
                                 <>
                                     {/* Toggle Modo de Creación */}
                                     <div className="card" style={{marginBottom: '20px'}}>
@@ -3609,7 +3609,7 @@
                                         </div>
                                     </div>
 
-                                    {creationMode === 'photo' && (
+                                    {!result &&creationMode === 'photo' && (
                                         <>
                                             <div className="card">
                                                 <h2>📸 Subir Imagen</h2>
@@ -3973,7 +3973,7 @@
                                         </>
                                     )}
 
-                                    {creationMode === 'scratch' && (
+                                    {!result && creationMode === 'scratch' && (
                                         <>
                                             {/* Card Crear Desde Cero */}
                                             <div className="card">
@@ -4168,7 +4168,7 @@
                                         </>
                                     )}
 
-                                    {creationMode === 'gallery' && (
+                                    {!result && creationMode === 'gallery' && (
                                         <div className="card" style={{marginTop: '20px'}}>
                                             <h2>📚 Galería de Patrones</h2>
                                             
