@@ -4840,14 +4840,12 @@
                                                                 ref={canvasRef}
                                                                 className="editor-canvas"
                                                                 onClick={(e) => {
-                                                                    // Cancelar click anterior si existe
+                                                                    console.log('👆 SINGLE CLICK - toolMode:', toolMode);
                                                                     if (clickTimeoutRef.current) {
                                                                         clearTimeout(clickTimeoutRef.current);
                                                                     }
-                                                                    
-                                                                    // Esperar 250ms antes de ejecutar el click
-                                                                    // Si hay double-click, este timeout se cancelará
                                                                     clickTimeoutRef.current = setTimeout(() => {
+                                                                        console.log('⏱️ TIMEOUT EJECUTADO');
                                                                         if (toolMode === 'paint') {
                                                                             handleCanvasClick(e);
                                                                         } else if (toolMode === 'paste') {
@@ -4858,7 +4856,7 @@
                                                                     }, 250);
                                                                 }}
                                                                 onDoubleClick={(e) => {
-                                                                    // Cancelar el click simple pendiente
+                                                                    console.log('👆👆 DOUBLE CLICK DISPARADO');
                                                                     if (clickTimeoutRef.current) {
                                                                         clearTimeout(clickTimeoutRef.current);
                                                                         clickTimeoutRef.current = null;
