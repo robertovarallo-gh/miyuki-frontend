@@ -663,7 +663,6 @@
             const [editedPattern, setEditedPattern] = useState(null);
             const [showNumbers, setShowNumbers] = useState(false);  // ← AGREGAR
             const [showAxes, setShowAxes] = useState(false);
-            const [axesReady, setAxesReady] = React.useState(false);
             const fileInputRef = useRef(null);
             const canvasRef = useRef(null);
             const [replaceFromColor, setReplaceFromColor] = useState(null);
@@ -1214,7 +1213,7 @@
                     ctx.fillText(isMid ? 'M' : String(y + 1), margin / 2, py);
                 }
 
-            }, [axesReady, showAxes, result, activeTab, beadSize, beadSizeVersion]);
+            }, [showAxes, result, activeTab, beadSize, beadSizeVersion]);
 
             // Vista Editor - Dibujar grid overlay (Editor)
             React.useEffect(() => {
@@ -4781,8 +4780,8 @@
                                                                 />
                                                             )}
 
-                                                            {/* Numbers overlay */}
-                                                            {result && showNumbers && (
+                                                            {/* Numbers overlay - siempre montado, visible solo cuando showNumbers */}
+                                                            {result && (
                                                                 <canvas
                                                                     ref={(el) => {
                                                                         numbersCanvasRef.current = el;
@@ -4792,23 +4791,23 @@
                                                                         position: 'absolute',
                                                                         top: 0,
                                                                         left: 0,
-                                                                        pointerEvents: 'none'
+                                                                        pointerEvents: 'none',
+                                                                        display: showNumbers ? 'block' : 'none'
                                                                     }}
                                                                 />
                                                             )}
 
                                                             {/* Axes overlay */}
-                                                            {result && showAxes && (
+                                                            {/* Axes overlay - siempre montado, visible solo cuando showAxes */}
+                                                            {result && (
                                                                 <canvas
-                                                                    ref={(el) => {
-                                                                        axesCanvasRef.current = el;
-                                                                        if (el) setAxesReady(r => !r);
-                                                                    }}
+                                                                    ref={axesCanvasRef}
                                                                     style={{
                                                                         position: 'absolute',
                                                                         top: 0,
                                                                         left: 0,
-                                                                        pointerEvents: 'none'
+                                                                        pointerEvents: 'none',
+                                                                        display: showAxes ? 'block' : 'none'
                                                                     }}
                                                                 />
                                                             )}
