@@ -215,7 +215,7 @@ const translations_en = {
     limitReached: "⚠️ You've reached the pattern limit for your plan",
     upgradeForMore: "💎 Upgrade to Premium for unlimited patterns",
     patternSavedAs: "✅ Pattern saved as:",
-    fileNamePrompt: "File name (without extension):"
+    fileNamePrompt: "File name (without extension):",
     editsSaved: "✅ Edits saved successfully",
     errorLoading: "❌ Error loading pattern:",
     errorSaving: "❌ Error saving edits:",

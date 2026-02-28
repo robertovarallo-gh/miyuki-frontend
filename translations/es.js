@@ -215,6 +215,7 @@ const translations_es = {
     limitReached: "⚠️ Has alcanzado el límite de patrones para tu plan",
     upgradeForMore: "💎 Upgrade a Premium para patrones ilimitados",
     patternSavedAs: "✅ Patrón guardado como:",
+    fileNamePrompt: "Nombre del archivo (sin extensión):",
     editsSaved: "✅ Ediciones guardadas correctamente",
     errorLoading: "❌ Error cargando patrón:",
     errorSaving: "❌ Error guardando ediciones:",
