@@ -679,7 +679,7 @@
             const [modalPaletteTab, setModalPaletteTab] = useState('used'); // 'used' o 'all'
             const [modalSearchText, setModalSearchText] = useState('');
             const [modalSelectedCategory, setModalSelectedCategory] = useState('all');
-            const [clickTimeout, setClickTimeout] = useState(null);
+            const clickTimeoutRef = React.useRef(null);
             const [modalSelectedColor, setModalSelectedColor] = useState(null);
             const [cachedUsedColors, setCachedUsedColors] = useState([]);
             const [lastCacheVersion, setLastCacheVersion] = useState(-1);
@@ -4841,13 +4841,13 @@
                                                                 className="editor-canvas"
                                                                 onClick={(e) => {
                                                                     // Cancelar click anterior si existe
-                                                                    if (clickTimeout) {
-                                                                        clearTimeout(clickTimeout);
+                                                                    if (clickTimeoutRef.current) {
+                                                                        clearTimeout(clickTimeoutRef.current);
                                                                     }
                                                                     
                                                                     // Esperar 250ms antes de ejecutar el click
                                                                     // Si hay double-click, este timeout se cancelará
-                                                                    const timeout = setTimeout(() => {
+                                                                    clickTimeoutRef.current = setTimeout(() => {
                                                                         if (toolMode === 'paint') {
                                                                             handleCanvasClick(e);
                                                                         } else if (toolMode === 'paste') {
@@ -4856,14 +4856,12 @@
                                                                             handleEraseClick(e);
                                                                         }
                                                                     }, 250);
-                                                                    
-                                                                    setClickTimeout(timeout);
                                                                 }}
                                                                 onDoubleClick={(e) => {
                                                                     // Cancelar el click simple pendiente
-                                                                    if (clickTimeout) {
-                                                                        clearTimeout(clickTimeout);
-                                                                        setClickTimeout(null);
+                                                                    if (clickTimeoutRef.current) {
+                                                                        clearTimeout(clickTimeoutRef.current);
+                                                                        clickTimeoutRef.current = null;
                                                                     }
                                                                     handleDoubleClick(e);
                                                                 }}
