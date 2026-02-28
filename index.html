@@ -662,6 +662,7 @@
             const [isSelecting, setIsSelecting] = useState(false);
             const [editedPattern, setEditedPattern] = useState(null);
             const [showNumbers, setShowNumbers] = useState(false);  // ← AGREGAR
+            const [showAxes, setShowAxes] = useState(false);
             const fileInputRef = useRef(null);
             const canvasRef = useRef(null);
             const [replaceFromColor, setReplaceFromColor] = useState(null);
@@ -696,6 +697,7 @@
             const gridCoordsCanvasRef = React.useRef(null);
             const [gridCoordsReady, setGridCoordsReady] = React.useState(false);
             const numbersCanvasRef = React.useRef(null);
+            const axesCanvasRef = React.useRef(null);
             const [numbersReady, setNumbersReady] = React.useState(false);
             const [patternVersion, setPatternVersion] = React.useState(0);
 
@@ -1157,6 +1159,61 @@
                 });
                 
             }, [numbersReady, result, showNumbers, activeTab, beadSize, beadSizeVersion]);
+
+            // Vista Editor - Dibujar ejes X/Y overlay
+            React.useEffect(() => {
+                const axesCanvas = axesCanvasRef.current;
+                if (!axesCanvas) return;
+                const ctx = axesCanvas.getContext('2d');
+
+                if (!result || activeTab !== 'editor' || !showAxes || !canvasRef.current) {
+                    ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
+                    return;
+                }
+
+                const mainCanvas = canvasRef.current;
+                const beadsWidth = result.pattern.width;
+                const beadsHeight = result.pattern.height;
+                const cellW = mainCanvas.width / beadsWidth;
+                const cellH = mainCanvas.height / beadsHeight;
+                const margin = 24;
+
+                axesCanvas.width = mainCanvas.width + margin;
+                axesCanvas.height = mainCanvas.height + margin;
+                axesCanvas.style.left = `-${margin}px`;
+                axesCanvas.style.top = `-${margin}px`;
+
+                ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
+
+                // Fondo de los ejes
+                ctx.fillStyle = 'rgba(20, 20, 20, 0.8)';
+                ctx.fillRect(0, 0, axesCanvas.width, margin); // top
+                ctx.fillRect(0, 0, margin, axesCanvas.height); // left
+
+                const fontSize = Math.max(7, Math.min(cellW * 0.45, 11));
+                ctx.font = `bold ${fontSize}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const midX = Math.ceil(beadsWidth / 2);
+                const midY = Math.ceil(beadsHeight / 2);
+
+                // Eje X — columnas
+                for (let x = 0; x < beadsWidth; x++) {
+                    const px = margin + (x + 0.5) * cellW;
+                    const isMid = (x + 1) === midX;
+                    ctx.fillStyle = isMid ? '#00ced1' : '#ffffff';
+                    ctx.fillText(isMid ? 'M' : String(x + 1), px, margin / 2);
+                }
+
+                // Eje Y — filas
+                for (let y = 0; y < beadsHeight; y++) {
+                    const py = margin + (y + 0.5) * cellH;
+                    const isMid = (y + 1) === midY;
+                    ctx.fillStyle = isMid ? '#00ced1' : '#ffffff';
+                    ctx.fillText(isMid ? 'M' : String(y + 1), margin / 2, py);
+                }
+
+            }, [showAxes, result, activeTab, beadSize, beadSizeVersion]);
 
             // Vista Editor - Dibujar grid overlay (Editor)
             React.useEffect(() => {
