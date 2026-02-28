@@ -1728,6 +1728,10 @@
             };
 
             const downloadImage = (imageData, filename) => {
+                if (!imageData) {
+                    alert(i18n.t('messages.errorImageNotFound'));
+                    return;
+                }
                 const link = document.createElement('a');
                 link.download = filename;
                 link.href = imageData;
@@ -1822,7 +1826,7 @@
                     
                     // Descargar
                     const link = document.createElement('a');
-                    link.download = 'patron-coordenadas-con-numeros.png';
+                    link.download = i18n.currentLanguage === 'en' ? 'pattern-coordinates-with-numbers.png' : 'patron-coordenadas-con-numeros.png';
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     
@@ -4536,7 +4540,15 @@
                                                                     alert(i18n.t('downloads.premiumRequired'));
                                                                     return;
                                                                 }                                                        
-                                                        downloadImage(result.images.coordinates, 'patron-coordenadas.png');
+                                                        const coordContainer = document.getElementById('coordinate-image-container');
+                                                        if (!coordContainer) {
+                                                            alert(i18n.t('messages.errorImageNotFound'));
+                                                            return;
+                                                        }
+                                                        html2canvas(coordContainer, { backgroundColor: '#ffffff', scale: 2, logging: false }).then(canvas => {
+                                                            const filename = i18n.currentLanguage === 'en' ? 'pattern-coordinates.png' : 'patron-coordenadas.png';
+                                                            downloadImage(canvas.toDataURL('image/png'), filename);
+                                                        });
                                                     }}
                                                     style={{
                                                         opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
