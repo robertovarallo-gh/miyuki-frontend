@@ -4545,9 +4545,15 @@
                                                             alert(i18n.t('messages.errorImageNotFound'));
                                                             return;
                                                         }
+                                                        // Ocultar temporalmente el canvas de números si está visible
+                                                        const numbersCanvas = numbersCanvasRef.current;
+                                                        if (numbersCanvas) numbersCanvas.style.display = 'none';
                                                         html2canvas(coordContainer, { backgroundColor: '#ffffff', scale: 2, logging: false }).then(canvas => {
+                                                            if (numbersCanvas) numbersCanvas.style.display = '';
                                                             const filename = i18n.currentLanguage === 'en' ? 'pattern-coordinates.png' : 'patron-coordenadas.png';
                                                             downloadImage(canvas.toDataURL('image/png'), filename);
+                                                        }).catch(() => {
+                                                            if (numbersCanvas) numbersCanvas.style.display = '';
                                                         });
                                                     }}
                                                     style={{
