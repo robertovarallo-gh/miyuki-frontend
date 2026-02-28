@@ -69,6 +69,7 @@ const translations_en = {
     beads: "beads",
     generatePattern: "🎨 Generate Pattern",
     generating: "⏳ Generating...",
+    patternInfo: "📊 Pattern:",
     emptyState: "Upload an image and generate your pattern",
     ratioLabel: "Ratio:",
     horizontal: "Horizontal",
@@ -112,7 +113,8 @@ const translations_en = {
     rowGuideTitle: "Row-by-row assembly guide",
     rowGuideDesc: "Follow the exact sequence from left to right",
     row: "Row",
-    sequence: "Sequence (← to →):"
+    sequence: "Sequence (← to →):",
+    colorCount: "colors"
   },
 
   // Downloads
@@ -212,7 +214,7 @@ const translations_en = {
   messages: {
     limitReached: "⚠️ You've reached the pattern limit for your plan",
     upgradeForMore: "💎 Upgrade to Premium for unlimited patterns",
-    patternLoaded: "✅ Pattern loaded successfully",
+    patternSavedAs: "✅ Pattern saved as:",
     editsSaved: "✅ Edits saved successfully",
     errorLoading: "❌ Error loading pattern:",
     errorSaving: "❌ Error saving edits:",

@@ -69,6 +69,7 @@ const translations_es = {
     beads: "cuentas",
     generatePattern: "🎨 Generar Patrón",
     generating: "⏳ Generando...",
+    patternInfo: "📊 Patrón:",
     emptyState: "Sube una imagen y genera tu patrón",
     ratioLabel: "Relación:",
     horizontal: "Horizontal",
@@ -112,7 +113,8 @@ const translations_es = {
     rowGuideTitle: "Guía de montaje fila por fila",
     rowGuideDesc: "Sigue la secuencia exacta de izquierda a derecha",
     row: "Fila",
-    sequence: "Secuencia (← a →):"
+    sequence: "Secuencia (← a →):",
+    colorCount: "colores"
   },
 
   // Downloads
@@ -212,7 +214,7 @@ const translations_es = {
   messages: {
     limitReached: "⚠️ Has alcanzado el límite de patrones para tu plan",
     upgradeForMore: "💎 Upgrade a Premium para patrones ilimitados",
-    patternLoaded: "✅ Patrón cargado correctamente",
+    patternSavedAs: "✅ Patrón guardado como:",
     editsSaved: "✅ Ediciones guardadas correctamente",
     errorLoading: "❌ Error cargando patrón:",
     errorSaving: "❌ Error guardando ediciones:",

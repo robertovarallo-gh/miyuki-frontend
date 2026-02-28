@@ -1757,13 +1757,16 @@
                                 height: result.pattern.height,
                                 total_beads: result.pattern.total_beads
                             },
-                            colorMode: colorMode  // ← AGREGAR
+                            colorMode: colorMode,
+                            lang: i18n.currentLanguage
                         })
                     });
                     
                     const data = await response.json();
                     if (data.success) {
-                        const filename = colorMode === 'miyuki' ? 'guia-colores-miyuki.pdf' : 'guia-colores-rgb.pdf';
+                        const filename = i18n.currentLanguage === 'en'
+                            ? (colorMode === 'miyuki' ? 'color-guide-miyuki.pdf' : 'color-guide-rgb.pdf')
+                            : (colorMode === 'miyuki' ? 'guia-colores-miyuki.pdf' : 'guia-colores-rgb.pdf');
                         downloadPDF(data.pdf, filename);
                     }
                 } catch (err) {
@@ -1786,13 +1789,16 @@
                                 width: result.pattern.width,
                                 height: result.pattern.height,
                                 total_beads: result.pattern.total_beads
-                            }
+                            },
+                            colorMode: colorMode,
+                            lang: i18n.currentLanguage
                         })
                     });
                     
                     const data = await response.json();
                     if (data.success) {
-                        downloadPDF(data.pdf, 'guia-montaje-por-fila.pdf');
+                        const filename = i18n.currentLanguage === 'en' ? 'assembly-guide.pdf' : 'guia-montaje-por-fila.pdf';
+                        downloadPDF(data.pdf, filename);
                     }
                 } catch (err) {
                     console.error('Error generating assembly guide:', err);
@@ -2094,7 +2100,7 @@
                 URL.revokeObjectURL(url);
 
                 console.log('✅ Patrón guardado:', filename);
-                alert(`✅ Patrón guardado como:\n${filename}`);
+                alert(`${i18n.t('messages.patternSavedAs')}\n${filename}`);
 
                 // Salir del modo editor
                 if (editMode || isBlankCanvas) {
@@ -2750,7 +2756,7 @@
                             setUsedColorsVersion(v => v + 1);  // ← Y ESTA TAMBIÉN (para actualizar cache)
                             setProcessing(false);
                             setHasUnsavedChanges(false);
-                            alert('✅ Cambios guardados y guías actualizadas.');
+                            alert(i18n.t('messages.editsSaved'));
                         }
                     } catch (err) {
                         setError('Error guardando ediciones: ' + err.message);
@@ -3968,7 +3974,7 @@
 
                                                     return (
                                                         <div className="info-text">
-                                                            <strong>📊 Patrón:</strong><br/>
+                                                            <strong>{i18n.t('fromPhoto.patternInfo')}</strong><br/>
                                                             {displayWidthBeads} x {displayHeightBeads} beads<br/>
                                                             Total: {displayTotalBeads.toLocaleString()} {i18n.t('fromPhoto.beads')}
                                                         </div>
