@@ -110,6 +110,8 @@ const translations_es = {
     showGrid: "👁️ Mostrar Grid",
     hideNumbers: "🔢 Ocultar Números",
     showNumbers: "🔢 Mostrar Números",
+    showAxes: "📍 Mostrar Ejes",
+    hideAxes: "📍 Ocultar Ejes",
     rowGuideTitle: "Guía de montaje fila por fila",
     rowGuideDesc: "Sigue la secuencia exacta de izquierda a derecha",
     row: "Fila",

@@ -662,6 +662,7 @@
             const [isSelecting, setIsSelecting] = useState(false);
             const [editedPattern, setEditedPattern] = useState(null);
             const [showNumbers, setShowNumbers] = useState(false);  // ← AGREGAR
+            const [showAxes, setShowAxes] = useState(false);
             const fileInputRef = useRef(null);
             const canvasRef = useRef(null);
             const [replaceFromColor, setReplaceFromColor] = useState(null);
@@ -696,6 +697,7 @@
             const gridCoordsCanvasRef = React.useRef(null);
             const [gridCoordsReady, setGridCoordsReady] = React.useState(false);
             const numbersCanvasRef = React.useRef(null);
+            const axesCanvasRef = React.useRef(null);
             const [numbersReady, setNumbersReady] = React.useState(false);
             const [patternVersion, setPatternVersion] = React.useState(0);
 
@@ -1171,6 +1173,78 @@
                 
             }, [numbersReady, result, showNumbers, activeTab, beadSize, beadSizeVersion]);
 
+            // Vista Editor - Dibujar ejes X/Y overlay
+            React.useEffect(() => {
+                if (!axesCanvasRef.current || !canvasRef.current || !result || activeTab !== 'editor') {
+                    if (axesCanvasRef.current) {
+                        const ctx = axesCanvasRef.current.getContext('2d');
+                        ctx.clearRect(0, 0, axesCanvasRef.current.width, axesCanvasRef.current.height);
+                    }
+                    return;
+                }
+                if (!showAxes) {
+                    const ctx = axesCanvasRef.current.getContext('2d');
+                    ctx.clearRect(0, 0, axesCanvasRef.current.width, axesCanvasRef.current.height);
+                    return;
+                }
+
+                const mainCanvas = canvasRef.current;
+                const axesCanvas = axesCanvasRef.current;
+                const margin = 28; // espacio para los ejes
+
+                axesCanvas.width = mainCanvas.width + margin;
+                axesCanvas.height = mainCanvas.height + margin;
+                axesCanvas.style.left = `-${margin}px`;
+                axesCanvas.style.top = `-${margin}px`;
+
+                const ctx = axesCanvas.getContext('2d');
+                ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
+
+                const beadsWidth = result.pattern.width;
+                const beadsHeight = result.pattern.height;
+                const cellW = mainCanvas.width / beadsWidth;
+                const cellH = mainCanvas.height / beadsHeight;
+
+                ctx.fillStyle = 'rgba(20, 20, 20, 0.75)';
+                ctx.fillRect(0, 0, axesCanvas.width, margin); // top bar
+                ctx.fillRect(0, 0, margin, axesCanvas.height); // left bar
+
+                ctx.fillStyle = '#ffffff';
+                const fontSize = Math.max(7, Math.min(cellW, 11));
+                ctx.font = `bold ${fontSize}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // Eje X — números de columna
+                for (let x = 0; x < beadsWidth; x++) {
+                    const px = margin + (x + 0.5) * cellW;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(String(x + 1), px, margin / 2);
+
+                    // Punto medio M en X
+                    if ((x + 1) === Math.ceil(beadsWidth / 2)) {
+                        ctx.fillStyle = 'var(--primary, #00ced1)';
+                        ctx.fillText('M', px, margin / 2);
+                        ctx.fillStyle = '#ffffff';
+                    }
+                }
+
+                // Eje Y — números de fila
+                for (let y = 0; y < beadsHeight; y++) {
+                    const py = margin + (y + 0.5) * cellH;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(String(y + 1), margin / 2, py);
+
+                    // Punto medio M en Y
+                    if ((y + 1) === Math.ceil(beadsHeight / 2)) {
+                        ctx.fillStyle = 'var(--primary, #00ced1)';
+                        ctx.fillText('M', margin / 2, py);
+                        ctx.fillStyle = '#ffffff';
+                    }
+                }
+
+            }, [showAxes, result, activeTab, beadSize, beadSizeVersion]);
+
             // Vista Editor - Dibujar grid overlay (Editor)
             React.useEffect(() => {
 
@@ -1443,8 +1517,6 @@
             };
 
             const handleDoubleClick = (e) => {
-                console.time('Double click total'); // ← AGREGAR
-
                 if (!canvasRef.current || lastViewedTab === 'coords') return;
                 
                 const canvas = canvasRef.current;
@@ -1507,7 +1579,7 @@
                     rgb: [r, g, b]
                 });
 
-                console.timeEnd('Double click total'); // ← AGREGAR
+
                 
                 // Resetear búsqueda del modal
                 setModalSearchText('');
@@ -4393,6 +4465,24 @@
                                                 {showGridInView ? i18n.t('results.hideGrid') : i18n.t('results.showGrid')}
                                             </button>
                                         )}
+
+                                        {activeTab === 'editor' && (editMode || isBlankCanvas) && (
+                                            <button
+                                                onClick={() => setShowAxes(!showAxes)}
+                                                style={{
+                                                    marginLeft: '10px',
+                                                    padding: '10px 20px',
+                                                    backgroundColor: showAxes ? 'var(--primary)' : 'var(--surface-light)',
+                                                    color: showAxes ? '#000000' : 'var(--text)',
+                                                    border: 'none',
+                                                    borderRadius: '8px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: showAxes ? 'bold' : 'normal'
+                                                }}
+                                            >
+                                                {showAxes ? i18n.t('results.hideAxes') : i18n.t('results.showAxes')}
+                                            </button>
+                                        )}
                                     </div>
 
                                     {/* Botones de edición cuando está en modo Editor */}
@@ -4840,12 +4930,10 @@
                                                                 ref={canvasRef}
                                                                 className="editor-canvas"
                                                                 onClick={(e) => {
-                                                                    console.log('👆 SINGLE CLICK - toolMode:', toolMode);
                                                                     if (clickTimeoutRef.current) {
                                                                         clearTimeout(clickTimeoutRef.current);
                                                                     }
                                                                     clickTimeoutRef.current = setTimeout(() => {
-                                                                        console.log('⏱️ TIMEOUT EJECUTADO');
                                                                         if (toolMode === 'paint') {
                                                                             handleCanvasClick(e);
                                                                         } else if (toolMode === 'paste') {
@@ -4856,7 +4944,6 @@
                                                                     }, 250);
                                                                 }}
                                                                 onDoubleClick={(e) => {
-                                                                    console.log('👆👆 DOUBLE CLICK DISPARADO');
                                                                     if (clickTimeoutRef.current) {
                                                                         clearTimeout(clickTimeoutRef.current);
                                                                         clickTimeoutRef.current = null;
@@ -4888,6 +4975,19 @@
                                                                         left: 0,
                                                                         pointerEvents: 'none',
                                                                         imageRendering: 'pixelated'
+                                                                    }}
+                                                                />
+                                                            )}
+
+                                                            {/* Axes overlay */}
+                                                            {result && showAxes && (
+                                                                <canvas
+                                                                    ref={axesCanvasRef}
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        top: 0,
+                                                                        left: 0,
+                                                                        pointerEvents: 'none'
                                                                     }}
                                                                 />
                                                             )}
