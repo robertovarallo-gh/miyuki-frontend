@@ -1185,8 +1185,8 @@
 
                 ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
 
-                const barW = Math.min(cellW * 0.9, 20); // ancho de la barra del eje
-                const barH = Math.min(cellH * 0.9, 20);
+                const barW = Math.max(18, Math.min(cellW * 0.9, 24));
+                const barH = Math.max(18, Math.min(cellH * 0.9, 24));
 
                 const fontSize = Math.max(6, Math.min(barW * 0.7, barH * 0.7, 11));
                 ctx.font = `bold ${fontSize}px Arial`;
@@ -1216,7 +1216,7 @@
                     ctx.fillText(isMid ? 'M' : String(y + 1), barW / 2, py);
                 }
 
-            }, [showAxes, result, activeTab, beadSize, beadSizeVersion]);
+            }, [showAxes, result, activeTab, beadSize, beadSizeVersion, canvasRef.current?.width, canvasRef.current?.height]);
 
             // Vista Editor - Dibujar grid overlay (Editor)
             React.useEffect(() => {
