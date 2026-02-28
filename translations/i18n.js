@@ -10,6 +10,11 @@ const i18n = {
   detectLanguage() {
     const hostname = window.location.hostname;
     
+    // Query param para testing (?lang=en o ?lang=es)
+    const urlParams = new URLSearchParams(window.location.search);
+    const langParam = urlParams.get('lang');
+    if (langParam === 'en' || langParam === 'es') return langParam;
+    
     if (hostname === 'myeasybeads.com' || hostname.includes('myeasybeads')) {
       return 'en';
     }
