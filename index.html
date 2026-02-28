@@ -1163,6 +1163,7 @@
             // Vista Editor - Dibujar ejes X/Y overlay
             React.useEffect(() => {
                 const axesCanvas = axesCanvasRef.current;
+                console.log('🔍 AXES useEffect - showAxes:', showAxes, 'axesCanvas:', !!axesCanvas, 'result:', !!result, 'activeTab:', activeTab, 'mainCanvas:', canvasRef.current?.width);
                 if (!axesCanvas) return;
                 const ctx = axesCanvas.getContext('2d');
 
@@ -1172,6 +1173,7 @@
                 }
 
                 const mainCanvas = canvasRef.current;
+                console.log('🎨 AXES drawing - mainCanvas size:', mainCanvas.width, 'x', mainCanvas.height);
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
                 const cellW = mainCanvas.width / beadsWidth;
