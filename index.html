@@ -662,7 +662,6 @@
             const [isSelecting, setIsSelecting] = useState(false);
             const [editedPattern, setEditedPattern] = useState(null);
             const [showNumbers, setShowNumbers] = useState(false);  // ← AGREGAR
-            const [showAxes, setShowAxes] = useState(false);
             const fileInputRef = useRef(null);
             const canvasRef = useRef(null);
             const [replaceFromColor, setReplaceFromColor] = useState(null);
@@ -680,7 +679,7 @@
             const [modalPaletteTab, setModalPaletteTab] = useState('used'); // 'used' o 'all'
             const [modalSearchText, setModalSearchText] = useState('');
             const [modalSelectedCategory, setModalSelectedCategory] = useState('all');
-            const clickTimeoutRef = React.useRef(null);
+            const [clickTimeout, setClickTimeout] = useState(null);
             const [modalSelectedColor, setModalSelectedColor] = useState(null);
             const [cachedUsedColors, setCachedUsedColors] = useState([]);
             const [lastCacheVersion, setLastCacheVersion] = useState(-1);
@@ -697,24 +696,23 @@
             const gridCoordsCanvasRef = React.useRef(null);
             const [gridCoordsReady, setGridCoordsReady] = React.useState(false);
             const numbersCanvasRef = React.useRef(null);
-            const axesCanvasRef = React.useRef(null);
             const [numbersReady, setNumbersReady] = React.useState(false);
             const [patternVersion, setPatternVersion] = React.useState(0);
 
 
             const CATEGORIES = {
-                'all': { emoji: '🎨', name: i18n.t('categories.all') },
-                'rojos': { emoji: '🔴', name: i18n.t('categories.rojos') },
-                'rosas': { emoji: '🩷', name: i18n.t('categories.rosas') },
-                'naranjas': { emoji: '🟠', name: i18n.t('categories.naranjas') },
-                'amarillos': { emoji: '🟡', name: i18n.t('categories.amarillos') },
-                'verdes': { emoji: '🟢', name: i18n.t('categories.verdes') },
-                'azules': { emoji: '🔵', name: i18n.t('categories.azules') },
-                'morados': { emoji: '🟣', name: i18n.t('categories.morados') },
-                'blancos': { emoji: '⚪', name: i18n.t('categories.blancos') },
-                'grises': { emoji: '⚫', name: i18n.t('categories.grises') },
-                'negros': { emoji: '⬛', name: i18n.t('categories.negros') },
-                'metalicos': { emoji: '✨', name: i18n.t('categories.metalicos') }
+                'all': { emoji: '🎨', name: 'Todos' },
+                'rojos': { emoji: '🔴', name: 'Rojos' },
+                'rosas': { emoji: '🩷', name: 'Rosas' },
+                'naranjas': { emoji: '🟠', name: 'Naranjas' },
+                'amarillos': { emoji: '🟡', name: 'Amarillos' },
+                'verdes': { emoji: '🟢', name: 'Verdes' },
+                'azules': { emoji: '🔵', name: 'Azules' },
+                'morados': { emoji: '🟣', name: 'Morados' },
+                'blancos': { emoji: '⚪', name: 'Blancos' },
+                'grises': { emoji: '⚫', name: 'Grises' },
+                'negros': { emoji: '⬛', name: 'Negros' },
+                'metalicos': { emoji: '✨', name: 'Metálicos' }
             };            
 
             useEffect(() => {
@@ -1103,147 +1101,62 @@
             // Vista Coordinadas - Dibujar números internos usando rowGuide - vista Coordenadas
             React.useEffect(() => {
                 if (!numbersCanvasRef.current || !result || !showNumbers || !result.rowGuide) return;
+                if (activeTab !== 'editor') return;
                 
-                const canvas = numbersCanvasRef.current;
-                const img = new Image();
-                
-                img.onload = () => {
-                    const imgElement = document.querySelector('#coordinate-image-container img');
-                    if (!imgElement) return;
-                    
-                    const rect = imgElement.getBoundingClientRect();
-                    const margin = 40;
-                    
-                    canvas.width = rect.width + margin;
-                    canvas.height = rect.height + margin;
-                    
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    
-                    const beadsWidth = result.pattern.width;
-                    const beadsHeight = result.pattern.height;
-                    const cellWidth = rect.width / beadsWidth;
-                    const cellHeight = rect.height / beadsHeight;
-                    
-                    // Calcular tamaño de fuente
-                    const fontSize = Math.max(8, Math.min(cellWidth, cellHeight) * 0.4);
-                    ctx.font = `bold ${fontSize}px Arial`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    // Función para obtener color de contraste
-                    const getContrastColor = (rgb) => {
-                        const brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
-                        return brightness > 128 ? 'black' : 'white';
-                    };
-                    
-                    // Cargar paleta completa para obtener RGB
-                    const colorMap = {};
-                    if (result.colors && result.colors.colors) {
-                        result.colors.colors.forEach(c => {
-                            colorMap[c.code] = c.rgb;
-                        });
-                    }
-                    
-                    // Dibujar números usando rowGuide
-                    result.rowGuide.rows.forEach((row, rowIndex) => {
-                        let xPos = 0;
-                        
-                        row.sequence.forEach(segment => {
-                            const rgb = colorMap[segment.code] || [128, 128, 128];
-                            const textColor = getContrastColor(rgb);
-                            
-                            for (let i = 0; i < segment.count; i++) {
-                                const x = xPos + i;
-                                const canvasX = margin + (x + 0.5) * cellWidth;
-                                const canvasY = margin + (rowIndex + 0.5) * cellHeight;
-                                
-                                ctx.fillStyle = textColor;
-                                ctx.fillText(String(i + 1), canvasX, canvasY);
-                            }
-                            
-                            xPos += segment.count;
-                        });
-                    });
-                    
-                    console.log('✅ Números internos dibujados desde rowGuide');
-                };
-                
-                img.src = result.images.grid;
-                
-            }, [numbersReady, result, showNumbers, activeTab, beadSize, beadSizeVersion]);
-
-            // Vista Editor - Dibujar ejes X/Y overlay
-            React.useEffect(() => {
-                if (!axesCanvasRef.current || !canvasRef.current || !result || activeTab !== 'editor') {
-                    if (axesCanvasRef.current) {
-                        const ctx = axesCanvasRef.current.getContext('2d');
-                        ctx.clearRect(0, 0, axesCanvasRef.current.width, axesCanvasRef.current.height);
-                    }
-                    return;
-                }
-                if (!showAxes) {
-                    const ctx = axesCanvasRef.current.getContext('2d');
-                    ctx.clearRect(0, 0, axesCanvasRef.current.width, axesCanvasRef.current.height);
-                    return;
-                }
-
                 const mainCanvas = canvasRef.current;
-                const axesCanvas = axesCanvasRef.current;
-                const margin = 28; // espacio para los ejes
+                if (!mainCanvas) return;
 
-                axesCanvas.width = mainCanvas.width + margin;
-                axesCanvas.height = mainCanvas.height + margin;
-                axesCanvas.style.left = `-${margin}px`;
-                axesCanvas.style.top = `-${margin}px`;
+                const canvas = numbersCanvasRef.current;
 
-                const ctx = axesCanvas.getContext('2d');
-                ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
+                canvas.width = mainCanvas.width;
+                canvas.height = mainCanvas.height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
-                const cellW = mainCanvas.width / beadsWidth;
-                const cellH = mainCanvas.height / beadsHeight;
+                const cellWidth = mainCanvas.width / beadsWidth;
+                const cellHeight = mainCanvas.height / beadsHeight;
 
-                ctx.fillStyle = 'rgba(20, 20, 20, 0.75)';
-                ctx.fillRect(0, 0, axesCanvas.width, margin); // top bar
-                ctx.fillRect(0, 0, margin, axesCanvas.height); // left bar
-
-                ctx.fillStyle = '#ffffff';
-                const fontSize = Math.max(7, Math.min(cellW, 11));
+                // Calcular tamaño de fuente
+                const fontSize = Math.max(8, Math.min(cellWidth, cellHeight) * 0.4);
                 ctx.font = `bold ${fontSize}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
-                // Eje X — números de columna
-                for (let x = 0; x < beadsWidth; x++) {
-                    const px = margin + (x + 0.5) * cellW;
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillText(String(x + 1), px, margin / 2);
+                // Función para obtener color de contraste
+                const getContrastColor = (rgb) => {
+                    const brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
+                    return brightness > 128 ? 'black' : 'white';
+                };
 
-                    // Punto medio M en X
-                    if ((x + 1) === Math.ceil(beadsWidth / 2)) {
-                        ctx.fillStyle = 'var(--primary, #00ced1)';
-                        ctx.fillText('M', px, margin / 2);
-                        ctx.fillStyle = '#ffffff';
-                    }
+                // Cargar paleta completa para obtener RGB
+                const colorMap = {};
+                if (result.colors && result.colors.colors) {
+                    result.colors.colors.forEach(c => {
+                        colorMap[c.code] = c.rgb;
+                    });
                 }
 
-                // Eje Y — números de fila
-                for (let y = 0; y < beadsHeight; y++) {
-                    const py = margin + (y + 0.5) * cellH;
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillText(String(y + 1), margin / 2, py);
-
-                    // Punto medio M en Y
-                    if ((y + 1) === Math.ceil(beadsHeight / 2)) {
-                        ctx.fillStyle = 'var(--primary, #00ced1)';
-                        ctx.fillText('M', margin / 2, py);
-                        ctx.fillStyle = '#ffffff';
-                    }
-                }
-
-            }, [showAxes, result, activeTab, beadSize, beadSizeVersion]);
+                // Dibujar números usando rowGuide
+                result.rowGuide.rows.forEach((row, rowIndex) => {
+                    let xPos = 0;
+                    row.sequence.forEach(segment => {
+                        const rgb = colorMap[segment.code] || [128, 128, 128];
+                        const textColor = getContrastColor(rgb);
+                        for (let i = 0; i < segment.count; i++) {
+                            const x = xPos + i;
+                            const canvasX = (x + 0.5) * cellWidth;
+                            const canvasY = (rowIndex + 0.5) * cellHeight;
+                            ctx.fillStyle = textColor;
+                            ctx.fillText(String(i + 1), canvasX, canvasY);
+                        }
+                        xPos += segment.count;
+                    });
+                });
+                
+            }, [numbersReady, result, showNumbers, activeTab, beadSize, beadSizeVersion]);
 
             // Vista Editor - Dibujar grid overlay (Editor)
             React.useEffect(() => {
@@ -1517,6 +1430,8 @@
             };
 
             const handleDoubleClick = (e) => {
+                console.time('Double click total'); // ← AGREGAR
+
                 if (!canvasRef.current || lastViewedTab === 'coords') return;
                 
                 const canvas = canvasRef.current;
@@ -1579,7 +1494,7 @@
                     rgb: [r, g, b]
                 });
 
-
+                console.timeEnd('Double click total'); // ← AGREGAR
                 
                 // Resetear búsqueda del modal
                 setModalSearchText('');
@@ -1773,7 +1688,7 @@
                         const limit = 1;
                         
                         if (used >= limit) {
-                            alert(i18n.t('messages.limitReached') + `\n\n📊 Usados: ${used}/${limit} este mes\n\n` + i18n.t('messages.upgradeForMore'));
+                            alert(`⚠️ Has alcanzado tu límite de patrones desde FOTO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a Premium para patrones ilimitados.`);
                             return false;
                         }
                     } else if (patternType === 'scratch') {
@@ -1781,7 +1696,7 @@
                         const limit = 3;
                         
                         if (used >= limit) {
-                            alert(i18n.t('messages.limitReached') + `\n\n📊 Usados: ${used}/${limit} este mes\n\n` + i18n.t('messages.upgradeForMore'));
+                            alert(`⚠️ Has alcanzado tu límite de patrones DESDE CERO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a Premium para patrones ilimitados.`);
                             return false;
                         }
                     }
@@ -1800,10 +1715,6 @@
             };
 
             const downloadImage = (imageData, filename) => {
-                if (!imageData) {
-                    alert(i18n.t('messages.errorImageNotFound'));
-                    return;
-                }
                 const link = document.createElement('a');
                 link.download = filename;
                 link.href = imageData;
@@ -1833,16 +1744,13 @@
                                 height: result.pattern.height,
                                 total_beads: result.pattern.total_beads
                             },
-                            colorMode: colorMode,
-                            lang: i18n.currentLanguage
+                            colorMode: colorMode  // ← AGREGAR
                         })
                     });
                     
                     const data = await response.json();
                     if (data.success) {
-                        const filename = i18n.currentLanguage === 'en'
-                            ? (colorMode === 'miyuki' ? 'color-guide-miyuki.pdf' : 'color-guide-rgb.pdf')
-                            : (colorMode === 'miyuki' ? 'guia-colores-miyuki.pdf' : 'guia-colores-rgb.pdf');
+                        const filename = colorMode === 'miyuki' ? 'guia-colores-miyuki.pdf' : 'guia-colores-rgb.pdf';
                         downloadPDF(data.pdf, filename);
                     }
                 } catch (err) {
@@ -1865,16 +1773,13 @@
                                 width: result.pattern.width,
                                 height: result.pattern.height,
                                 total_beads: result.pattern.total_beads
-                            },
-                            colorMode: colorMode,
-                            lang: i18n.currentLanguage
+                            }
                         })
                     });
                     
                     const data = await response.json();
                     if (data.success) {
-                        const filename = i18n.currentLanguage === 'en' ? 'assembly-guide.pdf' : 'guia-montaje-por-fila.pdf';
-                        downloadPDF(data.pdf, filename);
+                        downloadPDF(data.pdf, 'guia-montaje-por-fila.pdf');
                     }
                 } catch (err) {
                     console.error('Error generating assembly guide:', err);
@@ -1898,7 +1803,7 @@
                     
                     // Descargar
                     const link = document.createElement('a');
-                    link.download = i18n.currentLanguage === 'en' ? 'pattern-coordinates-with-numbers.png' : 'patron-coordenadas-con-numeros.png';
+                    link.download = 'patron-coordenadas-con-numeros.png';
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     
@@ -2155,7 +2060,7 @@
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
                 const patternTypeText = result.pattern_type === 'peyote' ? 'peyote' : 'cuadricula';  // ← NUEVA LÍNEA
                 const defaultName = `miyuki-${patternTypeText}-${timestamp}`;  // ← MODIFICADA
-                const userFileName = prompt(i18n.t('messages.fileNamePrompt'), defaultName);
+                const userFileName = prompt('Nombre del archivo (sin extensión):', defaultName);
 
                 // Si el usuario cancela, no guardar
                 if (!userFileName) {
@@ -2176,7 +2081,7 @@
                 URL.revokeObjectURL(url);
 
                 console.log('✅ Patrón guardado:', filename);
-                alert(`${i18n.t('messages.patternSavedAs')}\n${filename}`);
+                alert(`✅ Patrón guardado como:\n${filename}`);
 
                 // Salir del modo editor
                 if (editMode || isBlankCanvas) {
@@ -2832,7 +2737,7 @@
                             setUsedColorsVersion(v => v + 1);  // ← Y ESTA TAMBIÉN (para actualizar cache)
                             setProcessing(false);
                             setHasUnsavedChanges(false);
-                            alert(i18n.t('messages.editsSaved'));
+                            alert('✅ Cambios guardados y guías actualizadas.');
                         }
                     } catch (err) {
                         setError('Error guardando ediciones: ' + err.message);
@@ -3164,11 +3069,11 @@
                     }
                     
                     setProcessing(false);
-                    alert(`${i18n.t('messages.patternLoaded')} "${pattern.name}"`);
+                    alert(`✅ Patrón "${pattern.name}" cargado correctamente`);
                     
                 } catch (error) {
                     console.error('Error cargando patrón:', error);
-                    alert(i18n.t('messages.errorLoading') + ' ' + error.message);
+                    alert('❌ Error cargando patrón: ' + error.message);
                     setProcessing(false);
                 }
             };
@@ -3296,7 +3201,7 @@
                                                 {user.email}
                                             </div>
                                             <div style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>
-                                                {i18n.t('header.plan')}: {userData?.plan === 'premium' ? i18n.t('header.premiumPlan') : i18n.t('header.freePlan')}
+                                                Plan: {userData?.plan === 'premium' ? '💎 Premium' : '🆓 Free'}
                                             </div>
                                         </div>
 
@@ -3315,7 +3220,7 @@
                                                     fontWeight: 'bold'
                                                 }}
                                             >
-                                                {i18n.t('header.upgradeToPremium')}
+                                                💎 Upgrade a Premium
                                             </button>
                                         )}
 
@@ -3350,7 +3255,7 @@
                                                 fontSize: '0.85rem'
                                             }}
                                         >
-                                            {i18n.t('header.signOut')}
+                                            Salir
                                         </button>
                                     </div>
                                 ) : (
@@ -3611,13 +3516,13 @@
                                     <>
                                         <span style={{fontSize: '1.2rem'}}>▶️</span>
                                         <span style={{writingMode: 'vertical-rl', transform: 'rotate(180deg)'}}>
-                                            {i18n.t('modes.expand')}
+                                            Expandir
                                         </span>
                                     </>
                                 ) : (
                                     <>
                                         <span>◀️</span>
-                                        <span>{i18n.t('modes.collapse')}</span>
+                                        <span>Contraer Menu Lateral</span>
                                     </>
                                 )}
                             </button>
@@ -3645,7 +3550,7 @@
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                {i18n.t('modes.fromPhoto')}
+                                                📸 Desde Foto
                                             </button>
                                             <button 
                                                 onClick={() => {
@@ -3664,7 +3569,7 @@
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                {i18n.t('modes.fromScratch')}
+                                                🎨 Desde Cero
                                             </button>
                                             {/* AGREGAR ESTE BOTÓN */}
                                             <button 
@@ -3681,7 +3586,7 @@
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                {i18n.t('modes.gallery')}
+                                                📚 Galería
                                             </button>
                                         </div>
                                         
@@ -3700,7 +3605,7 @@
                                                     width: '100%'
                                                 }}
                                             >
-                                                {i18n.t('modes.loadPattern')}
+                                                📂 O cargar patrón guardado
                                             </button>
                                         </div>
                                     </div>
@@ -3708,7 +3613,7 @@
                                     {!result &&creationMode === 'photo' && (
                                         <>
                                             <div className="card">
-                                                <h2>{i18n.t('fromPhoto.title')}</h2>
+                                                <h2>📸 Subir Imagen</h2>
                                                 <div 
                                                     className="upload-zone"
                                                     onClick={() => fileInputRef.current?.click()}
@@ -3716,8 +3621,8 @@
                                                     onDragOver={(e) => e.preventDefault()}
                                                 >
                                                     <div className="upload-icon">📁</div>
-                                                    <p>{i18n.t('fromPhoto.uploadZone')}</p>
-                                                    <p style={{fontSize: '0.85rem', marginTop: '5px'}}>{i18n.t('fromPhoto.fileTypes')}</p>
+                                                    <p><strong>Click para subir</strong> o arrastra tu imagen</p>
+                                                    <p style={{fontSize: '0.85rem', marginTop: '5px'}}>PNG, JPG, JPEG</p>
                                                     <input 
                                                         ref={fileInputRef}
                                                         type="file" 
@@ -3730,9 +3635,9 @@
                                             </div>
 
                                             <div className="card" style={{marginTop: '20px'}}>
-                                                <h2>{i18n.t('fromPhoto.config')}</h2>                     
+                                                <h2>⚙️ Configuración para Foto</h2>                     
                                                 <div className="controls-group">
-                                                    <label>{i18n.t('fromPhoto.colorMode')}</label>
+                                                    <label>Modo de Color</label>
                                                     <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
                                                         <button 
                                                             onClick={() => setColorMode('miyuki')}
@@ -3749,7 +3654,7 @@
                                                                 transition: 'all 0.3s ease'
                                                             }}
                                                         >
-                                                            {i18n.t('fromPhoto.miyukiBeads')}
+                                                            🎨 Miyuki Beads
                                                         </button>
                                                         <button 
                                                             onClick={() => setColorMode('rgb')}
@@ -3766,7 +3671,7 @@
                                                                 transition: 'all 0.3s ease'
                                                             }}
                                                         >
-                                                            {i18n.t('fromPhoto.universalRGB')}
+                                                            🖼️ Universal RGB
                                                         </button>
                                                     </div>
                                                     <small style={{
@@ -3776,13 +3681,13 @@
                                                         display: 'block',
                                                         marginBottom: '20px'
                                                     }}>
-                                                        {colorMode === 'miyuki' ? i18n.t('fromPhoto.miyukiDesc') : i18n.t('fromPhoto.rgbDesc')}
+                                                        {colorMode === 'miyuki' ? 'Para comprar cuentas Miyuki reales' : 'Para arte digital / otras marcas'}
                                                     </small>
 
                                                     {/* Selector de tipo de patrón */}
                                                     <div style={{marginBottom: '15px'}}>
                                                         <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold'}}>
-                                                            {i18n.t('fromPhoto.patternType')}
+                                                            Tipo de patrón:
                                                         </label>
                                                         <div style={{display: 'flex', gap: '20px'}}>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
@@ -3794,7 +3699,7 @@
                                                                     onChange={(e) => setPatternType(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                {i18n.t('fromPhoto.grid')}
+                                                                🔲 Cuadrícula
                                                             </label>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
                                                                 <input 
@@ -3805,7 +3710,7 @@
                                                                     onChange={(e) => setPatternType(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                {i18n.t('fromPhoto.peyote')}
+                                                                ◇ Peyote
                                                             </label>
                                                         </div>
                                                     </div>
@@ -3813,7 +3718,7 @@
                                                     {/* Modo de entrada de dimensiones */}
                                                     <div style={{marginBottom: '15px'}}>
                                                         <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold'}}>
-                                                            {i18n.t('fromPhoto.defineBy')}
+                                                            Definir dimensiones por:
                                                         </label>
                                                         <div style={{display: 'flex', gap: '20px'}}>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
@@ -3825,7 +3730,7 @@
                                                                     onChange={(e) => setDimensionMode(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                {i18n.t('fromPhoto.centimeters')}
+                                                                Centímetros
                                                             </label>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
                                                                 <input 
@@ -3836,11 +3741,11 @@
                                                                     onChange={(e) => setDimensionMode(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                {i18n.t('fromPhoto.beadCount')}
+                                                                Número de cuentas
                                                             </label>
                                                         </div>
                                                     </div>
-                                                    <label>{dimensionMode === 'cm' ? i18n.t('fromPhoto.dimensions') : i18n.t('fromPhoto.beadDimensions')}</label>
+                                                    <label>{dimensionMode === 'cm' ? 'Dimensiones (cm)' : 'Número de cuentas'}</label>
                                                     <div className="input-group">
                                                         <div>
                                                             <input 
@@ -3851,7 +3756,7 @@
                                                                 step="0.1"
                                                                 min="1"
                                                             />
-                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>{i18n.t('fromPhoto.width')}</small>
+                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>Ancho</small>
                                                         </div>
                                                         <div>
                                                             <input 
@@ -3862,7 +3767,7 @@
                                                                 step="0.1"
                                                                 min="1"
                                                             />
-                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>{i18n.t('fromPhoto.height')}</small>
+                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>Alto</small>
                                                         </div>
                                                     </div>
 
@@ -3876,13 +3781,13 @@
                                                             border: '1px solid #b3d9e8'
                                                         }}>
                                                             <div style={{marginBottom: '5px'}}>
-                                                                📐 <strong>{i18n.t('fromPhoto.ratioLabel')}</strong> {imageDimensions.width} × {imageDimensions.height} px
-                                                                ({imageDimensions.aspectRatio > 1 ? i18n.t('fromPhoto.horizontal') : imageDimensions.aspectRatio < 1 ? i18n.t('fromPhoto.vertical') : i18n.t('fromPhoto.square')})
+                                                                📐 <strong>Relación:</strong> {imageDimensions.width} × {imageDimensions.height} px
+                                                                ({imageDimensions.aspectRatio > 1 ? 'Horizontal' : imageDimensions.aspectRatio < 1 ? 'Vertical' : 'Cuadrada'})
                                                             </div>
                                                             {getSuggestedDimension() && (
                                                                 <div style={{color: '#0066cc'}}>
-                                                                    💡 <strong>{i18n.t('fromPhoto.suggestionLabel')}</strong> {i18n.t('fromPhoto.suggestionText')}
-                                                                    {i18n.t('fromPhoto.the')} {getSuggestedDimension().type} {i18n.t('fromPhoto.shouldBe')}{' '}
+                                                                    💡 <strong>Sugerencia:</strong> Para mantener la proporción de la imagen,
+                                                                    el {getSuggestedDimension().type} debería ser aproximadamente{' '}
                                                                     <strong>{getSuggestedDimension().value} {getSuggestedDimension().unit}</strong>
                                                                 </div>
                                                             )}
@@ -3892,7 +3797,7 @@
                                                     {/* Info de conversión */}
                                                     {dimensionMode === 'cm' && (
                                                         <div style={{fontSize: '0.9em', color: 'var(--text-secondary)', marginTop: '8px', marginBottom: '8px'}}>
-                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} {i18n.t('fromPhoto.beads')}
+                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} cuentas
                                                         </div>
                                                     )}
                                                     {dimensionMode === 'beads' && (
@@ -3913,12 +3818,12 @@
                                                         📊 Total: {dimensionMode === 'cm' 
                                                             ? (Math.round((width * 10) / beadSize) * Math.round((height * 10) / beadSize)).toLocaleString()
                                                             : (Math.round(width) * Math.round(height)).toLocaleString()
-                                                        } {i18n.t('fromPhoto.beads')}
+                                                        } cuentas
                                                     </div> 
                                                 </div>
 
                                                 <div className="controls-group">
-                                                    <label>{i18n.t('fromPhoto.beadSize')}</label>
+                                                    <label>Tamaño de Cuenta</label>
                                                     <select value={beadSize} onChange={handleBeadSizeChange}>
                                                         <option value={2.0}>2.0mm - Miyuki Delica</option>
                                                         <option value={1.5}>1.5mm - Seed Beads 15/0</option>
@@ -3927,7 +3832,7 @@
                                                 </div>
 
                                                 <div className="controls-group">
-                                                    <label>{i18n.t('fromPhoto.numColors')}</label>
+                                                    <label>Número de Colores</label>
                                                     <input 
                                                         type="number" 
                                                         value={colorCount}
@@ -3937,7 +3842,7 @@
                                                         max="20"
                                                     />
                                                     <small style={{color: 'var(--text-dim)', fontSize: '0.8rem', marginTop: '5px', display: 'block'}}>
-                                                        {i18n.t('fromPhoto.colorsSimple')}
+                                                        5-8: Simple | 10-12: Recomendado | 15-20: Detallado
                                                     </small>
                                                 </div>
 
@@ -3946,7 +3851,7 @@
                                                         className="collapse-toggle"
                                                         onClick={() => setShowAdvanced(!showAdvanced)}
                                                     >
-                                                        <span>{i18n.t('fromPhoto.advancedSettings')}</span>
+                                                        <span>🎨 Ajustes de Color Avanzados</span>
                                                         <span>{showAdvanced ? '▼' : '▶'}</span>
                                                     </button>
                                                     
@@ -3954,7 +3859,7 @@
                                                         <div style={{marginTop: '15px'}}>
                                                             <div className="controls-group">
                                                                 <label>
-                                                                    {i18n.t('fromPhoto.saturation')} <span className="slider-value">{saturation.toFixed(1)}x</span>
+                                                                    Saturación <span className="slider-value">{saturation.toFixed(1)}x</span>
                                                                 </label>
                                                                 <input 
                                                                     type="range"
@@ -3965,13 +3870,13 @@
                                                                     onChange={(e) => setSaturation(parseFloat(e.target.value))}
                                                                 />
                                                                 <small style={{color: 'var(--text-dim)', fontSize: '0.75rem', display: 'block', marginTop: '5px'}}>
-                                                                    {i18n.t('fromPhoto.saturationDesc')}
+                                                                    🎨 Aumenta para colores más vivos (rojos más rojos, azules más azules)
                                                                 </small>
                                                             </div>
 
                                                             <div className="controls-group">
                                                                 <label>
-                                                                    {i18n.t('fromPhoto.brightness')} <span className="slider-value">{brightness.toFixed(1)}x</span>
+                                                                    Brillo <span className="slider-value">{brightness.toFixed(1)}x</span>
                                                                 </label>
                                                                 <input 
                                                                     type="range"
@@ -3982,13 +3887,13 @@
                                                                     onChange={(e) => setBrightness(parseFloat(e.target.value))}
                                                                 />
                                                                 <small style={{color: 'var(--text-dim)', fontSize: '0.75rem', display: 'block', marginTop: '5px'}}>
-                                                                    {i18n.t('fromPhoto.brightnessDesc')}
+                                                                    ☀️ Aumenta para imagen más clara
                                                                 </small>
                                                             </div>
 
                                                             <div className="controls-group">
                                                                 <label>
-                                                                    {i18n.t('fromPhoto.contrast')} <span className="slider-value">{contrast.toFixed(1)}x</span>
+                                                                    Contraste <span className="slider-value">{contrast.toFixed(1)}x</span>
                                                                 </label>
                                                                 <input 
                                                                     type="range"
@@ -3999,13 +3904,13 @@
                                                                     onChange={(e) => setContrast(parseFloat(e.target.value))}
                                                                 />
                                                                 <small style={{color: 'var(--text-dim)', fontSize: '0.75rem', display: 'block', marginTop: '5px'}}>
-                                                                    {i18n.t('fromPhoto.contrastDesc')}
+                                                                    ⚫⚪ Aumenta para más diferencia entre claros y oscuros
                                                                 </small>
                                                             </div>
 
                                                             <div className="controls-group">
                                                                 <label>
-                                                                    {i18n.t('fromPhoto.sharpness')} <span className="slider-value">{sharpness.toFixed(1)}x</span>
+                                                                    Nitidez <span className="slider-value">{sharpness.toFixed(1)}x</span>
                                                                 </label>
                                                                 <input 
                                                                     type="range"
@@ -4016,7 +3921,7 @@
                                                                     onChange={(e) => setSharpness(parseFloat(e.target.value))}
                                                                 />
                                                                 <small style={{color: 'var(--text-dim)', fontSize: '0.75rem', display: 'block', marginTop: '5px'}}>
-                                                                    {i18n.t('fromPhoto.sharpnessDesc')}
+                                                                    🔍 Aumenta para bordes más definidos
                                                                 </small>
                                                             </div>
 
@@ -4030,7 +3935,7 @@
                                                                 }}
                                                                 style={{marginTop: '10px', fontSize: '0.9rem', padding: '10px 20px'}}
                                                             >
-                                                                {i18n.t('fromPhoto.restoreDefaults')}
+                                                                ↺ Restaurar Valores Por Defecto
                                                             </button>
                                                         </div>
                                                     )}
@@ -4050,9 +3955,9 @@
 
                                                     return (
                                                         <div className="info-text">
-                                                            <strong>{i18n.t('fromPhoto.patternInfo')}</strong><br/>
+                                                            <strong>📊 Patrón:</strong><br/>
                                                             {displayWidthBeads} x {displayHeightBeads} beads<br/>
-                                                            Total: {displayTotalBeads.toLocaleString()} {i18n.t('fromPhoto.beads')}
+                                                            Total: {displayTotalBeads.toLocaleString()} cuentas
                                                         </div>
                                                     );
                                                 })()}
@@ -4063,7 +3968,7 @@
                                                     disabled={!image || processing || !apiConnected}
                                                     style={{marginTop: '20px'}}
                                                 >
-                                                    {processing ? i18n.t('fromPhoto.generating') : i18n.t('fromPhoto.generatePattern')}
+                                                    {processing ? '⏳ Generando...' : '🎨 Generar Patrón'}
                                                 </button>
                                             </div>
                                         </>
@@ -4073,10 +3978,10 @@
                                         <>
                                             {/* Card Crear Desde Cero */}
                                             <div className="card">
-                                                <h2>{i18n.t('fromScratch.title')}</h2>
+                                                <h2>🎨 Crear Patrón Desde Cero</h2>
                                                 
                                                 <div className="controls-group">
-                                                    <label>{i18n.t('fromPhoto.colorMode')}</label>
+                                                    <label>Modo de Color</label>
                                                     <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
                                                         <button 
                                                             onClick={() => setColorMode('miyuki')}
@@ -4118,7 +4023,7 @@
                                                         display: 'block',
                                                         marginBottom: '20px'
                                                     }}>
-                                                        {colorMode === 'miyuki' ? i18n.t('fromScratch.miyukiDesc') : i18n.t('fromScratch.rgbDesc')}
+                                                        {colorMode === 'miyuki' ? 'Usa colores Miyuki oficiales' : 'Usa paleta RGB universal'}
                                                     </small>
                                                 </div>
 
@@ -4127,7 +4032,7 @@
                                                     {/* Selector de tipo de patrón */}
                                                     <div style={{marginBottom: '15px'}}>
                                                         <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold'}}>
-                                                            {i18n.t('fromPhoto.patternType')}
+                                                            Tipo de patrón:
                                                         </label>
                                                         <div style={{display: 'flex', gap: '20px'}}>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
@@ -4158,7 +4063,7 @@
                                                     {/* Modo de entrada de dimensiones */}
                                                     <div style={{marginBottom: '15px'}}>
                                                         <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold'}}>
-                                                            {i18n.t('fromPhoto.defineBy')}
+                                                            Definir dimensiones por:
                                                         </label>
                                                         <div style={{display: 'flex', gap: '20px'}}>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
@@ -4170,7 +4075,7 @@
                                                                     onChange={(e) => setDimensionMode(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                {i18n.t('fromPhoto.centimeters')}
+                                                                Centímetros
                                                             </label>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
                                                                 <input 
@@ -4181,11 +4086,11 @@
                                                                     onChange={(e) => setDimensionMode(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                {i18n.t('fromPhoto.beadCount')}
+                                                                Número de cuentas
                                                             </label>
                                                         </div>
                                                     </div>
-                                                    <label>{dimensionMode === 'cm' ? i18n.t('fromPhoto.dimensions') : i18n.t('fromPhoto.beadDimensions')}</label>
+                                                    <label>{dimensionMode === 'cm' ? 'Dimensiones (cm)' : 'Número de cuentas'}</label>
                                                     <div className="input-group">
                                                         <div>
                                                             <input 
@@ -4196,7 +4101,7 @@
                                                                 step="0.1"
                                                                 min="1"
                                                             />
-                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>{i18n.t('fromPhoto.width')}</small>
+                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>Ancho</small>
                                                         </div>
                                                         <div>
                                                             <input 
@@ -4207,13 +4112,13 @@
                                                                 step="0.1"
                                                                 min="1"
                                                             />
-                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>{i18n.t('fromPhoto.height')}</small>
+                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>Alto</small>
                                                         </div>
                                                     </div>
                                                     {/* Info de conversión */}
                                                     {dimensionMode === 'cm' && (
                                                         <div style={{fontSize: '0.9em', color: 'var(--text-secondary)', marginTop: '8px', marginBottom: '8px'}}>
-                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} {i18n.t('fromPhoto.beads')} 
+                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} cuentas 
                                                         </div>
                                                     )}
                                                     {dimensionMode === 'beads' && (
@@ -4234,12 +4139,12 @@
                                                         📊 Total: {dimensionMode === 'cm' 
                                                             ? (Math.round((width * 10) / beadSize) * Math.round((height * 10) / beadSize)).toLocaleString()
                                                             : (Math.round(width) * Math.round(height)).toLocaleString()
-                                                        } {i18n.t('fromPhoto.beads')}
+                                                        } cuentas
                                                     </div>
                                                 </div>
 
                                                 <div className="controls-group">
-                                                    <label>{i18n.t('fromPhoto.beadSize')}</label>
+                                                    <label>Tamaño de Cuenta</label>
                                                     <select 
                                                         value={beadSize} 
                                                         onChange={(e) => {
@@ -4258,7 +4163,7 @@
                                                     style={{width: '100%', marginTop: '20px'}}
                                                     onClick={createBlankCanvas}
                                                 >
-                                                    {i18n.t('fromScratch.createCanvas')}
+                                                    ✨ Crear Canvas en Blanco
                                                 </button>
                                             </div>
                                         </>
@@ -4266,7 +4171,7 @@
 
                                     {!result && creationMode === 'gallery' && (
                                         <div className="card" style={{marginTop: '20px'}}>
-                                            <h2>{i18n.t('gallery.title')}</h2>
+                                            <h2>📚 Galería de Patrones</h2>
                                             
                                             {/* Grid de patrones */}
                                             <div style={{
@@ -4280,7 +4185,7 @@
                                                         key={pattern.id}
                                                         onClick={() => {
                                                             if (!pattern.isBasic && !isPremiumUser()) {
-                                                                alert(i18n.t('gallery.premiumAlert'));
+                                                                alert('⚠️ Este patrón está disponible solo en el plan Premium\n\n💎 Upgrade a Premium para acceso completo a la galería');
                                                                 return;
                                                             }
                                                             loadPatternFromGallery(pattern);
@@ -4309,7 +4214,7 @@
                                                                 borderRadius: '5px',
                                                                 fontSize: '0.8rem'
                                                             }}>
-                                                                {i18n.t('gallery.premium')}
+                                                                🔒 Premium
                                                             </div>
                                                         )}
                                                         
@@ -4339,7 +4244,7 @@
                                             
                                             {galleryPatterns.length === 0 && (
                                                 <div style={{textAlign: 'center', padding: '40px', color: 'var(--text-dim)'}}>
-                                                    {i18n.t('gallery.loading')}
+                                                    Cargando patrones...
                                                 </div>
                                             )}
                                         </div>
@@ -4350,7 +4255,7 @@
                         </div>
 
                         <div className="card">
-                            <h2>{i18n.t('results.title')}</h2>
+                            <h2>🖼️ Resultado</h2>
                             
                             {error && (
                                 <div className="api-error">
@@ -4361,14 +4266,14 @@
                             {processing && (
                                 <div className="loading">
                                     <div className="spinner"></div>
-                                    <p>{i18n.t('fromPhoto.generating').replace('⏳ ', '')}...</p>
+                                    <p>Generando patrón profesional...</p>
                                 </div>
                             )}
                             
                             {!processing && !result && !error && (
                                 <div className="empty-state">
                                     <div className="empty-state-icon">🎨</div>
-                                    <p>{i18n.t('fromPhoto.emptyState')}</p>
+                                    <p>Sube una imagen y genera tu patrón</p>
                                 </div>
                             )}
                             
@@ -4382,29 +4287,20 @@
                                                 setLastViewedTab('grid');
                                             }}
                                         >
-                                            {i18n.t('results.gridView')}
-                                        </button>
-                                        <button 
-                                            className={`tab ${activeTab === 'coords' ? 'active' : ''}`}
-                                            onClick={() => {
-                                                handleTabChange('coords');
-                                                setLastViewedTab('coords');
-                                            }}
-                                        >
-                                            {i18n.t('results.coordinates')}
+                                            📐 Cuadrícula
                                         </button>
                                         <button 
                                             className={`tab ${activeTab === 'colors' ? 'active' : ''}`}
                                             onClick={() => handleTabChange('colors')}
                                         >
-                                            {i18n.t('results.colors')}
+                                            🎨 Colores
                                         </button>
                                         {result.pattern_type !== 'peyote' && (
                                             <button 
                                                 className={`tab ${activeTab === 'guide' ? 'active' : ''}`}
                                                 onClick={() => handleTabChange('guide')}
                                             >
-                                                {i18n.t('results.guide')}
+                                                📋 Guía
                                             </button>
                                         )}
                                         <button 
@@ -4427,9 +4323,9 @@
                                                 }
                                             }}
                                         >
-                                            {i18n.t('results.editor')}
+                                            ✏️ Editor
                                         </button>
-                                       {activeTab === 'coords' && result.pattern_type !== 'peyote' && (
+                                       {activeTab === 'editor' && (editMode || isBlankCanvas) && result.pattern_type !== 'peyote' && (
                                             <button 
                                                 onClick={() => setShowNumbers(!showNumbers)}
                                                 style={{
@@ -4467,21 +4363,23 @@
                                         )}
 
                                         {activeTab === 'editor' && (editMode || isBlankCanvas) && (
-                                            <button
-                                                onClick={() => setShowAxes(!showAxes)}
-                                                style={{
-                                                    marginLeft: '10px',
-                                                    padding: '10px 20px',
-                                                    backgroundColor: showAxes ? 'var(--primary)' : 'var(--surface-light)',
-                                                    color: showAxes ? '#000000' : 'var(--text)',
-                                                    border: 'none',
-                                                    borderRadius: '8px',
-                                                    cursor: 'pointer',
-                                                    fontWeight: showAxes ? 'bold' : 'normal'
-                                                }}
-                                            >
-                                                {showAxes ? i18n.t('results.hideAxes') : i18n.t('results.showAxes')}
-                                            </button>
+                                            <>
+                                                <button
+                                                    onClick={() => setShowAxes(!showAxes)}
+                                                    style={{
+                                                        marginLeft: '10px',
+                                                        padding: '10px 20px',
+                                                        backgroundColor: showAxes ? 'var(--primary)' : 'var(--surface-light)',
+                                                        color: showAxes ? '#000000' : 'var(--text)',
+                                                        border: 'none',
+                                                        borderRadius: '8px',
+                                                        cursor: 'pointer',
+                                                        fontWeight: showAxes ? 'bold' : 'normal'
+                                                    }}
+                                                >
+                                                    {showAxes ? i18n.t('results.hideAxes') : i18n.t('results.showAxes')}
+                                                </button>
+                                            </>
                                         )}
                                     </div>
 
@@ -4499,7 +4397,7 @@
                                                 disabled={processing}
                                                 style={{flex: 1}}
                                             >
-                                                {processing ? '⏳ ' + i18n.t('editor.saveEdits').replace('💾 ', '') + '...' : i18n.t('editor.saveEdits')}
+                                                {processing ? '⏳ Guardando...' : '💾 Guardar Ediciones'}
                                             </button>
                                             <button 
                                                 className="btn btn-secondary"
@@ -4516,7 +4414,7 @@
                                                 }}
                                                 style={{flex: 1}}
                                             >
-                                                {i18n.t('editor.cancel')}
+                                                ❌ Cancelar
                                             </button>
                                         </div>
                                     )}
@@ -4531,12 +4429,12 @@
                                             className="btn"
                                             onClick={() => {
                                                 if (!user) {
-                                                    alert(i18n.t('messages.loginRequired'));
+                                                    alert('⚠️ Debes iniciar sesión para guardar patrones');
                                                     setTimeout(() => setShowAuthModal(true), 0);
                                                     return;
                                                 }
                                                 if (!isPremiumUser()) {
-                                                    alert(i18n.t('messages.premiumRequiredSave'));
+                                                    alert('⚠️ Guardar patrones está disponible solo en el plan Premium\n\n💎 Upgrade a Premium para guardar y descargar patrones ilimitados');
                                                     return;
                                                 }
                                                 savePattern();
@@ -4550,7 +4448,7 @@
                                                 cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
                                             }}
                                         >
-                                            {i18n.t('downloads.saveComplete')} {!isPremiumUser() && '🔒'}
+                                            💾 Guardar Patrón Completo {!isPremiumUser() && '🔒'}
                                         </button>
 
                                     </div>
@@ -4567,10 +4465,10 @@
                                         lineHeight: '1.5'
                                     }}>
                                         <div style={{marginBottom: '5px'}}>
-                                            {i18n.t('downloads.saveInfo')}
+                                            📁 El archivo se guardará en tu carpeta de descargas predeterminada (normalmente Downloads/Descargas)
                                         </div>
                                         <div style={{color: 'var(--primary)'}}>
-                                            {i18n.t('downloads.activatePrompt')}
+                                            💡 Tip: Activa 'Preguntar dónde guardar' en tu navegador para elegir la ubicación (Configuración → Descargas/Downloads)
                                         </div>
                                     </div>
 
@@ -4608,172 +4506,11 @@
                                             </div>
                                         </div>
                                     )}
-
-                                    {activeTab === 'coords' && (
-                                        <div>
-
-                                            {/* AGREGAR ESTE LOG TEMPORAL */}
-                                            {console.log('🔍 Images disponibles:', result.images)}
-                                            {console.log('🔍 Coordinates existe?:', !!result.images.coordinates)}
-                                            
-                                            {/* Botones de descarga primero */}
-                                            <div style={{marginBottom: '15px', display: 'flex', gap: '10px'}}>
-                                                <button 
-                                                    className="btn"
-                                                    onClick={() => {
-                                                        if (!user) {
-                                                                    alert(i18n.t('messages.loginRequiredDownload'));
-                                                                    setTimeout(() => setShowAuthModal(true), 0);
-                                                                    return;
-                                                                }
-                                                                if (!isPremiumUser()) {
-                                                                    alert(i18n.t('downloads.premiumRequired'));
-                                                                    return;
-                                                                }                                                        
-                                                        const coordContainer = document.getElementById('coordinate-image-container');
-                                                        if (!coordContainer) {
-                                                            alert(i18n.t('messages.errorImageNotFound'));
-                                                            return;
-                                                        }
-                                                        // Ocultar temporalmente el canvas de números si está visible
-                                                        const numbersCanvas = numbersCanvasRef.current;
-                                                        if (numbersCanvas) numbersCanvas.style.display = 'none';
-                                                        html2canvas(coordContainer, { backgroundColor: '#ffffff', scale: 2, logging: false }).then(canvas => {
-                                                            if (numbersCanvas) numbersCanvas.style.display = '';
-                                                            const filename = i18n.currentLanguage === 'en' ? 'pattern-coordinates.png' : 'patron-coordenadas.png';
-                                                            downloadImage(canvas.toDataURL('image/png'), filename);
-                                                        }).catch(() => {
-                                                            if (numbersCanvas) numbersCanvas.style.display = '';
-                                                        });
-                                                    }}
-                                                    style={{
-                                                        opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
-                                                        cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
-                                                    }}
-                                                >
-                                                    {i18n.t('downloads.downloadImage')} {!isPremiumUser() && '🔒'}
-                                                </button>
-
-                                                {showNumbers && (
-                                                    <button 
-                                                            className="btn"
-                                                            onClick={() => {
-                                                                if (!user) {
-                                                                    alert(i18n.t('messages.loginRequiredDownload'));
-                                                                    setTimeout(() => setShowAuthModal(true), 0);
-                                                                    return;
-                                                                }
-                                                                if (!isPremiumUser()) {
-                                                                    alert(i18n.t('downloads.premiumRequired'));
-                                                                    return;
-                                                                }
-                                                                downloadImageWithNumbers();
-                                                            }}
-                                                            style={{
-                                                                backgroundColor: (!user || !isPremiumUser()) ? '#666' : 'var(--success)',
-                                                                color: '#000000',
-                                                                opacity: (!user || !isPremiumUser()) ? 0.6 : 1,
-                                                                cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
-                                                            }}
-                                                        >
-                                                            {i18n.t('downloads.downloadWithNumbers')} {!isPremiumUser() && '🔒'}
-                                                        </button>
-                                                )}
-                                            </div>
-
-                                            {/* Contenedor de la imagen con overlays */}
-                                            <div 
-                                                id="coordinate-image-container"
-                                                style={{
-                                                    position: 'relative', 
-                                                    display: 'inline-block',
-                                                    backgroundColor: 'white',
-                                                    paddingRight: '20px',   // ← AGREGAR
-                                                    paddingBottom: '20px'   // ← AGREGAR
-                                                }}    
-                                            >
-                                                <img 
-                                                    src={result.images.grid}  // Usar grid en lugar de coordinates
-                                                    alt="Pattern Coordinates" 
-                                                    className="pattern-canvas"
-                                                    style={{
-                                                        display: 'block',
-                                                        marginLeft: '40px',   // ← AGREGAR
-                                                        marginTop: '40px',   // ← AGREGAR
-                                                        imageRendering: 'pixelated',  // ← AGREGAR
-                                                        maxWidth: 'calc(100% - 80px)',  // ← AGREGAR (resta los márgenes)
-                                                        height: 'auto'                   // ← AGREGAR                                                        
-                                                                                                                
-                                                    }}
-                                                    onLoad={(e) => {
-                                                        console.log('✅ Imagen coordinates cargó');
-                                                        console.log('📐 Dimensiones:', e.target.width, 'x', e.target.height);
-                                                    }}
-                                                    onError={(e) => {
-                                                        console.log('❌ Error cargando imagen coordinates');
-                                                    }}
-                                                />
-
-                                                {/* AGREGAR: Grid overlay (siempre visible en coordenadas) */}
-                                                {result && (
-                                                    <canvas
-                                                        ref={(el) => {
-                                                            gridCoordsCanvasRef.current = el;
-                                                            if (el) setGridCoordsReady(true);
-                                                        }}
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: '-1px',      // ← AGREGAR
-                                                            left: '-1px',     // ← AGREGAR
-                                                            pointerEvents: 'none',
-                                                            imageRendering: 'pixelated',
-                                                            zIndex: 1
-                                                        }}
-                                                    />
-                                                )}
-
-                                                {/* AGREGAR: Coordenadas overlay (números) */}
-                                                {result && (
-                                                    <canvas
-                                                        ref={(el) => {
-                                                            coordsTextCanvasRef.current = el;
-                                                            if (el) setCoordsTextReady(true);
-                                                        }}
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: 0,
-                                                            left: 0,
-                                                            pointerEvents: 'none',
-                                                            imageRendering: 'auto'  // No pixelated para texto
-                                                        }}
-                                                    />
-                                                )}
-                                                
-                                                {/* AGREGAR: Números internos overlay */}
-                                                {result && showNumbers && (
-                                                    <canvas
-                                                        ref={(el) => {
-                                                            numbersCanvasRef.current = el;
-                                                            if (el) setNumbersReady(true);
-                                                        }}
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: '-1px',
-                                                            left: '-1px',
-                                                            pointerEvents: 'none',
-                                                            imageRendering: 'auto'
-                                                        }}
-                                                    />
-                                                )}                                                
-                                            </div>
-                                        </div>
-                                    )}
-
                                     {activeTab === 'colors' && (
                                         <div>
                                             <h3 style={{marginBottom: '15px'}}>
-                                                {result.colors.unique_colors} {i18n.t('results.colorCount')} · {result.colors.total_beads} 
-                                                {result.colors.color_mode === 'miyuki' ? ' ' + i18n.t('fromPhoto.beads') : ' píxeles'}
+                                                {result.colors.unique_colors} colores · {result.colors.total_beads} 
+                                                {result.colors.color_mode === 'miyuki' ? ' cuentas' : ' píxeles'}
                                             </h3>
                                             <div className="color-legend">
                                                 {result.colors.colors.map((color, idx) => (
@@ -4790,7 +4527,7 @@
                                                                 <div className="color-miyuki">Hex: {color.hex}</div>
                                                             )}
                                                             <div style={{fontSize: '0.85rem', color: 'var(--text-dim)', marginTop: '4px'}}>
-                                                                {color.count} {result.colors.color_mode === 'miyuki' ? i18n.t('fromPhoto.beads') : 'píxeles'} ({color.percentage}%)
+                                                                {color.count} {result.colors.color_mode === 'miyuki' ? 'cuentas' : 'píxeles'} ({color.percentage}%)
                                                             </div>
                                                         </div>
                                                     </div>
@@ -4801,12 +4538,12 @@
                                                 className="btn"
                                                 onClick={() => {
                                                     if (!user) {
-                                                        alert(i18n.t('messages.loginRequiredDownload'));
+                                                        alert('⚠️ Debes iniciar sesión para descargar patrones');
                                                         setTimeout(() => setShowAuthModal(true), 0);
                                                         return;
                                                     }
                                                     if (!isPremiumUser()) {
-                                                        alert(i18n.t('downloads.premiumRequired'));
+                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
                                                         return;
                                                     }
                                                     downloadColorGuide();
@@ -4817,7 +4554,7 @@
                                                     cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
                                                 }}
                                             >
-                                                {i18n.t('downloads.downloadColors')} {!isPremiumUser() && '🔒'}
+                                                📄 Descargar Guía de Colores (PDF) {!isPremiumUser() && '🔒'}
                                             </button>
 
                                         </div>
@@ -4826,16 +4563,16 @@
                                     {activeTab === 'guide' && result.rowGuide && (
                                         <div>
                                             <div style={{marginBottom: '15px'}}>
-                                                <strong>{i18n.t('results.rowGuideTitle')}</strong>
+                                                <strong>Guía de montaje fila por fila</strong>
                                                 <p style={{fontSize: '0.9rem', color: 'var(--text-dim)', marginTop: '5px'}}>
-                                                    {i18n.t('results.rowGuideDesc')}
+                                                    Sigue la secuencia exacta de izquierda a derecha
                                                 </p>
                                             </div>
                                             <div className="row-guide">
                                                 {result.rowGuide.rows.map((row) => (
                                                     <div key={row.row} className="row-item">
                                                         <div className="row-header">
-                                                            <div className="row-number">{i18n.t('results.row')} {row.row}</div>
+                                                            <div className="row-number">Fila {row.row}</div>
                                                             <div className="row-totals">
                                                                 {row.totals && row.totals.map((total, idx) => (
                                                                     <span key={idx}>
@@ -4846,7 +4583,7 @@
                                                             </div>
                                                         </div>
                                                         <div className="row-sequence">
-                                                            <div className="sequence-label">{i18n.t('results.sequence')}</div>
+                                                            <div className="sequence-label">Secuencia (← a →):</div>
                                                             <div className="sequence-items">
                                                                 {row.sequence && row.sequence.map((item, idx) => (
                                                                     <React.Fragment key={idx}>
@@ -4868,12 +4605,12 @@
                                                 className="btn"
                                                 onClick={() => {
                                                     if (!user) {
-                                                        alert(i18n.t('messages.loginRequiredDownload'));
+                                                        alert('⚠️ Debes iniciar sesión para descargar patrones');
                                                         setTimeout(() => setShowAuthModal(true), 0);
                                                         return;
                                                     }
                                                     if (!isPremiumUser()) {
-                                                        alert(i18n.t('downloads.premiumRequired'));
+                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
                                                         return;
                                                     }
                                                     downloadAssemblyGuide();
@@ -4884,7 +4621,7 @@
                                                     cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
                                                 }}
                                             >
-                                                {i18n.t('downloads.downloadAssembly')} {!isPremiumUser() && '🔒'}
+                                                📄 Descargar Guía de Montaje (PDF) {!isPremiumUser() && '🔒'}
                                             </button>
 
                                         </div>
@@ -4930,10 +4667,14 @@
                                                                 ref={canvasRef}
                                                                 className="editor-canvas"
                                                                 onClick={(e) => {
-                                                                    if (clickTimeoutRef.current) {
-                                                                        clearTimeout(clickTimeoutRef.current);
+                                                                    // Cancelar click anterior si existe
+                                                                    if (clickTimeout) {
+                                                                        clearTimeout(clickTimeout);
                                                                     }
-                                                                    clickTimeoutRef.current = setTimeout(() => {
+                                                                    
+                                                                    // Esperar 250ms antes de ejecutar el click
+                                                                    // Si hay double-click, este timeout se cancelará
+                                                                    const timeout = setTimeout(() => {
                                                                         if (toolMode === 'paint') {
                                                                             handleCanvasClick(e);
                                                                         } else if (toolMode === 'paste') {
@@ -4942,11 +4683,14 @@
                                                                             handleEraseClick(e);
                                                                         }
                                                                     }, 250);
+                                                                    
+                                                                    setClickTimeout(timeout);
                                                                 }}
                                                                 onDoubleClick={(e) => {
-                                                                    if (clickTimeoutRef.current) {
-                                                                        clearTimeout(clickTimeoutRef.current);
-                                                                        clickTimeoutRef.current = null;
+                                                                    // Cancelar el click simple pendiente
+                                                                    if (clickTimeout) {
+                                                                        clearTimeout(clickTimeout);
+                                                                        setClickTimeout(null);
                                                                     }
                                                                     handleDoubleClick(e);
                                                                 }}
@@ -4965,7 +4709,7 @@
                                                                 }}
                                                             />
                                                             
-                                                            {/* Grid overlay con CSS */}
+                                                            {/* Grid overlay */}
                                                             {result && (
                                                                 <canvas
                                                                     ref={gridCanvasRef}
@@ -4979,10 +4723,28 @@
                                                                 />
                                                             )}
 
+                                                            {/* Numbers overlay */}
+                                                            {result && showNumbers && (
+                                                                <canvas
+                                                                    ref={(el) => {
+                                                                        numbersCanvasRef.current = el;
+                                                                        if (el) setNumbersReady(true);
+                                                                    }}
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        top: 0,
+                                                                        left: 0,
+                                                                        pointerEvents: 'none'
+                                                                    }}
+                                                                />
+                                                            )}
+
                                                             {/* Axes overlay */}
                                                             {result && showAxes && (
                                                                 <canvas
-                                                                    ref={axesCanvasRef}
+                                                                    ref={(el) => {
+                                                                        axesCanvasRef.current = el;
+                                                                    }}
                                                                     style={{
                                                                         position: 'absolute',
                                                                         top: 0,
@@ -5031,7 +4793,7 @@
                                                         fontWeight: 'bold',
                                                         fontSize: '1.1rem'
                                                     }}>
-                                                        <div style={{fontSize: '0.85rem', marginBottom: '5px'}}>{i18n.t('results.coordinates')}</div>
+                                                        <div style={{fontSize: '0.85rem', marginBottom: '5px'}}>📍 Coordenadas</div>
                                                         <div>
                                                             X: {mouseCoords ? mouseCoords.x : '-'} · Y: {mouseCoords ? mouseCoords.y : '-'}
                                                         </div>
@@ -5043,7 +4805,7 @@
                                                         backgroundColor: 'var(--surface-light)',
                                                         textAlign: 'center'
                                                     }}>
-                                                        <div style={{fontSize: '0.85rem', marginBottom: '8px', color: 'var(--text-dim)'}}>{i18n.t('results.colors')}</div>
+                                                        <div style={{fontSize: '0.85rem', marginBottom: '8px', color: 'var(--text-dim)'}}>🎨 Color</div>
                                                         {mouseCoords && mouseCoords.rgb ? (
                                                             (() => {
                                                                 const color = findClosestColor(mouseCoords.rgb);
@@ -5068,7 +4830,7 @@
                                                 </div>                                                
                                                 {/* HERRAMIENTAS */}
                                                 <div style={{marginBottom: '20px', padding: '15px', backgroundColor: 'var(--surface)', borderRadius: '8px'}}>
-                                                    <h3 style={{marginBottom: '10px'}}>{i18n.t('editor.tools')}</h3>
+                                                    <h3 style={{marginBottom: '10px'}}>🛠️ Herramientas</h3>
                                                     <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
                                                         <button
                                                             onClick={() => {
@@ -5087,7 +4849,7 @@
                                                                 cursor: 'pointer'
                                                             }}
                                                         >
-                                                            {i18n.t('editor.brush')}
+                                                            ✏️ Pincel
                                                         </button>
                                                         <button
                                                             onClick={() => {
@@ -5106,7 +4868,7 @@
                                                                 cursor: 'pointer'
                                                             }}
                                                         >
-                                                            {i18n.t('editor.select')}
+                                                            📋 Seleccionar
                                                         </button>
 
                                                         <button
@@ -5126,13 +4888,13 @@
                                                                 cursor: 'pointer'
                                                             }}
                                                         >
-                                                            {i18n.t('editor.erase')}
+                                                            🧹 Borrador
                                                         </button>
 
                                                         <button
                                                             onClick={() => {
                                                                 if (!selection || !canvasRef.current) {
-                                                                    alert(i18n.t('editor.alertSelectArea'));
+                                                                    alert('⚠️ Primero selecciona un área');
                                                                     return;
                                                                 }
                                                                 
@@ -5168,7 +4930,7 @@
                                                                 setToolMode('paste');
                                                                 setSelection(null);
                                                                 
-                                                                alert(`${i18n.t('editor.alertCopied')} ${width}×${height} ${i18n.t('editor.pixels')}. ${i18n.t('editor.alertClickPaste')}`);
+                                                                alert(`✅ Área copiada: ${width}×${height} píxeles. Click para pegar.`);
                                                             }}
                                                             disabled={!selection}
                                                             style={{
@@ -5184,7 +4946,7 @@
                                                                 opacity: selection ? 1 : 0.6
                                                             }}
                                                         >
-                                                            {i18n.t('editor.copy')}
+                                                            📋 Copiar
                                                         </button>
 
                                                         <button
@@ -5207,7 +4969,7 @@
                                                                 cursor: 'pointer'
                                                             }}
                                                         >
-                                                            {i18n.t('editor.replaceColor')}
+                                                            🔄 Reemplazar Color
                                                         </button>
 
                                                         <button
@@ -5226,30 +4988,30 @@
                                                                 opacity: undoHistory ? 1 : 0.6
                                                             }}
                                                         >
-                                                            {i18n.t('editor.undo')}
+                                                            ↩️ Deshacer
                                                         </button>
 
                                                     </div>
                                                     
                                                     {selection && (
                                                         <div style={{marginTop: '10px', fontSize: '0.85rem', color: 'var(--text-dim)'}}>
-                                                            {i18n.t('editor.area')} {Math.abs(selection.endX - selection.startX) + 1} × {Math.abs(selection.endY - selection.startY) + 1} {i18n.t('editor.pixels')}
+                                                            📐 Área: {Math.abs(selection.endX - selection.startX) + 1} × {Math.abs(selection.endY - selection.startY) + 1} píxeles
                                                         </div>
                                                     )}
                                                 </div>
 
                                                 {toolMode === 'replace' && (
                                                     <div style={{marginBottom: '20px', padding: '15px', backgroundColor: 'var(--surface)', borderRadius: '8px'}}>
-                                                        <h4 style={{marginBottom: '10px'}}>{i18n.t('editor.replaceColor')}</h4>
+                                                        <h4 style={{marginBottom: '10px'}}>🔄 Reemplazar Color</h4>
                                                         <div style={{fontSize: '0.85rem', marginBottom: '10px', color: 'var(--text-dim)'}}>
-                                                            <strong>1.</strong> {i18n.t('editor.replaceStep1')}<br/>
-                                                            <strong>2.</strong> {i18n.t('editor.replaceStep2')}<br/>
-                                                            <strong>3.</strong> {i18n.t('editor.replaceStep3')}
+                                                            <strong>1.</strong> Elige color DE (en el canvas)<br/>
+                                                            <strong>2.</strong> Elige color PARA (cualquier color)<br/>
+                                                            <strong>3.</strong> Click Aplicar
                                                         </div>
                                                         
                                                         <div style={{display: 'flex', gap: '10px', alignItems: 'center', marginTop: '10px'}}>
                                                             <div style={{flex: 1}}>
-                                                                <div style={{fontSize: '0.75rem', marginBottom: '5px', fontWeight: 'bold'}}>{i18n.t('editor.from')}:</div>
+                                                                <div style={{fontSize: '0.75rem', marginBottom: '5px', fontWeight: 'bold'}}>DE:</div>
                                                                 <div 
                                                                     onClick={() => {
                                                                         setReplaceSelectingMode('from');
@@ -5268,17 +5030,17 @@
                                                                     }}
                                                                 />
                                                                 {replaceFromColor && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center'}}>{replaceFromColor.code}</div>}
-                                                                {replaceSelectingMode === 'from' && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center', color: 'var(--primary)'}}>{i18n.t('editor.pickFromCanvas')}</div>}
+                                                                {replaceSelectingMode === 'from' && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center', color: 'var(--primary)'}}>👆 Elige del canvas</div>}
                                                             </div>
                                                             
                                                             <div style={{fontSize: '1.5rem', opacity: 0.5}}>→</div>
                                                             
                                                             <div style={{flex: 1}}>
-                                                                <div style={{fontSize: '0.75rem', marginBottom: '5px', fontWeight: 'bold'}}>{i18n.t('editor.to')}:</div>
+                                                                <div style={{fontSize: '0.75rem', marginBottom: '5px', fontWeight: 'bold'}}>PARA:</div>
                                                                 <div 
                                                                     onClick={() => {
                                                                         if (!replaceFromColor) {
-                                                                            alert(i18n.t('editor.alertPickFrom'));
+                                                                            alert('⚠️ Primero elige el color DE');
                                                                             return;
                                                                         }
                                                                         setReplaceSelectingMode('to');
@@ -5298,7 +5060,7 @@
                                                                     }}
                                                                 />
                                                                 {replaceToColor && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center'}}>{replaceToColor.code}</div>}
-                                                                {replaceSelectingMode === 'to' && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center', color: 'var(--accent)'}}>{i18n.t('editor.pickAnyColor')}</div>}
+                                                                {replaceSelectingMode === 'to' && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center', color: 'var(--accent)'}}>👆 Elige cualquier color</div>}
                                                             </div>
                                                         </div>
                                                         
@@ -5346,7 +5108,7 @@
                                                                     setHasUnsavedChanges(true);  // ← AGREGAR ESTA LÍNEA
                                                                     
                                                                     const beadsReplaced = Math.floor(replacedCount / (canvas.width * canvas.height / (result.pattern.width * result.pattern.height)));
-                                                                    alert(`${i18n.t('editor.alertReplaced')} (≈${beadsReplaced} ${i18n.t('editor.alertAffected')})`);
+                                                                    alert(`✅ Color reemplazado (≈${beadsReplaced} beads afectados)`);
                                                                     
                                                                     setUsedColorsVersion(v => v + 1); // Actualizar colores usados
 
@@ -5357,7 +5119,7 @@
                                                                 }}
                                                                 style={{width: '100%', marginTop: '15px', padding: '12px'}}
                                                             >
-                                                                {i18n.t('editor.applyReplace')}
+                                                                ✨ Aplicar Reemplazo
                                                             </button>
                                                         )}
                                                     </div>
@@ -5365,7 +5127,7 @@
 
                                                 {/* PALETA DE COLORES */}
                                                 <div className="color-palette">
-                                                    <h3 style={{marginBottom: '10px'}}>{i18n.t('editor.palette')}</h3>
+                                                    <h3 style={{marginBottom: '10px'}}>🎨 Paleta de Colores</h3>
                                                     <div style={{
                                                         display: 'flex',
                                                         gap: '5px',
@@ -5386,7 +5148,7 @@
                                                                 fontWeight: paletteTab === 'used' ? 'bold' : 'normal'
                                                             }}
                                                         >
-                                                            {i18n.t('editor.inUse')} ({getUsedColors().length})
+                                                            En Uso ({getUsedColors().length})
                                                         </button>
                                                         
                                                         <button
@@ -5403,7 +5165,7 @@
                                                                 fontWeight: paletteTab === 'all' ? 'bold' : 'normal'
                                                             }}
                                                         >
-                                                            {i18n.t('editor.allColors')} (301)
+                                                            Todos (301)
                                                         </button>
                                                     </div>
 
@@ -5411,7 +5173,7 @@
                                                     <div style={{marginBottom: '10px'}}>
                                                         <input
                                                             type="text"
-                                                            placeholder={i18n.t('editor.searchPlaceholder')}
+                                                            placeholder="🔍 Buscar por código o nombre..."
                                                             value={searchText}
                                                             onChange={(e) => setSearchText(e.target.value)}
                                                             style={{
@@ -5511,7 +5273,7 @@
                                                     ) : isBlankCanvas && !fullPalette ? (
                                                         <div style={{padding: '20px', textAlign: 'center'}}>
                                                             <div className="spinner"></div>
-                                                            <p style={{marginTop: '10px'}}>{i18n.t('editor.loadingPalette')}</p>
+                                                            <p style={{marginTop: '10px'}}>Cargando paleta...</p>
                                                         </div>
                                                     ) : (
                                                         <div className="palette-colors">
@@ -5955,7 +5717,7 @@
                         }}>
                         {/* Izquierda: Contacto */}
                         <div style={{textAlign: 'left'}}>
-                            {i18n.t('footer.questions')}<br/>
+                            ¿Dudas o sugerencias?<br/>
                             📧 <a 
                                 href="mailto:arapystudio@gmail.com"
                                 style={{
@@ -5969,7 +5731,8 @@
                         
                         {/* Derecha: Copyright */}
                         <div style={{textAlign: 'right'}}>
-                            {i18n.t('footer.trademark')}
+                            Miyuki® es una marca registrada de<br/>
+                            MIYUKI Co., Ltd - Japón
                         </div>
                     </footer>
 
@@ -5997,7 +5760,7 @@
                                 overflow: 'auto'
                             }}>
                                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                                    <h2 style={{margin: 0}}>{i18n.t('premium.title')}</h2>
+                                    <h2 style={{margin: 0}}>💎 Upgrade a Premium</h2>
                                     <button 
                                         onClick={() => setShowUpgradeModal(false)}
                                         style={{
@@ -6013,7 +5776,7 @@
                                 </div>
 
                                 <p style={{color: 'var(--text-dim)', marginBottom: '30px'}}>
-                                    {i18n.t('premium.subtitle')}
+                                    Desbloquea todas las funciones de Easy Cuentas
                                 </p>
 
                                 {/* Comparación Free vs Premium */}
@@ -6029,15 +5792,15 @@
                                         borderRadius: '12px',
                                         padding: '20px'
                                     }}>
-                                        <h3>{i18n.t('premium.free')}</h3>
+                                        <h3>🆓 Free</h3>
                                         <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
                                             $0
                                         </div>
                                         <ul style={{listStyle: 'none', padding: 0, color: 'var(--text-dim)', fontSize: '0.9rem'}}>
-                                            <li>{i18n.t('premium.features.freePhoto')}</li>
-                                            <li>{i18n.t('premium.features.freeScratch')}</li>
-                                            <li>{i18n.t('premium.features.noDownloads')}</li>
-                                            <li>{i18n.t('premium.features.limitedGallery')}</li>
+                                            <li>✅ 1 patrón/mes desde foto</li>
+                                            <li>✅ 3 patrones/mes desde cero</li>
+                                            <li>❌ Sin descargas</li>
+                                            <li>❌ Galería limitada</li>
                                         </ul>
                                     </div>
 
@@ -6048,15 +5811,15 @@
                                         padding: '20px',
                                         background: 'linear-gradient(135deg, rgba(0, 206, 209, 0.1) 0%, rgba(255, 217, 61, 0.1) 100%)'
                                     }}>
-                                        <h3>{i18n.t('premium.premium')}</h3>
+                                        <h3>💎 Premium</h3>
                                         <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
                                             $4.99<span style={{fontSize: '1rem', fontWeight: 'normal'}}>/mes</span>
                                         </div>
                                         <ul style={{listStyle: 'none', padding: 0, fontSize: '0.9rem'}}>
-                                            <li>{i18n.t('premium.features.unlimited')}</li>
-                                            <li>{i18n.t('premium.features.unlimitedDownloads')}</li>
-                                            <li>{i18n.t('premium.features.fullGallery')}</li>
-                                            <li>{i18n.t('premium.features.support')}</li>
+                                            <li>✅ Patrones ilimitados</li>
+                                            <li>✅ Descargas ilimitadas</li>
+                                            <li>✅ Galería completa</li>
+                                            <li>✅ Soporte prioritario</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -6077,7 +5840,7 @@
                                             fontSize: '1rem'
                                         }}
                                     >
-                                        {i18n.t('premium.monthly')}
+                                        Mensual - $4.99/mes
                                     </button>
                                     <button
                                         onClick={() => handleUpgrade('yearly')}
@@ -6093,9 +5856,9 @@
                                             fontSize: '1rem'
                                         }}
                                     >
-                                        {i18n.t('premium.yearly')}
+                                        Anual - $48/año
                                         <div style={{fontSize: '0.75rem', fontWeight: 'normal'}}>
-                                            {i18n.t('premium.saveYearly')}
+                                            (Ahorra 20%)
                                         </div>
                                     </button>
                                 </div>
@@ -6106,7 +5869,7 @@
                                     textAlign: 'center',
                                     marginTop: '20px'
                                 }}>
-                                    {i18n.t('premium.securePayment')}
+                                    Pago seguro procesado por Stripe
                                 </p>
                             </div>
                         </div>

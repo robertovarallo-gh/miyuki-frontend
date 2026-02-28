@@ -10,7 +10,7 @@ const translations_en = {
     signOut: "Sign Out"
   },
 
-  // Auth Modal
+  // Auth Modal 
   auth: {
     signIn: "Sign In",
     signUp: "Sign Up",
