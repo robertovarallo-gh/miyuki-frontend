@@ -64,3 +64,10 @@ const i18n = {
 
 // Inicializar al cargar
 i18n.init();
+
+// Actualizar título de la página según idioma
+if (i18n.currentLanguage === 'en') {
+  document.title = 'My Easy Beads - Miyuki Bead Pattern Generator';
+} else {
+  document.title = 'Easy Cuentas - Generador de Patrones Miyuki';
+}

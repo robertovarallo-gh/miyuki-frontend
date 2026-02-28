@@ -2079,7 +2079,7 @@
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
                 const patternTypeText = result.pattern_type === 'peyote' ? 'peyote' : 'cuadricula';  // ← NUEVA LÍNEA
                 const defaultName = `miyuki-${patternTypeText}-${timestamp}`;  // ← MODIFICADA
-                const userFileName = prompt('Nombre del archivo (sin extensión):', defaultName);
+                const userFileName = prompt(i18n.t('messages.fileNamePrompt'), defaultName);
 
                 // Si el usuario cancela, no guardar
                 if (!userFileName) {

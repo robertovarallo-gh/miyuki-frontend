@@ -1,7 +1,7 @@
 const translations_en = {
   // Header
   header: {
-    title: "Easy Beads",
+    title: "My Easy Beads",
     subtitle: "Convert your photos or create professional Miyuki bead patterns yourself",
     plan: "Plan",
     freePlan: "🆓 Free",
@@ -169,7 +169,7 @@ const translations_en = {
   // Premium Modal
   premium: {
     title: "💎 Upgrade to Premium",
-    subtitle: "Unlock all Easy Beads features",
+    subtitle: "Unlock all My Easy Beads features",
     free: "🆓 Free",
     premium: "💎 Premium",
     monthly: "Monthly - $4.99/month",
@@ -215,6 +215,7 @@ const translations_en = {
     limitReached: "⚠️ You've reached the pattern limit for your plan",
     upgradeForMore: "💎 Upgrade to Premium for unlimited patterns",
     patternSavedAs: "✅ Pattern saved as:",
+    fileNamePrompt: "File name (without extension):"
     editsSaved: "✅ Edits saved successfully",
     errorLoading: "❌ Error loading pattern:",
     errorSaving: "❌ Error saving edits:",
