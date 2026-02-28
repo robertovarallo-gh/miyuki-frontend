@@ -1163,7 +1163,6 @@
             // Vista Editor - Dibujar ejes X/Y overlay
             React.useEffect(() => {
                 const axesCanvas = axesCanvasRef.current;
-                console.log('🔍 AXES useEffect - showAxes:', showAxes, 'axesCanvas:', !!axesCanvas, 'result:', !!result, 'activeTab:', activeTab, 'mainCanvas:', canvasRef.current?.width);
                 if (!axesCanvas) return;
                 const ctx = axesCanvas.getContext('2d');
 
@@ -1173,46 +1172,48 @@
                 }
 
                 const mainCanvas = canvasRef.current;
-                console.log('🎨 AXES drawing - mainCanvas size:', mainCanvas.width, 'x', mainCanvas.height);
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
                 const cellW = mainCanvas.width / beadsWidth;
                 const cellH = mainCanvas.height / beadsHeight;
-                const margin = 24;
 
-                axesCanvas.width = mainCanvas.width + margin;
-                axesCanvas.height = mainCanvas.height + margin;
-                axesCanvas.style.left = `-${margin}px`;
-                axesCanvas.style.top = `-${margin}px`;
+                // Mismo tamaño que el canvas principal
+                axesCanvas.width = mainCanvas.width;
+                axesCanvas.height = mainCanvas.height;
+                axesCanvas.style.left = '0px';
+                axesCanvas.style.top = '0px';
 
                 ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
 
-                // Fondo de los ejes
-                ctx.fillStyle = 'rgba(20, 20, 20, 0.8)';
-                ctx.fillRect(0, 0, axesCanvas.width, margin); // top
-                ctx.fillRect(0, 0, margin, axesCanvas.height); // left
+                const barW = Math.min(cellW * 0.9, 20); // ancho de la barra del eje
+                const barH = Math.min(cellH * 0.9, 20);
 
-                const fontSize = Math.max(7, Math.min(cellW * 0.45, 11));
+                const fontSize = Math.max(6, Math.min(barW * 0.7, barH * 0.7, 11));
                 ctx.font = `bold ${fontSize}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
+
                 const midX = Math.ceil(beadsWidth / 2);
                 const midY = Math.ceil(beadsHeight / 2);
 
-                // Eje X — columnas
+                // Eje X — banda superior dentro del patrón
                 for (let x = 0; x < beadsWidth; x++) {
-                    const px = margin + (x + 0.5) * cellW;
+                    const px = (x + 0.5) * cellW;
                     const isMid = (x + 1) === midX;
-                    ctx.fillStyle = isMid ? '#00ced1' : '#ffffff';
-                    ctx.fillText(isMid ? 'M' : String(x + 1), px, margin / 2);
+                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.85)' : 'rgba(20,20,20,0.7)';
+                    ctx.fillRect(x * cellW, 0, cellW, barH);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(isMid ? 'M' : String(x + 1), px, barH / 2);
                 }
 
-                // Eje Y — filas
+                // Eje Y — banda izquierda dentro del patrón
                 for (let y = 0; y < beadsHeight; y++) {
-                    const py = margin + (y + 0.5) * cellH;
+                    const py = (y + 0.5) * cellH;
                     const isMid = (y + 1) === midY;
-                    ctx.fillStyle = isMid ? '#00ced1' : '#ffffff';
-                    ctx.fillText(isMid ? 'M' : String(y + 1), margin / 2, py);
+                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.85)' : 'rgba(20,20,20,0.7)';
+                    ctx.fillRect(0, y * cellH, barW, cellH);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(isMid ? 'M' : String(y + 1), barW / 2, py);
                 }
 
             }, [showAxes, result, activeTab, beadSize, beadSizeVersion]);
