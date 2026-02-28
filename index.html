@@ -7,7 +7,14 @@
         <link rel="icon" type="image/png" href="/easy cuentas logo.png">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Traducciones -->
+    <script src="translations/es.js"></script>
+    <script src="translations/en.js"></script>
+    <script src="translations/i18n.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
 
@@ -694,18 +701,18 @@
 
 
             const CATEGORIES = {
-                'all': { emoji: '🎨', name: 'Todos' },
-                'rojos': { emoji: '🔴', name: 'Rojos' },
-                'rosas': { emoji: '🩷', name: 'Rosas' },
-                'naranjas': { emoji: '🟠', name: 'Naranjas' },
-                'amarillos': { emoji: '🟡', name: 'Amarillos' },
-                'verdes': { emoji: '🟢', name: 'Verdes' },
-                'azules': { emoji: '🔵', name: 'Azules' },
-                'morados': { emoji: '🟣', name: 'Morados' },
-                'blancos': { emoji: '⚪', name: 'Blancos' },
-                'grises': { emoji: '⚫', name: 'Grises' },
-                'negros': { emoji: '⬛', name: 'Negros' },
-                'metalicos': { emoji: '✨', name: 'Metálicos' }
+                'all': { emoji: '🎨', name: i18n.t('categories.all') },
+                'rojos': { emoji: '🔴', name: i18n.t('categories.rojos') },
+                'rosas': { emoji: '🩷', name: i18n.t('categories.rosas') },
+                'naranjas': { emoji: '🟠', name: i18n.t('categories.naranjas') },
+                'amarillos': { emoji: '🟡', name: i18n.t('categories.amarillos') },
+                'verdes': { emoji: '🟢', name: i18n.t('categories.verdes') },
+                'azules': { emoji: '🔵', name: i18n.t('categories.azules') },
+                'morados': { emoji: '🟣', name: i18n.t('categories.morados') },
+                'blancos': { emoji: '⚪', name: i18n.t('categories.blancos') },
+                'grises': { emoji: '⚫', name: i18n.t('categories.grises') },
+                'negros': { emoji: '⬛', name: i18n.t('categories.negros') },
+                'metalicos': { emoji: '✨', name: i18n.t('categories.metalicos') }
             };            
 
             useEffect(() => {
@@ -1694,7 +1701,7 @@
                         const limit = 1;
                         
                         if (used >= limit) {
-                            alert(`⚠️ Has alcanzado tu límite de patrones desde FOTO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a Premium para patrones ilimitados.`);
+                            alert(i18n.t('messages.limitReached') + `\n\n📊 Usados: ${used}/${limit} este mes\n\n` + i18n.t('messages.upgradeForMore'));
                             return false;
                         }
                     } else if (patternType === 'scratch') {
@@ -1702,7 +1709,7 @@
                         const limit = 3;
                         
                         if (used >= limit) {
-                            alert(`⚠️ Has alcanzado tu límite de patrones DESDE CERO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a Premium para patrones ilimitados.`);
+                            alert(i18n.t('messages.limitReached') + `\n\n📊 Usados: ${used}/${limit} este mes\n\n` + i18n.t('messages.upgradeForMore'));
                             return false;
                         }
                     }
@@ -3075,11 +3082,11 @@
                     }
                     
                     setProcessing(false);
-                    alert(`✅ Patrón "${pattern.name}" cargado correctamente`);
+                    alert(`${i18n.t('messages.patternLoaded')} "${pattern.name}"`);
                     
                 } catch (error) {
                     console.error('Error cargando patrón:', error);
-                    alert('❌ Error cargando patrón: ' + error.message);
+                    alert(i18n.t('messages.errorLoading') + ' ' + error.message);
                     setProcessing(false);
                 }
             };
@@ -3183,10 +3190,10 @@
                                         <circle cx="24" cy="36" r="6" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
                                         <circle cx="36" cy="36" r="6" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
                                     </svg>
-                                    Easy Cuentas
+                                    {i18n.t('header.title')}
                                 </h1>
                                 <p style={{textAlign: 'left', margin: 0}}>
-                                    Convierte tus fotos o crea tú mismo patrones profesionales de cuentas Miyuki
+                                    {i18n.t('header.subtitle')}
                                 </p>
                             </div>
                             
@@ -3207,7 +3214,7 @@
                                                 {user.email}
                                             </div>
                                             <div style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>
-                                                Plan: {userData?.plan === 'premium' ? '💎 Premium' : '🆓 Free'}
+                                                {i18n.t('header.plan')}: {userData?.plan === 'premium' ? i18n.t('header.premiumPlan') : i18n.t('header.freePlan')}
                                             </div>
                                         </div>
 
@@ -3226,7 +3233,7 @@
                                                     fontWeight: 'bold'
                                                 }}
                                             >
-                                                💎 Upgrade a Premium
+                                                {i18n.t('header.upgradeToPremium')}
                                             </button>
                                         )}
 
@@ -3321,7 +3328,7 @@
                                     color: 'var(--primary)',
                                     textAlign: 'center'
                                 }}>
-                                    👤 Iniciar Sesión / Registrarse
+                                    👤 {i18n.t('auth.signIn')} / {i18n.t('auth.signUp')}
                                 </h2>
                                 
                                 <form 
@@ -3333,7 +3340,6 @@
                                         
                                         try {
                                             if (isLogin) {
-                                                // Modo LOGIN
                                                 const userCredential = await window.firebaseSignIn(
                                                     window.firebaseAuth,
                                                     email,
@@ -3341,25 +3347,24 @@
                                                 );
                                                 setUser(userCredential.user);
                                                 setShowAuthModal(false);
-                                                alert('✅ Sesión iniciada correctamente');
+                                                alert(i18n.currentLanguage === 'es' ? '✅ Sesión iniciada correctamente' : '✅ Signed in successfully');
                                             } else {
-                                                // Modo REGISTRO
                                                 const userCredential = await window.firebaseCreateUser(
                                                     window.firebaseAuth,
                                                     email,
                                                     password
                                                 );
 
-                                                // Enviar email de verificación
                                                 try {
                                                     await window.firebaseSendEmailVerification(userCredential.user);
                                                     console.log('✅ Email de verificación enviado');
                                                 } catch (emailError) {
                                                     console.error('❌ Error enviando email:', emailError);
-                                                    alert('⚠️ Cuenta creada pero hubo un error enviando el email de verificación: ' + emailError.message);
+                                                    alert(i18n.currentLanguage === 'es' 
+                                                        ? '⚠️ Cuenta creada pero hubo un error enviando el email de verificación: ' + emailError.message
+                                                        : '⚠️ Account created but there was an error sending verification email: ' + emailError.message);
                                                 }                     
                                                 
-                                                // Crear documento de usuario en Firestore
                                                 const userRef = window.firebaseDoc(window.firebaseDB, 'users', userCredential.user.uid);
                                                 await window.firebaseSetDoc(userRef, {
                                                     email: email,
@@ -3372,16 +3377,18 @@
                                                 
                                                 setUser(userCredential.user);
                                                 setShowAuthModal(false);
-                                                alert('✅ Cuenta creada correctamente\n\n📧 Revisa tu email para verificar tu cuenta antes de usar la app.\n\nSi no está en tu inbox, revise el busón de spam.');
+                                                alert(i18n.currentLanguage === 'es'
+                                                    ? '✅ Cuenta creada correctamente\n\n📧 Revisa tu email para verificar tu cuenta antes de usar la app.\n\nSi no está en tu inbox, revise el buzón de spam.'
+                                                    : '✅ Account created successfully\n\n📧 Check your email to verify your account before using the app.\n\nIf not in inbox, check spam folder.');
                                             }
                                         } catch (error) {
                                             console.error('Error:', error);
                                             if (error.code === 'auth/invalid-credential') {
-                                                alert('❌ Email o contraseña incorrectos');
+                                                alert(i18n.currentLanguage === 'es' ? '❌ Email o contraseña incorrectos' : '❌ Invalid email or password');
                                             } else if (error.code === 'auth/email-already-in-use') {
-                                                alert('❌ Este email ya está registrado. Intenta iniciar sesión.');
+                                                alert(i18n.currentLanguage === 'es' ? '❌ Este email ya está registrado. Intenta iniciar sesión.' : '❌ This email is already registered. Try signing in.');
                                             } else if (error.code === 'auth/weak-password') {
-                                                alert('❌ La contraseña debe tener al menos 6 caracteres');
+                                                alert(i18n.currentLanguage === 'es' ? '❌ La contraseña debe tener al menos 6 caracteres' : '❌ Password must be at least 6 characters');
                                             } else {
                                                 alert('❌ Error: ' + error.message);
                                             }
@@ -3393,7 +3400,7 @@
                                             marginBottom: '8px',
                                             fontSize: '0.95rem'
                                         }}>
-                                            Email:
+                                            {i18n.t('auth.email')}:
                                         </label>
                                         <input
                                             type="email"
@@ -3417,7 +3424,7 @@
                                             marginBottom: '8px',
                                             fontSize: '0.95rem'
                                         }}>
-                                            Contraseña:
+                                            {i18n.t('auth.password')}:
                                         </label>
                                         <input
                                             type="password"
@@ -3440,7 +3447,7 @@
                                             marginTop: '5px',
                                             display: 'block'
                                         }}>
-                                            Mínimo 6 caracteres
+                                            {i18n.currentLanguage === 'es' ? 'Mínimo 6 caracteres' : 'Minimum 6 characters'}
                                         </small>
                                     </div>
                                     
@@ -3451,7 +3458,7 @@
                                             className="btn"
                                             style={{flex: 1}}
                                         >
-                                            Iniciar Sesión
+                                            {i18n.t('auth.signIn')}
                                         </button>
                                         
                                         <button
@@ -3460,7 +3467,7 @@
                                             className="btn"
                                             style={{flex: 1, background: 'linear-gradient(135deg, var(--accent) 0%, #ff4081 100%)'}}
                                         >
-                                            Registrarse
+                                            {i18n.t('auth.signUp')}
                                         </button>
                                     </div>
                                     
@@ -3478,7 +3485,7 @@
                                             fontSize: '0.95rem'
                                         }}
                                     >
-                                        Cancelar
+                                        {i18n.currentLanguage === 'es' ? 'Cancelar' : 'Cancel'}
                                     </button>
                                 </form>
                                 
@@ -3488,12 +3495,13 @@
                                     fontSize: '0.85rem',
                                     color: 'var(--text-dim)'
                                 }}>
-                                    Si la cuenta no existe, se creará automáticamente
+                                    {i18n.currentLanguage === 'es' 
+                                        ? 'Si la cuenta no existe, se creará automáticamente'
+                                        : 'If account doesn\'t exist, it will be created automatically'}
                                 </p>
                             </div>
                         </div>
                     )}
-
                         <div className="main-grid" style={{
                             gridTemplateColumns: menuCollapsed ? '60px 1fr' : '400px 1fr'
                         }}>
@@ -3521,13 +3529,13 @@
                                     <>
                                         <span style={{fontSize: '1.2rem'}}>▶️</span>
                                         <span style={{writingMode: 'vertical-rl', transform: 'rotate(180deg)'}}>
-                                            Expandir
+                                            {i18n.t('modes.expand')}
                                         </span>
                                     </>
                                 ) : (
                                     <>
                                         <span>◀️</span>
-                                        <span>Contraer Menu Lateral</span>
+                                        <span>{i18n.t('modes.collapse')}</span>
                                     </>
                                 )}
                             </button>
@@ -3555,7 +3563,7 @@
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                📸 Desde Foto
+                                                {i18n.t('modes.fromPhoto')}
                                             </button>
                                             <button 
                                                 onClick={() => {
@@ -3574,7 +3582,7 @@
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                🎨 Desde Cero
+                                                {i18n.t('modes.fromScratch')}
                                             </button>
                                             {/* AGREGAR ESTE BOTÓN */}
                                             <button 
@@ -3591,7 +3599,7 @@
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                📚 Galería
+                                                {i18n.t('modes.gallery')}
                                             </button>
                                         </div>
                                         
@@ -3610,7 +3618,7 @@
                                                     width: '100%'
                                                 }}
                                             >
-                                                📂 O cargar patrón guardado
+                                                {i18n.t('modes.loadPattern')}
                                             </button>
                                         </div>
                                     </div>
@@ -3618,7 +3626,7 @@
                                     {!result &&creationMode === 'photo' && (
                                         <>
                                             <div className="card">
-                                                <h2>📸 Subir Imagen</h2>
+                                                <h2>{i18n.t('fromPhoto.title')}</h2>
                                                 <div 
                                                     className="upload-zone"
                                                     onClick={() => fileInputRef.current?.click()}
@@ -3626,8 +3634,8 @@
                                                     onDragOver={(e) => e.preventDefault()}
                                                 >
                                                     <div className="upload-icon">📁</div>
-                                                    <p><strong>Click para subir</strong> o arrastra tu imagen</p>
-                                                    <p style={{fontSize: '0.85rem', marginTop: '5px'}}>PNG, JPG, JPEG</p>
+                                                    <p>{i18n.t('fromPhoto.uploadZone')}</p>
+                                                    <p style={{fontSize: '0.85rem', marginTop: '5px'}}>{i18n.t('fromPhoto.fileTypes')}</p>
                                                     <input 
                                                         ref={fileInputRef}
                                                         type="file" 
@@ -3640,9 +3648,9 @@
                                             </div>
 
                                             <div className="card" style={{marginTop: '20px'}}>
-                                                <h2>⚙️ Configuración para Foto</h2>                     
+                                                <h2>{i18n.t('fromPhoto.config')}</h2>                     
                                                 <div className="controls-group">
-                                                    <label>Modo de Color</label>
+                                                    <label>{i18n.t('fromPhoto.colorMode')}</label>
                                                     <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
                                                         <button 
                                                             onClick={() => setColorMode('miyuki')}
@@ -3659,7 +3667,7 @@
                                                                 transition: 'all 0.3s ease'
                                                             }}
                                                         >
-                                                            🎨 Miyuki Beads
+                                                            {i18n.t('fromPhoto.miyukiBeads')}
                                                         </button>
                                                         <button 
                                                             onClick={() => setColorMode('rgb')}
@@ -3676,7 +3684,7 @@
                                                                 transition: 'all 0.3s ease'
                                                             }}
                                                         >
-                                                            🖼️ Universal RGB
+                                                            {i18n.t('fromPhoto.universalRGB')}
                                                         </button>
                                                     </div>
                                                     <small style={{
@@ -3686,13 +3694,13 @@
                                                         display: 'block',
                                                         marginBottom: '20px'
                                                     }}>
-                                                        {colorMode === 'miyuki' ? 'Para comprar cuentas Miyuki reales' : 'Para arte digital / otras marcas'}
+                                                        {colorMode === 'miyuki' ? i18n.t('fromPhoto.miyukiDesc') : i18n.t('fromPhoto.rgbDesc')}
                                                     </small>
 
                                                     {/* Selector de tipo de patrón */}
                                                     <div style={{marginBottom: '15px'}}>
                                                         <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold'}}>
-                                                            Tipo de patrón:
+                                                            {i18n.t('fromPhoto.patternType')}
                                                         </label>
                                                         <div style={{display: 'flex', gap: '20px'}}>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
@@ -3704,7 +3712,7 @@
                                                                     onChange={(e) => setPatternType(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                🔲 Cuadrícula
+                                                                {i18n.t('fromPhoto.grid')}
                                                             </label>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
                                                                 <input 
@@ -3715,7 +3723,7 @@
                                                                     onChange={(e) => setPatternType(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                ◇ Peyote
+                                                                {i18n.t('fromPhoto.peyote')}
                                                             </label>
                                                         </div>
                                                     </div>
@@ -3723,7 +3731,7 @@
                                                     {/* Modo de entrada de dimensiones */}
                                                     <div style={{marginBottom: '15px'}}>
                                                         <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold'}}>
-                                                            Definir dimensiones por:
+                                                            {i18n.t('fromPhoto.defineBy')}
                                                         </label>
                                                         <div style={{display: 'flex', gap: '20px'}}>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
@@ -3735,7 +3743,7 @@
                                                                     onChange={(e) => setDimensionMode(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                Centímetros
+                                                                {i18n.t('fromPhoto.centimeters')}
                                                             </label>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
                                                                 <input 
@@ -3746,11 +3754,11 @@
                                                                     onChange={(e) => setDimensionMode(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                Número de cuentas
+                                                                {i18n.t('fromPhoto.beadCount')}
                                                             </label>
                                                         </div>
                                                     </div>
-                                                    <label>{dimensionMode === 'cm' ? 'Dimensiones (cm)' : 'Número de cuentas'}</label>
+                                                    <label>{dimensionMode === 'cm' ? i18n.t('fromPhoto.dimensions') : i18n.t('fromPhoto.beadDimensions')}</label>
                                                     <div className="input-group">
                                                         <div>
                                                             <input 
@@ -3761,7 +3769,7 @@
                                                                 step="0.1"
                                                                 min="1"
                                                             />
-                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>Ancho</small>
+                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>{i18n.t('fromPhoto.width')}</small>
                                                         </div>
                                                         <div>
                                                             <input 
@@ -3772,7 +3780,7 @@
                                                                 step="0.1"
                                                                 min="1"
                                                             />
-                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>Alto</small>
+                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>{i18n.t('fromPhoto.height')}</small>
                                                         </div>
                                                     </div>
 
@@ -3786,13 +3794,13 @@
                                                             border: '1px solid #b3d9e8'
                                                         }}>
                                                             <div style={{marginBottom: '5px'}}>
-                                                                📐 <strong>Relación:</strong> {imageDimensions.width} × {imageDimensions.height} px
-                                                                ({imageDimensions.aspectRatio > 1 ? 'Horizontal' : imageDimensions.aspectRatio < 1 ? 'Vertical' : 'Cuadrada'})
+                                                                📐 <strong>{i18n.t('fromPhoto.ratioLabel')}</strong> {imageDimensions.width} × {imageDimensions.height} px
+                                                                ({imageDimensions.aspectRatio > 1 ? i18n.t('fromPhoto.horizontal') : imageDimensions.aspectRatio < 1 ? i18n.t('fromPhoto.vertical') : i18n.t('fromPhoto.square')})
                                                             </div>
                                                             {getSuggestedDimension() && (
                                                                 <div style={{color: '#0066cc'}}>
-                                                                    💡 <strong>Sugerencia:</strong> Para mantener la proporción de la imagen,
-                                                                    el {getSuggestedDimension().type} debería ser aproximadamente{' '}
+                                                                    💡 <strong>{i18n.t('fromPhoto.suggestionLabel')}</strong> {i18n.t('fromPhoto.suggestionText')}
+                                                                    {i18n.t('fromPhoto.the')} {getSuggestedDimension().type} {i18n.t('fromPhoto.shouldBe')}{' '}
                                                                     <strong>{getSuggestedDimension().value} {getSuggestedDimension().unit}</strong>
                                                                 </div>
                                                             )}
@@ -3802,7 +3810,7 @@
                                                     {/* Info de conversión */}
                                                     {dimensionMode === 'cm' && (
                                                         <div style={{fontSize: '0.9em', color: 'var(--text-secondary)', marginTop: '8px', marginBottom: '8px'}}>
-                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} cuentas
+                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} {i18n.t('fromPhoto.beads')}
                                                         </div>
                                                     )}
                                                     {dimensionMode === 'beads' && (
@@ -3823,12 +3831,12 @@
                                                         📊 Total: {dimensionMode === 'cm' 
                                                             ? (Math.round((width * 10) / beadSize) * Math.round((height * 10) / beadSize)).toLocaleString()
                                                             : (Math.round(width) * Math.round(height)).toLocaleString()
-                                                        } cuentas
+                                                        } {i18n.t('fromPhoto.beads')}
                                                     </div> 
                                                 </div>
 
                                                 <div className="controls-group">
-                                                    <label>Tamaño de Cuenta</label>
+                                                    <label>{i18n.t('fromPhoto.beadSize')}</label>
                                                     <select value={beadSize} onChange={handleBeadSizeChange}>
                                                         <option value={2.0}>2.0mm - Miyuki Delica</option>
                                                         <option value={1.5}>1.5mm - Seed Beads 15/0</option>
@@ -3837,7 +3845,7 @@
                                                 </div>
 
                                                 <div className="controls-group">
-                                                    <label>Número de Colores</label>
+                                                    <label>{i18n.t('fromPhoto.numColors')}</label>
                                                     <input 
                                                         type="number" 
                                                         value={colorCount}
@@ -3847,7 +3855,7 @@
                                                         max="20"
                                                     />
                                                     <small style={{color: 'var(--text-dim)', fontSize: '0.8rem', marginTop: '5px', display: 'block'}}>
-                                                        5-8: Simple | 10-12: Recomendado | 15-20: Detallado
+                                                        {i18n.t('fromPhoto.colorsSimple')}
                                                     </small>
                                                 </div>
 
@@ -3856,7 +3864,7 @@
                                                         className="collapse-toggle"
                                                         onClick={() => setShowAdvanced(!showAdvanced)}
                                                     >
-                                                        <span>🎨 Ajustes de Color Avanzados</span>
+                                                        <span>{i18n.t('fromPhoto.advancedSettings')}</span>
                                                         <span>{showAdvanced ? '▼' : '▶'}</span>
                                                     </button>
                                                     
@@ -3864,7 +3872,7 @@
                                                         <div style={{marginTop: '15px'}}>
                                                             <div className="controls-group">
                                                                 <label>
-                                                                    Saturación <span className="slider-value">{saturation.toFixed(1)}x</span>
+                                                                    {i18n.t('fromPhoto.saturation')} <span className="slider-value">{saturation.toFixed(1)}x</span>
                                                                 </label>
                                                                 <input 
                                                                     type="range"
@@ -3875,13 +3883,13 @@
                                                                     onChange={(e) => setSaturation(parseFloat(e.target.value))}
                                                                 />
                                                                 <small style={{color: 'var(--text-dim)', fontSize: '0.75rem', display: 'block', marginTop: '5px'}}>
-                                                                    🎨 Aumenta para colores más vivos (rojos más rojos, azules más azules)
+                                                                    {i18n.t('fromPhoto.saturationDesc')}
                                                                 </small>
                                                             </div>
 
                                                             <div className="controls-group">
                                                                 <label>
-                                                                    Brillo <span className="slider-value">{brightness.toFixed(1)}x</span>
+                                                                    {i18n.t('fromPhoto.brightness')} <span className="slider-value">{brightness.toFixed(1)}x</span>
                                                                 </label>
                                                                 <input 
                                                                     type="range"
@@ -3892,13 +3900,13 @@
                                                                     onChange={(e) => setBrightness(parseFloat(e.target.value))}
                                                                 />
                                                                 <small style={{color: 'var(--text-dim)', fontSize: '0.75rem', display: 'block', marginTop: '5px'}}>
-                                                                    ☀️ Aumenta para imagen más clara
+                                                                    {i18n.t('fromPhoto.brightnessDesc')}
                                                                 </small>
                                                             </div>
 
                                                             <div className="controls-group">
                                                                 <label>
-                                                                    Contraste <span className="slider-value">{contrast.toFixed(1)}x</span>
+                                                                    {i18n.t('fromPhoto.contrast')} <span className="slider-value">{contrast.toFixed(1)}x</span>
                                                                 </label>
                                                                 <input 
                                                                     type="range"
@@ -3909,13 +3917,13 @@
                                                                     onChange={(e) => setContrast(parseFloat(e.target.value))}
                                                                 />
                                                                 <small style={{color: 'var(--text-dim)', fontSize: '0.75rem', display: 'block', marginTop: '5px'}}>
-                                                                    ⚫⚪ Aumenta para más diferencia entre claros y oscuros
+                                                                    {i18n.t('fromPhoto.contrastDesc')}
                                                                 </small>
                                                             </div>
 
                                                             <div className="controls-group">
                                                                 <label>
-                                                                    Nitidez <span className="slider-value">{sharpness.toFixed(1)}x</span>
+                                                                    {i18n.t('fromPhoto.sharpness')} <span className="slider-value">{sharpness.toFixed(1)}x</span>
                                                                 </label>
                                                                 <input 
                                                                     type="range"
@@ -3926,7 +3934,7 @@
                                                                     onChange={(e) => setSharpness(parseFloat(e.target.value))}
                                                                 />
                                                                 <small style={{color: 'var(--text-dim)', fontSize: '0.75rem', display: 'block', marginTop: '5px'}}>
-                                                                    🔍 Aumenta para bordes más definidos
+                                                                    {i18n.t('fromPhoto.sharpnessDesc')}
                                                                 </small>
                                                             </div>
 
@@ -3940,7 +3948,7 @@
                                                                 }}
                                                                 style={{marginTop: '10px', fontSize: '0.9rem', padding: '10px 20px'}}
                                                             >
-                                                                ↺ Restaurar Valores Por Defecto
+                                                                {i18n.t('fromPhoto.restoreDefaults')}
                                                             </button>
                                                         </div>
                                                     )}
@@ -3962,7 +3970,7 @@
                                                         <div className="info-text">
                                                             <strong>📊 Patrón:</strong><br/>
                                                             {displayWidthBeads} x {displayHeightBeads} beads<br/>
-                                                            Total: {displayTotalBeads.toLocaleString()} cuentas
+                                                            Total: {displayTotalBeads.toLocaleString()} {i18n.t('fromPhoto.beads')}
                                                         </div>
                                                     );
                                                 })()}
@@ -3973,7 +3981,7 @@
                                                     disabled={!image || processing || !apiConnected}
                                                     style={{marginTop: '20px'}}
                                                 >
-                                                    {processing ? '⏳ Generando...' : '🎨 Generar Patrón'}
+                                                    {processing ? i18n.t('fromPhoto.generating') : i18n.t('fromPhoto.generatePattern')}
                                                 </button>
                                             </div>
                                         </>
@@ -3983,7 +3991,7 @@
                                         <>
                                             {/* Card Crear Desde Cero */}
                                             <div className="card">
-                                                <h2>🎨 Crear Patrón Desde Cero</h2>
+                                                <h2>{i18n.t('fromScratch.title')}</h2>
                                                 
                                                 <div className="controls-group">
                                                     <label>Modo de Color</label>
@@ -4028,7 +4036,7 @@
                                                         display: 'block',
                                                         marginBottom: '20px'
                                                     }}>
-                                                        {colorMode === 'miyuki' ? 'Usa colores Miyuki oficiales' : 'Usa paleta RGB universal'}
+                                                        {colorMode === 'miyuki' ? i18n.t('fromScratch.miyukiDesc') : i18n.t('fromScratch.rgbDesc')}
                                                     </small>
                                                 </div>
 
@@ -4091,11 +4099,11 @@
                                                                     onChange={(e) => setDimensionMode(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                Número de cuentas
+                                                                {i18n.t('fromPhoto.beadCount')}
                                                             </label>
                                                         </div>
                                                     </div>
-                                                    <label>{dimensionMode === 'cm' ? 'Dimensiones (cm)' : 'Número de cuentas'}</label>
+                                                    <label>{dimensionMode === 'cm' ? i18n.t('fromPhoto.dimensions') : i18n.t('fromPhoto.beadDimensions')}</label>
                                                     <div className="input-group">
                                                         <div>
                                                             <input 
@@ -4106,7 +4114,7 @@
                                                                 step="0.1"
                                                                 min="1"
                                                             />
-                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>Ancho</small>
+                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>{i18n.t('fromPhoto.width')}</small>
                                                         </div>
                                                         <div>
                                                             <input 
@@ -4117,13 +4125,13 @@
                                                                 step="0.1"
                                                                 min="1"
                                                             />
-                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>Alto</small>
+                                                            <small style={{color: 'var(--text-dim)', fontSize: '0.8rem'}}>{i18n.t('fromPhoto.height')}</small>
                                                         </div>
                                                     </div>
                                                     {/* Info de conversión */}
                                                     {dimensionMode === 'cm' && (
                                                         <div style={{fontSize: '0.9em', color: 'var(--text-secondary)', marginTop: '8px', marginBottom: '8px'}}>
-                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} cuentas 
+                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} {i18n.t('fromPhoto.beads')} 
                                                         </div>
                                                     )}
                                                     {dimensionMode === 'beads' && (
@@ -4144,12 +4152,12 @@
                                                         📊 Total: {dimensionMode === 'cm' 
                                                             ? (Math.round((width * 10) / beadSize) * Math.round((height * 10) / beadSize)).toLocaleString()
                                                             : (Math.round(width) * Math.round(height)).toLocaleString()
-                                                        } cuentas
+                                                        } {i18n.t('fromPhoto.beads')}
                                                     </div>
                                                 </div>
 
                                                 <div className="controls-group">
-                                                    <label>Tamaño de Cuenta</label>
+                                                    <label>{i18n.t('fromPhoto.beadSize')}</label>
                                                     <select 
                                                         value={beadSize} 
                                                         onChange={(e) => {
@@ -4168,7 +4176,7 @@
                                                     style={{width: '100%', marginTop: '20px'}}
                                                     onClick={createBlankCanvas}
                                                 >
-                                                    ✨ Crear Canvas en Blanco
+                                                    {i18n.t('fromScratch.createCanvas')}
                                                 </button>
                                             </div>
                                         </>
@@ -4176,7 +4184,7 @@
 
                                     {!result && creationMode === 'gallery' && (
                                         <div className="card" style={{marginTop: '20px'}}>
-                                            <h2>📚 Galería de Patrones</h2>
+                                            <h2>{i18n.t('gallery.title')}</h2>
                                             
                                             {/* Grid de patrones */}
                                             <div style={{
@@ -4190,7 +4198,7 @@
                                                         key={pattern.id}
                                                         onClick={() => {
                                                             if (!pattern.isBasic && !isPremiumUser()) {
-                                                                alert('⚠️ Este patrón está disponible solo en el plan Premium\n\n💎 Upgrade a Premium para acceso completo a la galería');
+                                                                alert(i18n.t('gallery.premiumAlert'));
                                                                 return;
                                                             }
                                                             loadPatternFromGallery(pattern);
@@ -4219,7 +4227,7 @@
                                                                 borderRadius: '5px',
                                                                 fontSize: '0.8rem'
                                                             }}>
-                                                                🔒 Premium
+                                                                {i18n.t('gallery.premium')}
                                                             </div>
                                                         )}
                                                         
@@ -4249,7 +4257,7 @@
                                             
                                             {galleryPatterns.length === 0 && (
                                                 <div style={{textAlign: 'center', padding: '40px', color: 'var(--text-dim)'}}>
-                                                    Cargando patrones...
+                                                    {i18n.t('gallery.loading')}
                                                 </div>
                                             )}
                                         </div>
@@ -4260,7 +4268,7 @@
                         </div>
 
                         <div className="card">
-                            <h2>🖼️ Resultado</h2>
+                            <h2>{i18n.t('results.title')}</h2>
                             
                             {error && (
                                 <div className="api-error">
@@ -4271,14 +4279,14 @@
                             {processing && (
                                 <div className="loading">
                                     <div className="spinner"></div>
-                                    <p>Generando patrón profesional...</p>
+                                    <p>{i18n.t('fromPhoto.generating').replace('⏳ ', '')}...</p>
                                 </div>
                             )}
                             
                             {!processing && !result && !error && (
                                 <div className="empty-state">
                                     <div className="empty-state-icon">🎨</div>
-                                    <p>Sube una imagen y genera tu patrón</p>
+                                    <p>{i18n.t('fromPhoto.emptyState')}</p>
                                 </div>
                             )}
                             
@@ -4292,7 +4300,7 @@
                                                 setLastViewedTab('grid');
                                             }}
                                         >
-                                            📐 Cuadrícula
+                                            {i18n.t('results.gridView')}
                                         </button>
                                         <button 
                                             className={`tab ${activeTab === 'coords' ? 'active' : ''}`}
@@ -4301,20 +4309,20 @@
                                                 setLastViewedTab('coords');
                                             }}
                                         >
-                                            🎯 Coordenadas
+                                            {i18n.t('results.coordinates')}
                                         </button>
                                         <button 
                                             className={`tab ${activeTab === 'colors' ? 'active' : ''}`}
                                             onClick={() => handleTabChange('colors')}
                                         >
-                                            🎨 Colores
+                                            {i18n.t('results.colors')}
                                         </button>
                                         {result.pattern_type !== 'peyote' && (
                                             <button 
                                                 className={`tab ${activeTab === 'guide' ? 'active' : ''}`}
                                                 onClick={() => handleTabChange('guide')}
                                             >
-                                                📋 Guía
+                                                {i18n.t('results.guide')}
                                             </button>
                                         )}
                                         <button 
@@ -4337,7 +4345,7 @@
                                                 }
                                             }}
                                         >
-                                            ✏️ Editor
+                                            {i18n.t('results.editor')}
                                         </button>
                                        {activeTab === 'coords' && result.pattern_type !== 'peyote' && (
                                             <button 
@@ -4353,7 +4361,7 @@
                                                     fontWeight: showNumbers ? 'bold' : 'normal'
                                                 }}
                                             >
-                                                {showNumbers ? '🔢 Ocultar Números' : '🔢 Mostrar Números'}
+                                                {showNumbers ? i18n.t('results.hideNumbers') : i18n.t('results.showNumbers')}
                                             </button>
                                         )}
 
@@ -4372,7 +4380,7 @@
                                                     fontWeight: showGridInView ? 'bold' : 'normal'
                                                 }}
                                             >
-                                                {showGridInView ? '👁️ Ocultar Grid' : '👁️ Mostrar Grid'}
+                                                {showGridInView ? i18n.t('results.hideGrid') : i18n.t('results.showGrid')}
                                             </button>
                                         )}
                                     </div>
@@ -4391,7 +4399,7 @@
                                                 disabled={processing}
                                                 style={{flex: 1}}
                                             >
-                                                {processing ? '⏳ Guardando...' : '💾 Guardar Ediciones'}
+                                                {processing ? '⏳ ' + i18n.t('editor.saveEdits').replace('💾 ', '') + '...' : i18n.t('editor.saveEdits')}
                                             </button>
                                             <button 
                                                 className="btn btn-secondary"
@@ -4408,7 +4416,7 @@
                                                 }}
                                                 style={{flex: 1}}
                                             >
-                                                ❌ Cancelar
+                                                {i18n.t('editor.cancel')}
                                             </button>
                                         </div>
                                     )}
@@ -4423,12 +4431,12 @@
                                             className="btn"
                                             onClick={() => {
                                                 if (!user) {
-                                                    alert('⚠️ Debes iniciar sesión para guardar patrones');
+                                                    alert(i18n.t('messages.loginRequired'));
                                                     setTimeout(() => setShowAuthModal(true), 0);
                                                     return;
                                                 }
                                                 if (!isPremiumUser()) {
-                                                    alert('⚠️ Guardar patrones está disponible solo en el plan Premium\n\n💎 Upgrade a Premium para guardar y descargar patrones ilimitados');
+                                                    alert(i18n.t('messages.premiumRequiredSave'));
                                                     return;
                                                 }
                                                 savePattern();
@@ -4442,7 +4450,7 @@
                                                 cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
                                             }}
                                         >
-                                            💾 Guardar Patrón Completo {!isPremiumUser() && '🔒'}
+                                            {i18n.t('downloads.saveComplete')} {!isPremiumUser() && '🔒'}
                                         </button>
 
                                     </div>
@@ -4459,10 +4467,10 @@
                                         lineHeight: '1.5'
                                     }}>
                                         <div style={{marginBottom: '5px'}}>
-                                            📁 El archivo se guardará en tu carpeta de descargas predeterminada (normalmente Downloads/Descargas)
+                                            {i18n.t('downloads.saveInfo')}
                                         </div>
                                         <div style={{color: 'var(--primary)'}}>
-                                            💡 Tip: Activa 'Preguntar dónde guardar' en tu navegador para elegir la ubicación (Configuración → Descargas/Downloads)
+                                            {i18n.t('downloads.activatePrompt')}
                                         </div>
                                     </div>
 
@@ -4514,12 +4522,12 @@
                                                     className="btn"
                                                     onClick={() => {
                                                         if (!user) {
-                                                                    alert('⚠️ Debes iniciar sesión para descargar patrones');
+                                                                    alert(i18n.t('messages.loginRequiredDownload'));
                                                                     setTimeout(() => setShowAuthModal(true), 0);
                                                                     return;
                                                                 }
                                                                 if (!isPremiumUser()) {
-                                                                    alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                                    alert(i18n.t('downloads.premiumRequired'));
                                                                     return;
                                                                 }                                                        
                                                         downloadImage(result.images.coordinates, 'patron-coordenadas.png');
@@ -4529,7 +4537,7 @@
                                                         cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
                                                     }}
                                                 >
-                                                    💾 Descargar Imagen {!isPremiumUser() && '🔒'}
+                                                    {i18n.t('downloads.downloadImage')} {!isPremiumUser() && '🔒'}
                                                 </button>
 
                                                 {showNumbers && (
@@ -4537,12 +4545,12 @@
                                                             className="btn"
                                                             onClick={() => {
                                                                 if (!user) {
-                                                                    alert('⚠️ Debes iniciar sesión para descargar patrones');
+                                                                    alert(i18n.t('messages.loginRequiredDownload'));
                                                                     setTimeout(() => setShowAuthModal(true), 0);
                                                                     return;
                                                                 }
                                                                 if (!isPremiumUser()) {
-                                                                    alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                                    alert(i18n.t('downloads.premiumRequired'));
                                                                     return;
                                                                 }
                                                                 downloadImageWithNumbers();
@@ -4554,7 +4562,7 @@
                                                                 cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
                                                             }}
                                                         >
-                                                            💾 Descargar con Números {!isPremiumUser() && '🔒'}
+                                                            {i18n.t('downloads.downloadWithNumbers')} {!isPremiumUser() && '🔒'}
                                                         </button>
                                                 )}
                                             </div>
@@ -4651,7 +4659,7 @@
                                         <div>
                                             <h3 style={{marginBottom: '15px'}}>
                                                 {result.colors.unique_colors} colores · {result.colors.total_beads} 
-                                                {result.colors.color_mode === 'miyuki' ? ' cuentas' : ' píxeles'}
+                                                {result.colors.color_mode === 'miyuki' ? ' ' + i18n.t('fromPhoto.beads') : ' píxeles'}
                                             </h3>
                                             <div className="color-legend">
                                                 {result.colors.colors.map((color, idx) => (
@@ -4668,7 +4676,7 @@
                                                                 <div className="color-miyuki">Hex: {color.hex}</div>
                                                             )}
                                                             <div style={{fontSize: '0.85rem', color: 'var(--text-dim)', marginTop: '4px'}}>
-                                                                {color.count} {result.colors.color_mode === 'miyuki' ? 'cuentas' : 'píxeles'} ({color.percentage}%)
+                                                                {color.count} {result.colors.color_mode === 'miyuki' ? i18n.t('fromPhoto.beads') : 'píxeles'} ({color.percentage}%)
                                                             </div>
                                                         </div>
                                                     </div>
@@ -4679,12 +4687,12 @@
                                                 className="btn"
                                                 onClick={() => {
                                                     if (!user) {
-                                                        alert('⚠️ Debes iniciar sesión para descargar patrones');
+                                                        alert(i18n.t('messages.loginRequiredDownload'));
                                                         setTimeout(() => setShowAuthModal(true), 0);
                                                         return;
                                                     }
                                                     if (!isPremiumUser()) {
-                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                        alert(i18n.t('downloads.premiumRequired'));
                                                         return;
                                                     }
                                                     downloadColorGuide();
@@ -4695,7 +4703,7 @@
                                                     cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
                                                 }}
                                             >
-                                                📄 Descargar Guía de Colores (PDF) {!isPremiumUser() && '🔒'}
+                                                {i18n.t('downloads.downloadColors')} {!isPremiumUser() && '🔒'}
                                             </button>
 
                                         </div>
@@ -4704,16 +4712,16 @@
                                     {activeTab === 'guide' && result.rowGuide && (
                                         <div>
                                             <div style={{marginBottom: '15px'}}>
-                                                <strong>Guía de montaje fila por fila</strong>
+                                                <strong>{i18n.t('results.rowGuideTitle')}</strong>
                                                 <p style={{fontSize: '0.9rem', color: 'var(--text-dim)', marginTop: '5px'}}>
-                                                    Sigue la secuencia exacta de izquierda a derecha
+                                                    {i18n.t('results.rowGuideDesc')}
                                                 </p>
                                             </div>
                                             <div className="row-guide">
                                                 {result.rowGuide.rows.map((row) => (
                                                     <div key={row.row} className="row-item">
                                                         <div className="row-header">
-                                                            <div className="row-number">Fila {row.row}</div>
+                                                            <div className="row-number">{i18n.t('results.row')} {row.row}</div>
                                                             <div className="row-totals">
                                                                 {row.totals && row.totals.map((total, idx) => (
                                                                     <span key={idx}>
@@ -4724,7 +4732,7 @@
                                                             </div>
                                                         </div>
                                                         <div className="row-sequence">
-                                                            <div className="sequence-label">Secuencia (← a →):</div>
+                                                            <div className="sequence-label">{i18n.t('results.sequence')}</div>
                                                             <div className="sequence-items">
                                                                 {row.sequence && row.sequence.map((item, idx) => (
                                                                     <React.Fragment key={idx}>
@@ -4746,12 +4754,12 @@
                                                 className="btn"
                                                 onClick={() => {
                                                     if (!user) {
-                                                        alert('⚠️ Debes iniciar sesión para descargar patrones');
+                                                        alert(i18n.t('messages.loginRequiredDownload'));
                                                         setTimeout(() => setShowAuthModal(true), 0);
                                                         return;
                                                     }
                                                     if (!isPremiumUser()) {
-                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                        alert(i18n.t('downloads.premiumRequired'));
                                                         return;
                                                     }
                                                     downloadAssemblyGuide();
@@ -4762,7 +4770,7 @@
                                                     cursor: (!user || !isPremiumUser()) ? 'not-allowed' : 'pointer'
                                                 }}
                                             >
-                                                📄 Descargar Guía de Montaje (PDF) {!isPremiumUser() && '🔒'}
+                                                {i18n.t('downloads.downloadAssembly')} {!isPremiumUser() && '🔒'}
                                             </button>
 
                                         </div>
@@ -4903,7 +4911,7 @@
                                                         fontWeight: 'bold',
                                                         fontSize: '1.1rem'
                                                     }}>
-                                                        <div style={{fontSize: '0.85rem', marginBottom: '5px'}}>📍 Coordenadas</div>
+                                                        <div style={{fontSize: '0.85rem', marginBottom: '5px'}}>{i18n.t('results.coordinates')}</div>
                                                         <div>
                                                             X: {mouseCoords ? mouseCoords.x : '-'} · Y: {mouseCoords ? mouseCoords.y : '-'}
                                                         </div>
@@ -4915,7 +4923,7 @@
                                                         backgroundColor: 'var(--surface-light)',
                                                         textAlign: 'center'
                                                     }}>
-                                                        <div style={{fontSize: '0.85rem', marginBottom: '8px', color: 'var(--text-dim)'}}>🎨 Color</div>
+                                                        <div style={{fontSize: '0.85rem', marginBottom: '8px', color: 'var(--text-dim)'}}>{i18n.t('results.colors')}</div>
                                                         {mouseCoords && mouseCoords.rgb ? (
                                                             (() => {
                                                                 const color = findClosestColor(mouseCoords.rgb);
@@ -4940,7 +4948,7 @@
                                                 </div>                                                
                                                 {/* HERRAMIENTAS */}
                                                 <div style={{marginBottom: '20px', padding: '15px', backgroundColor: 'var(--surface)', borderRadius: '8px'}}>
-                                                    <h3 style={{marginBottom: '10px'}}>🛠️ Herramientas</h3>
+                                                    <h3 style={{marginBottom: '10px'}}>{i18n.t('editor.tools')}</h3>
                                                     <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
                                                         <button
                                                             onClick={() => {
@@ -4959,7 +4967,7 @@
                                                                 cursor: 'pointer'
                                                             }}
                                                         >
-                                                            ✏️ Pincel
+                                                            {i18n.t('editor.brush')}
                                                         </button>
                                                         <button
                                                             onClick={() => {
@@ -4978,7 +4986,7 @@
                                                                 cursor: 'pointer'
                                                             }}
                                                         >
-                                                            📋 Seleccionar
+                                                            {i18n.t('editor.select')}
                                                         </button>
 
                                                         <button
@@ -4998,13 +5006,13 @@
                                                                 cursor: 'pointer'
                                                             }}
                                                         >
-                                                            🧹 Borrador
+                                                            {i18n.t('editor.erase')}
                                                         </button>
 
                                                         <button
                                                             onClick={() => {
                                                                 if (!selection || !canvasRef.current) {
-                                                                    alert('⚠️ Primero selecciona un área');
+                                                                    alert(i18n.t('editor.alertSelectArea'));
                                                                     return;
                                                                 }
                                                                 
@@ -5040,7 +5048,7 @@
                                                                 setToolMode('paste');
                                                                 setSelection(null);
                                                                 
-                                                                alert(`✅ Área copiada: ${width}×${height} píxeles. Click para pegar.`);
+                                                                alert(`${i18n.t('editor.alertCopied')} ${width}×${height} ${i18n.t('editor.pixels')}. ${i18n.t('editor.alertClickPaste')}`);
                                                             }}
                                                             disabled={!selection}
                                                             style={{
@@ -5056,7 +5064,7 @@
                                                                 opacity: selection ? 1 : 0.6
                                                             }}
                                                         >
-                                                            📋 Copiar
+                                                            {i18n.t('editor.copy')}
                                                         </button>
 
                                                         <button
@@ -5079,7 +5087,7 @@
                                                                 cursor: 'pointer'
                                                             }}
                                                         >
-                                                            🔄 Reemplazar Color
+                                                            {i18n.t('editor.replaceColor')}
                                                         </button>
 
                                                         <button
@@ -5098,30 +5106,30 @@
                                                                 opacity: undoHistory ? 1 : 0.6
                                                             }}
                                                         >
-                                                            ↩️ Deshacer
+                                                            {i18n.t('editor.undo')}
                                                         </button>
 
                                                     </div>
                                                     
                                                     {selection && (
                                                         <div style={{marginTop: '10px', fontSize: '0.85rem', color: 'var(--text-dim)'}}>
-                                                            📐 Área: {Math.abs(selection.endX - selection.startX) + 1} × {Math.abs(selection.endY - selection.startY) + 1} píxeles
+                                                            {i18n.t('editor.area')} {Math.abs(selection.endX - selection.startX) + 1} × {Math.abs(selection.endY - selection.startY) + 1} {i18n.t('editor.pixels')}
                                                         </div>
                                                     )}
                                                 </div>
 
                                                 {toolMode === 'replace' && (
                                                     <div style={{marginBottom: '20px', padding: '15px', backgroundColor: 'var(--surface)', borderRadius: '8px'}}>
-                                                        <h4 style={{marginBottom: '10px'}}>🔄 Reemplazar Color</h4>
+                                                        <h4 style={{marginBottom: '10px'}}>{i18n.t('editor.replaceColor')}</h4>
                                                         <div style={{fontSize: '0.85rem', marginBottom: '10px', color: 'var(--text-dim)'}}>
-                                                            <strong>1.</strong> Elige color DE (en el canvas)<br/>
-                                                            <strong>2.</strong> Elige color PARA (cualquier color)<br/>
-                                                            <strong>3.</strong> Click Aplicar
+                                                            <strong>1.</strong> {i18n.t('editor.replaceStep1')}<br/>
+                                                            <strong>2.</strong> {i18n.t('editor.replaceStep2')}<br/>
+                                                            <strong>3.</strong> {i18n.t('editor.replaceStep3')}
                                                         </div>
                                                         
                                                         <div style={{display: 'flex', gap: '10px', alignItems: 'center', marginTop: '10px'}}>
                                                             <div style={{flex: 1}}>
-                                                                <div style={{fontSize: '0.75rem', marginBottom: '5px', fontWeight: 'bold'}}>DE:</div>
+                                                                <div style={{fontSize: '0.75rem', marginBottom: '5px', fontWeight: 'bold'}}>{i18n.t('editor.from')}:</div>
                                                                 <div 
                                                                     onClick={() => {
                                                                         setReplaceSelectingMode('from');
@@ -5140,17 +5148,17 @@
                                                                     }}
                                                                 />
                                                                 {replaceFromColor && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center'}}>{replaceFromColor.code}</div>}
-                                                                {replaceSelectingMode === 'from' && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center', color: 'var(--primary)'}}>👆 Elige del canvas</div>}
+                                                                {replaceSelectingMode === 'from' && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center', color: 'var(--primary)'}}>{i18n.t('editor.pickFromCanvas')}</div>}
                                                             </div>
                                                             
                                                             <div style={{fontSize: '1.5rem', opacity: 0.5}}>→</div>
                                                             
                                                             <div style={{flex: 1}}>
-                                                                <div style={{fontSize: '0.75rem', marginBottom: '5px', fontWeight: 'bold'}}>PARA:</div>
+                                                                <div style={{fontSize: '0.75rem', marginBottom: '5px', fontWeight: 'bold'}}>{i18n.t('editor.to')}:</div>
                                                                 <div 
                                                                     onClick={() => {
                                                                         if (!replaceFromColor) {
-                                                                            alert('⚠️ Primero elige el color DE');
+                                                                            alert(i18n.t('editor.alertPickFrom'));
                                                                             return;
                                                                         }
                                                                         setReplaceSelectingMode('to');
@@ -5170,7 +5178,7 @@
                                                                     }}
                                                                 />
                                                                 {replaceToColor && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center'}}>{replaceToColor.code}</div>}
-                                                                {replaceSelectingMode === 'to' && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center', color: 'var(--accent)'}}>👆 Elige cualquier color</div>}
+                                                                {replaceSelectingMode === 'to' && <div style={{fontSize: '0.7rem', marginTop: '3px', textAlign: 'center', color: 'var(--accent)'}}>{i18n.t('editor.pickAnyColor')}</div>}
                                                             </div>
                                                         </div>
                                                         
@@ -5218,7 +5226,7 @@
                                                                     setHasUnsavedChanges(true);  // ← AGREGAR ESTA LÍNEA
                                                                     
                                                                     const beadsReplaced = Math.floor(replacedCount / (canvas.width * canvas.height / (result.pattern.width * result.pattern.height)));
-                                                                    alert(`✅ Color reemplazado (≈${beadsReplaced} beads afectados)`);
+                                                                    alert(`${i18n.t('editor.alertReplaced')} (≈${beadsReplaced} ${i18n.t('editor.alertAffected')})`);
                                                                     
                                                                     setUsedColorsVersion(v => v + 1); // Actualizar colores usados
 
@@ -5229,7 +5237,7 @@
                                                                 }}
                                                                 style={{width: '100%', marginTop: '15px', padding: '12px'}}
                                                             >
-                                                                ✨ Aplicar Reemplazo
+                                                                {i18n.t('editor.applyReplace')}
                                                             </button>
                                                         )}
                                                     </div>
@@ -5237,7 +5245,7 @@
 
                                                 {/* PALETA DE COLORES */}
                                                 <div className="color-palette">
-                                                    <h3 style={{marginBottom: '10px'}}>🎨 Paleta de Colores</h3>
+                                                    <h3 style={{marginBottom: '10px'}}>{i18n.t('editor.palette')}</h3>
                                                     <div style={{
                                                         display: 'flex',
                                                         gap: '5px',
@@ -5258,7 +5266,7 @@
                                                                 fontWeight: paletteTab === 'used' ? 'bold' : 'normal'
                                                             }}
                                                         >
-                                                            En Uso ({getUsedColors().length})
+                                                            {i18n.t('editor.inUse')} ({getUsedColors().length})
                                                         </button>
                                                         
                                                         <button
@@ -5275,7 +5283,7 @@
                                                                 fontWeight: paletteTab === 'all' ? 'bold' : 'normal'
                                                             }}
                                                         >
-                                                            Todos (301)
+                                                            {i18n.t('editor.allColors')} (301)
                                                         </button>
                                                     </div>
 
@@ -5283,7 +5291,7 @@
                                                     <div style={{marginBottom: '10px'}}>
                                                         <input
                                                             type="text"
-                                                            placeholder="🔍 Buscar por código o nombre..."
+                                                            placeholder={i18n.t('editor.searchPlaceholder')}
                                                             value={searchText}
                                                             onChange={(e) => setSearchText(e.target.value)}
                                                             style={{
@@ -5383,7 +5391,7 @@
                                                     ) : isBlankCanvas && !fullPalette ? (
                                                         <div style={{padding: '20px', textAlign: 'center'}}>
                                                             <div className="spinner"></div>
-                                                            <p style={{marginTop: '10px'}}>Cargando paleta...</p>
+                                                            <p style={{marginTop: '10px'}}>{i18n.t('editor.loadingPalette')}</p>
                                                         </div>
                                                     ) : (
                                                         <div className="palette-colors">
@@ -5827,7 +5835,7 @@
                         }}>
                         {/* Izquierda: Contacto */}
                         <div style={{textAlign: 'left'}}>
-                            ¿Dudas o sugerencias?<br/>
+                            {i18n.t('footer.questions')}<br/>
                             📧 <a 
                                 href="mailto:arapystudio@gmail.com"
                                 style={{
@@ -5841,8 +5849,7 @@
                         
                         {/* Derecha: Copyright */}
                         <div style={{textAlign: 'right'}}>
-                            Miyuki® es una marca registrada de<br/>
-                            MIYUKI Co., Ltd - Japón
+                            {i18n.t('footer.trademark')}
                         </div>
                     </footer>
 
@@ -5870,7 +5877,7 @@
                                 overflow: 'auto'
                             }}>
                                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                                    <h2 style={{margin: 0}}>💎 Upgrade a Premium</h2>
+                                    <h2 style={{margin: 0}}>{i18n.t('premium.title')}</h2>
                                     <button 
                                         onClick={() => setShowUpgradeModal(false)}
                                         style={{
@@ -5886,7 +5893,7 @@
                                 </div>
 
                                 <p style={{color: 'var(--text-dim)', marginBottom: '30px'}}>
-                                    Desbloquea todas las funciones de Easy Cuentas
+                                    {i18n.t('premium.subtitle')}
                                 </p>
 
                                 {/* Comparación Free vs Premium */}
@@ -5902,15 +5909,15 @@
                                         borderRadius: '12px',
                                         padding: '20px'
                                     }}>
-                                        <h3>🆓 Free</h3>
+                                        <h3>{i18n.t('premium.free')}</h3>
                                         <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
                                             $0
                                         </div>
                                         <ul style={{listStyle: 'none', padding: 0, color: 'var(--text-dim)', fontSize: '0.9rem'}}>
-                                            <li>✅ 1 patrón/mes desde foto</li>
-                                            <li>✅ 3 patrones/mes desde cero</li>
-                                            <li>❌ Sin descargas</li>
-                                            <li>❌ Galería limitada</li>
+                                            <li>{i18n.t('premium.features.freePhoto')}</li>
+                                            <li>{i18n.t('premium.features.freeScratch')}</li>
+                                            <li>{i18n.t('premium.features.noDownloads')}</li>
+                                            <li>{i18n.t('premium.features.limitedGallery')}</li>
                                         </ul>
                                     </div>
 
@@ -5921,15 +5928,15 @@
                                         padding: '20px',
                                         background: 'linear-gradient(135deg, rgba(0, 206, 209, 0.1) 0%, rgba(255, 217, 61, 0.1) 100%)'
                                     }}>
-                                        <h3>💎 Premium</h3>
+                                        <h3>{i18n.t('premium.premium')}</h3>
                                         <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
                                             $4.99<span style={{fontSize: '1rem', fontWeight: 'normal'}}>/mes</span>
                                         </div>
                                         <ul style={{listStyle: 'none', padding: 0, fontSize: '0.9rem'}}>
-                                            <li>✅ Patrones ilimitados</li>
-                                            <li>✅ Descargas ilimitadas</li>
-                                            <li>✅ Galería completa</li>
-                                            <li>✅ Soporte prioritario</li>
+                                            <li>{i18n.t('premium.features.unlimited')}</li>
+                                            <li>{i18n.t('premium.features.unlimitedDownloads')}</li>
+                                            <li>{i18n.t('premium.features.fullGallery')}</li>
+                                            <li>{i18n.t('premium.features.support')}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -5950,7 +5957,7 @@
                                             fontSize: '1rem'
                                         }}
                                     >
-                                        Mensual - $4.99/mes
+                                        {i18n.t('premium.monthly')}
                                     </button>
                                     <button
                                         onClick={() => handleUpgrade('yearly')}
@@ -5966,9 +5973,9 @@
                                             fontSize: '1rem'
                                         }}
                                     >
-                                        Anual - $48/año
+                                        {i18n.t('premium.yearly')}
                                         <div style={{fontSize: '0.75rem', fontWeight: 'normal'}}>
-                                            (Ahorra 20%)
+                                            {i18n.t('premium.saveYearly')}
                                         </div>
                                     </button>
                                 </div>
@@ -5979,7 +5986,7 @@
                                     textAlign: 'center',
                                     marginTop: '20px'
                                 }}>
-                                    Pago seguro procesado por Stripe
+                                    {i18n.t('premium.securePayment')}
                                 </p>
                             </div>
                         </div>
