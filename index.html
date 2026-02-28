@@ -3994,7 +3994,7 @@
                                                 <h2>{i18n.t('fromScratch.title')}</h2>
                                                 
                                                 <div className="controls-group">
-                                                    <label>Modo de Color</label>
+                                                    <label>{i18n.t('fromPhoto.colorMode')}</label>
                                                     <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
                                                         <button 
                                                             onClick={() => setColorMode('miyuki')}
@@ -4045,7 +4045,7 @@
                                                     {/* Selector de tipo de patrón */}
                                                     <div style={{marginBottom: '15px'}}>
                                                         <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold'}}>
-                                                            Tipo de patrón:
+                                                            {i18n.t('fromPhoto.patternType')}
                                                         </label>
                                                         <div style={{display: 'flex', gap: '20px'}}>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
@@ -4076,7 +4076,7 @@
                                                     {/* Modo de entrada de dimensiones */}
                                                     <div style={{marginBottom: '15px'}}>
                                                         <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold'}}>
-                                                            Definir dimensiones por:
+                                                            {i18n.t('fromPhoto.defineBy')}
                                                         </label>
                                                         <div style={{display: 'flex', gap: '20px'}}>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
@@ -4088,7 +4088,7 @@
                                                                     onChange={(e) => setDimensionMode(e.target.value)}
                                                                     style={{marginRight: '8px'}}
                                                                 />
-                                                                Centímetros
+                                                                {i18n.t('fromPhoto.centimeters')}
                                                             </label>
                                                             <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
                                                                 <input 
@@ -4658,7 +4658,7 @@
                                     {activeTab === 'colors' && (
                                         <div>
                                             <h3 style={{marginBottom: '15px'}}>
-                                                {result.colors.unique_colors} colores · {result.colors.total_beads} 
+                                                {result.colors.unique_colors} {i18n.t('results.colorCount')} · {result.colors.total_beads} 
                                                 {result.colors.color_mode === 'miyuki' ? ' ' + i18n.t('fromPhoto.beads') : ' píxeles'}
                                             </h3>
                                             <div className="color-legend">
