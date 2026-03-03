@@ -622,6 +622,33 @@
             ? 'http://localhost:5000/api'
             : 'https://miyuki-backend.onrender.com/api';
 
+
+        class ErrorBoundary extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { hasError: false, error: null, errorInfo: null };
+            }
+            componentDidCatch(error, errorInfo) {
+                this.setState({ hasError: true, error, errorInfo });
+                console.error('=== ERROR BOUNDARY CAUGHT ===');
+                console.error('Error:', error.message);
+                console.error('Component stack:', errorInfo.componentStack);
+            }
+            render() {
+                if (this.state.hasError) {
+                    return React.createElement('div', {
+                        style: { padding: '20px', background: '#fee', border: '2px solid red', margin: '20px', borderRadius: '8px' }
+                    }, [
+                        React.createElement('h2', { key: 'h' }, '❌ Error de Render'),
+                        React.createElement('pre', { key: 'e', style: { fontSize: '12px', overflow: 'auto' } }, 
+                            String(this.state.error) + '\n\nComponent Stack:\n' + (this.state.errorInfo && this.state.errorInfo.componentStack || '')
+                        )
+                    ]);
+                }
+                return this.props.children;
+            }
+        }
+
         function App() {
             const [image, setImage] = useState(null);
             const [width, setWidth] = useState(5.0);
@@ -2424,6 +2451,18 @@
                             : (c.miyuki || c.miyuki_code || '')
                     }))
                 };
+            };
+
+
+            // Garantiza que un valor sea siempre un string renderizable
+            const safeStr = (val) => {
+                if (val === null || val === undefined) return '';
+                if (typeof val === 'string') return val;
+                if (typeof val === 'object') {
+                    const lang = i18n.currentLanguage || 'es';
+                    return val[lang] || val.es || val.en || Object.values(val).find(v => typeof v === 'string') || '';
+                }
+                return String(val);
             };
 
             const findClosestColor = (rgb) => {
@@ -4597,9 +4636,9 @@
                                                             style={{backgroundColor: `rgb(${color.rgb[0]},${color.rgb[1]},${color.rgb[2]})`}}
                                                         />
                                                         <div className="color-info">
-                                                            <div className="color-code">{color.code} - {color.name}</div>
+                                                            <div className="color-code">{color.code} - {safeStr(color.name)}</div>
                                                             {result.colors.color_mode === 'miyuki' ? (
-                                                                <div className="color-miyuki">Miyuki: {color.miyuki}</div>
+                                                                <div className="color-miyuki">Miyuki: {safeStr(color.miyuki)}</div>
                                                             ) : (
                                                                 <div className="color-miyuki">Hex: {color.hex}</div>
                                                             )}
@@ -4898,7 +4937,7 @@
                                                                         }} />
                                                                         <div style={{textAlign: 'left'}}>
                                                                             <div style={{fontWeight: 'bold', fontSize: '0.9rem'}}>{color.code}</div>
-                                                                            <div style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>{color.name}</div>
+                                                                            <div style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>{safeStr(color.name)}</div>
                                                                         </div>
                                                                     </div>
                                                                 ) : <div>-</div>;
@@ -5314,7 +5353,7 @@
                                                                     const matchCategory = selectedCategory === 'all' || color.category === selectedCategory;
                                                                     const matchSearch = searchText === '' || 
                                                                         color.code.toLowerCase().includes(searchText.toLowerCase()) ||
-                                                                        color.name.toLowerCase().includes(searchText.toLowerCase());
+                                                                        safeStr(color.name).toLowerCase().includes(searchText.toLowerCase());
                                                                     return matchCategory && matchSearch;
                                                                 })
                                                                 .map((color, idx) => (                                                                  
@@ -5342,7 +5381,7 @@
                                                                         <div className="palette-info">
                                                                             <strong>{color.code}</strong><br/>
                                                                             <span style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>
-                                                                                {color.name}
+                                                                                {safeStr(color.name)}
                                                                             </span>
                                                                         </div>
                                                                     </div>
@@ -5367,7 +5406,7 @@
                                                                 const matchCategory = selectedCategory === 'all' || color.category === selectedCategory;
                                                                 const matchSearch = searchText === '' || 
                                                                     color.code.toLowerCase().includes(searchText.toLowerCase()) ||
-                                                                    color.name.toLowerCase().includes(searchText.toLowerCase());
+                                                                    safeStr(color.name).toLowerCase().includes(searchText.toLowerCase());
                                                                 return matchCategory && matchSearch;
                                                             })
                                                             .map((color, idx) => (
@@ -5399,7 +5438,7 @@
                                                                     <div className="palette-info">
                                                                         <strong>{color.code}</strong><br/>
                                                                         <span style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>
-                                                                            {color.name}
+                                                                            {safeStr(color.name)}
                                                                         </span>
                                                                     </div>
                                                                 </div>
@@ -5582,7 +5621,7 @@
                                                             const matchCategory = modalSelectedCategory === 'all' || color.category === modalSelectedCategory;
                                                             const matchSearch = modalSearchText === '' || 
                                                                 color.code.toLowerCase().includes(modalSearchText.toLowerCase()) ||
-                                                                color.name.toLowerCase().includes(modalSearchText.toLowerCase());
+                                                                safeStr(color.name).toLowerCase().includes(modalSearchText.toLowerCase());
                                                             return matchCategory && matchSearch;
                                                         })
                                                         .map((color, idx) => (
@@ -5956,7 +5995,7 @@
                 </div>                                
             );
         }
-        ReactDOM.render(<App />, document.getElementById('root'));
+        ReactDOM.render(React.createElement(ErrorBoundary, null, React.createElement(App)), document.getElementById('root'));
     </script>
 </body>
 </html>
