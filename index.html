@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Easy Cuentas - Generador de Patrones Miyuki</title>
         <link rel="icon" type="image/png" href="/easy cuentas logo.png">
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
@@ -943,7 +943,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [gridViewReady, result, showGridInView, activeTab, patternVersion]);
+            }, [result, showGridInView, activeTab, patternVersion]);
 
             // Vista Coordenadas - Dibujar grid en vista Coordenadas
             React.useEffect(() => {
@@ -1185,7 +1185,7 @@
                     });
                 });
                 
-            }, [numbersReady, result, showNumbers, activeTab, beadSize, beadSizeVersion]);
+            }, [result, showNumbers, activeTab, beadSize, beadSizeVersion]);
 
             // Vista Editor - Dibujar ejes X/Y overlay
             React.useEffect(() => {
@@ -4607,7 +4607,6 @@
                                                     <canvas
                                                         ref={(el) => {
                                                                 gridViewCanvasRef.current = el;
-                                                                if (el) setGridViewReady(true);
                                                         }}
                                                         style={{
                                                             position: 'absolute',
@@ -4844,7 +4843,6 @@
                                                                 <canvas
                                                                     ref={(el) => {
                                                                         numbersCanvasRef.current = el;
-                                                                        if (el) setNumbersReady(true);
                                                                     }}
                                                                     style={{
                                                                         position: 'absolute',
