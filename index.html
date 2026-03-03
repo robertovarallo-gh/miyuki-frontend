@@ -2181,7 +2181,7 @@
                         setResult({
                             pattern: patternData.pattern,
                             images: patternData.images,
-                            colors: patternData.colors,
+                            colors: normalizeColors(patternData.colors),
                             rowGuide: patternData.rowGuide,
                             pattern_type: patternData.pattern.pattern_type || patternData.settings?.patternType || 'grid'  // ← NUEVA LÍNEA
                         });
@@ -2407,6 +2407,23 @@
 
             const handleMouseLeave = () => {
                 setMouseCoords(null); // Limpiar coordenadas cuando sale el mouse
+            };
+
+            // Normaliza colores del JSON guardado para asegurar que name sea siempre string
+            const normalizeColors = (colors) => {
+                if (!colors) return colors;
+                return {
+                    ...colors,
+                    colors: (colors.colors || []).map(c => ({
+                        ...c,
+                        name: typeof c.name === 'object' 
+                            ? (c.name?.[i18n.currentLanguage] || c.name?.es || c.name_es || Object.values(c.name)[0] || '')
+                            : (c.name || c.name_es || c.name_en || ''),
+                        miyuki: typeof c.miyuki === 'object'
+                            ? (c.miyuki?.code || c.miyuki_code || String(c.miyuki) || '')
+                            : (c.miyuki || c.miyuki_code || '')
+                    }))
+                };
             };
 
             const findClosestColor = (rgb) => {
@@ -3082,7 +3099,7 @@
                             coordinates: pattern.fullData?.images?.coordinates || pattern.imageData,
                             basic: pattern.imageData
                         },
-                        colors: pattern.colors,
+                        colors: normalizeColors(pattern.colors),
                         rowGuide: pattern.fullData?.rowGuide || { rows: [] },
                         pattern_type: pattern.patternType
                     });
