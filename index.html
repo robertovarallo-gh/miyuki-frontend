@@ -1204,16 +1204,16 @@
                 const cellW = mainCanvas.width / beadsWidth;
                 const cellH = mainCanvas.height / beadsHeight;
 
-                // Mismo tamaño que el canvas principal
-                axesCanvas.width = mainCanvas.width;
-                axesCanvas.height = mainCanvas.height;
-                axesCanvas.style.left = '0px';
-                axesCanvas.style.top = '0px';
-
-                ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
-
                 const barW = Math.max(18, Math.min(cellW * 0.9, 24));
                 const barH = Math.max(18, Math.min(cellH * 0.9, 24));
+
+                // Canvas más grande para incluir las bandas FUERA del patrón
+                axesCanvas.width = mainCanvas.width + barW;
+                axesCanvas.height = mainCanvas.height + barH;
+                axesCanvas.style.left = `-${barW}px`;
+                axesCanvas.style.top = `-${barH}px`;
+
+                ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
 
                 const fontSize = Math.max(6, Math.min(barW * 0.7, barH * 0.7, 11));
                 ctx.font = `bold ${fontSize}px Arial`;
@@ -1223,25 +1223,29 @@
                 const midX = Math.ceil(beadsWidth / 2);
                 const midY = Math.ceil(beadsHeight / 2);
 
-                // Eje X — banda superior dentro del patrón
+                // Eje X — banda superior ENCIMA del patrón (fuera)
                 for (let x = 0; x < beadsWidth; x++) {
-                    const px = (x + 0.5) * cellW;
+                    const px = barW + (x + 0.5) * cellW;
                     const isMid = (x + 1) === midX;
-                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.85)' : 'rgba(20,20,20,0.7)';
-                    ctx.fillRect(x * cellW, 0, cellW, barH);
+                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.9)' : 'rgba(20,20,20,0.75)';
+                    ctx.fillRect(barW + x * cellW, 0, cellW, barH);
                     ctx.fillStyle = '#ffffff';
                     ctx.fillText(isMid ? 'M' : String(x + 1), px, barH / 2);
                 }
 
-                // Eje Y — banda izquierda dentro del patrón
+                // Eje Y — banda izquierda del patrón (fuera)
                 for (let y = 0; y < beadsHeight; y++) {
-                    const py = (y + 0.5) * cellH;
+                    const py = barH + (y + 0.5) * cellH;
                     const isMid = (y + 1) === midY;
-                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.85)' : 'rgba(20,20,20,0.7)';
-                    ctx.fillRect(0, y * cellH, barW, cellH);
+                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.9)' : 'rgba(20,20,20,0.75)';
+                    ctx.fillRect(0, barH + y * cellH, barW, cellH);
                     ctx.fillStyle = '#ffffff';
                     ctx.fillText(isMid ? 'M' : String(y + 1), barW / 2, py);
                 }
+                
+                // Esquina (intersección X+Y)
+                ctx.fillStyle = 'rgba(20,20,20,0.75)';
+                ctx.fillRect(0, 0, barW, barH);
 
             }, [showAxes, result, activeTab, beadSize, beadSizeVersion, canvasRef.current?.width, canvasRef.current?.height]);
 
@@ -4599,7 +4603,7 @@
                                     {activeTab === 'grid' && (
                                         <div>                                           
                                             {/* Canvas con grid overlay */}
-                                            <div style={{position: 'relative', display: 'inline-block'}}>
+                                            <div style={{position: 'relative', display: 'inline-block', overflow: 'visible'}}>
                                                 <img 
                                                     src={result.images.grid} 
                                                     className="pattern-canvas"
