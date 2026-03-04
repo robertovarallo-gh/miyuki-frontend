@@ -2097,6 +2097,11 @@
                     return;
                 }
 
+                // Si está en modo editor, guardar ediciones primero para sincronizar colores/guía
+                if ((editMode || isBlankCanvas) && canvasRef.current) {
+                    await saveEdits();
+                }
+
                 // Capturar imagen actual del canvas si está en modo edición
                 let currentImage = editedPattern;
                 if ((editMode || isBlankCanvas) && canvasRef.current) {
