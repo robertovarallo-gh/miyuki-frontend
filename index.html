@@ -1201,21 +1201,29 @@
                 const mainCanvas = canvasRef.current;
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
-                const cellW = mainCanvas.width / beadsWidth;
-                const cellH = mainCanvas.height / beadsHeight;
 
-                const barW = Math.max(18, Math.min(cellW * 0.9, 24));
-                const barH = Math.max(18, Math.min(cellH * 0.9, 24));
+                // Usar dimensiones visuales (CSS) no internas del canvas
+                const rect = mainCanvas.getBoundingClientRect();
+                const displayW = rect.width;
+                const displayH = rect.height;
+                const cellW = displayW / beadsWidth;
+                const cellH = displayH / beadsHeight;
 
-                // Canvas más grande para incluir las bandas FUERA del patrón
-                axesCanvas.width = mainCanvas.width + barW;
-                axesCanvas.height = mainCanvas.height + barH;
+                // Tamaño de la barra en px de pantalla
+                const barW = Math.max(20, Math.min(cellW * 0.95, 28));
+                const barH = Math.max(20, Math.min(cellH * 0.95, 28));
+
+                // El canvas de ejes trabaja en px de pantalla directamente
+                axesCanvas.width = displayW + barW;
+                axesCanvas.height = displayH + barH;
+                axesCanvas.style.width = `${displayW + barW}px`;
+                axesCanvas.style.height = `${displayH + barH}px`;
                 axesCanvas.style.left = `-${barW}px`;
                 axesCanvas.style.top = `-${barH}px`;
 
                 ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
 
-                const fontSize = Math.max(6, Math.min(barW * 0.7, barH * 0.7, 11));
+                const fontSize = Math.max(8, Math.min(barW * 0.65, barH * 0.65, 13));
                 ctx.font = `bold ${fontSize}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -1223,28 +1231,28 @@
                 const midX = Math.ceil(beadsWidth / 2);
                 const midY = Math.ceil(beadsHeight / 2);
 
-                // Eje X — banda superior ENCIMA del patrón (fuera)
+                // Eje X — banda superior FUERA del patrón
                 for (let x = 0; x < beadsWidth; x++) {
                     const px = barW + (x + 0.5) * cellW;
                     const isMid = (x + 1) === midX;
-                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.9)' : 'rgba(20,20,20,0.75)';
+                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.9)' : 'rgba(20,20,20,0.8)';
                     ctx.fillRect(barW + x * cellW, 0, cellW, barH);
                     ctx.fillStyle = '#ffffff';
                     ctx.fillText(isMid ? 'M' : String(x + 1), px, barH / 2);
                 }
 
-                // Eje Y — banda izquierda del patrón (fuera)
+                // Eje Y — banda izquierda FUERA del patrón
                 for (let y = 0; y < beadsHeight; y++) {
                     const py = barH + (y + 0.5) * cellH;
                     const isMid = (y + 1) === midY;
-                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.9)' : 'rgba(20,20,20,0.75)';
+                    ctx.fillStyle = isMid ? 'rgba(0,206,209,0.9)' : 'rgba(20,20,20,0.8)';
                     ctx.fillRect(0, barH + y * cellH, barW, cellH);
                     ctx.fillStyle = '#ffffff';
                     ctx.fillText(isMid ? 'M' : String(y + 1), barW / 2, py);
                 }
-                
+
                 // Esquina (intersección X+Y)
-                ctx.fillStyle = 'rgba(20,20,20,0.75)';
+                ctx.fillStyle = 'rgba(20,20,20,0.8)';
                 ctx.fillRect(0, 0, barW, barH);
 
             }, [showAxes, result, activeTab, beadSize, beadSizeVersion, canvasRef.current?.width, canvasRef.current?.height]);
