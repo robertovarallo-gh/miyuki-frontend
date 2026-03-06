@@ -4392,7 +4392,22 @@
                         </div>
 
                         <div className="card">
-                            <h2>🖼️ Resultado</h2>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0'}}>
+                                <h2 style={{margin: 0}}>🖼️ Resultado</h2>
+                                {result && (
+                                    <span style={{
+                                        fontSize: '0.9rem',
+                                        color: 'var(--primary)',
+                                        fontWeight: 'bold',
+                                        backgroundColor: 'var(--surface-light)',
+                                        padding: '4px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid var(--border)'
+                                    }}>
+                                        📐 {result.pattern.width} × {result.pattern.height} beads
+                                    </span>
+                                )}
+                            </div>
                             
                             {error && (
                                 <div className="api-error">
