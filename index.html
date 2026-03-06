@@ -1202,30 +1202,25 @@
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
 
-                // Píxeles internos del canvas principal
-                const internalW = mainCanvas.width;
-                const internalH = mainCanvas.height;
-                const cellW = internalW / beadsWidth;
-                const cellH = internalH / beadsHeight;
-
-                // Barra en píxeles internos (misma escala que el canvas)
-                const barW = Math.max(20, Math.min(cellW * 0.95, 32));
-                const barH = Math.max(20, Math.min(cellH * 0.95, 32));
-
-                // Dimensiones visuales para el style CSS
+                // Dimensiones visuales del canvas principal
                 const rect = mainCanvas.getBoundingClientRect();
-                const scaleX = rect.width / internalW;
-                const scaleY = rect.height / internalH;
-                const barWpx = barW * scaleX;
-                const barHpx = barH * scaleY;
+                const displayW = rect.width;
+                const displayH = rect.height;
+                const cellW = displayW / beadsWidth;
+                const cellH = displayH / beadsHeight;
 
-                // Canvas interno más grande, CSS más grande
-                axesCanvas.width = internalW + barW;
-                axesCanvas.height = internalH + barH;
-                axesCanvas.style.width = `${rect.width + barWpx}px`;
-                axesCanvas.style.height = `${rect.height + barHpx}px`;
-                axesCanvas.style.left = `-${barWpx}px`;
-                axesCanvas.style.top = `-${barHpx}px`;
+                // Barra en píxeles de pantalla
+                const barW = Math.max(20, Math.min(cellW * 0.95, 28));
+                const barH = Math.max(20, Math.min(cellH * 0.95, 28));
+
+                // Canvas de ejes: mismo tamaño visual que el patrón + barras
+                // Resolución interna = resolución visual (1:1) para evitar scaling issues
+                axesCanvas.width = Math.round(displayW + barW);
+                axesCanvas.height = Math.round(displayH + barH);
+                axesCanvas.style.width = `${displayW + barW}px`;
+                axesCanvas.style.height = `${displayH + barH}px`;
+                axesCanvas.style.left = `-${barW}px`;
+                axesCanvas.style.top = `-${barH}px`;
 
                 ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
 
@@ -4802,7 +4797,20 @@
                                                         )}
                                                         */}
 
-                                                        <div style={{position: 'relative', display: 'inline-block'}}>
+                                                        <div style={{position: 'relative', display: 'inline-block', overflow: 'visible'}}>
+
+                                                            {/* Axes overlay - FUERA del canvas principal, en div padre */}
+                                                            {result && showAxes && (
+                                                                <canvas
+                                                                    ref={axesCanvasRef}
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        pointerEvents: 'none',
+                                                                        zIndex: 10
+                                                                    }}
+                                                                />
+                                                            )}
+
                                                             {/* Canvas con el patrón */}
                                                             <canvas
                                                                 ref={canvasRef}
@@ -4880,20 +4888,7 @@
                                                                 />
                                                             )}
 
-                                                            {/* Axes overlay */}
-                                                            {/* Axes overlay - siempre montado, visible solo cuando showAxes */}
-                                                            {result && (
-                                                                <canvas
-                                                                    ref={axesCanvasRef}
-                                                                    style={{
-                                                                        position: 'absolute',
-                                                                        top: 0,
-                                                                        left: 0,
-                                                                        pointerEvents: 'none',
-                                                                        display: showAxes ? 'block' : 'none'
-                                                                    }}
-                                                                />
-                                                            )}
+                                                            {/* Axes canvas moved to outer div */}
                                                         </div>
                                                     
                                                         {/* Overlay de selección */}
