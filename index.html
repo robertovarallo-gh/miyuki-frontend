@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es"> 
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1212,6 +1212,7 @@
                 // Tamaño de la barra en px de pantalla
                 const barW = Math.max(20, Math.min(cellW * 0.95, 28));
                 const barH = Math.max(20, Math.min(cellH * 0.95, 28));
+                console.log('📐 Axes debug:', {displayW, displayH, cellW, cellH, barW, barH, canvasW: mainCanvas.width, canvasH: mainCanvas.height});
 
                 // El canvas de ejes trabaja en px de pantalla directamente
                 axesCanvas.width = displayW + barW;
