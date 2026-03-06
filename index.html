@@ -1202,25 +1202,30 @@
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
 
-                // Usar dimensiones visuales (CSS) no internas del canvas
+                // Píxeles internos del canvas principal
+                const internalW = mainCanvas.width;
+                const internalH = mainCanvas.height;
+                const cellW = internalW / beadsWidth;
+                const cellH = internalH / beadsHeight;
+
+                // Barra en píxeles internos (misma escala que el canvas)
+                const barW = Math.max(20, Math.min(cellW * 0.95, 32));
+                const barH = Math.max(20, Math.min(cellH * 0.95, 32));
+
+                // Dimensiones visuales para el style CSS
                 const rect = mainCanvas.getBoundingClientRect();
-                const displayW = rect.width;
-                const displayH = rect.height;
-                const cellW = displayW / beadsWidth;
-                const cellH = displayH / beadsHeight;
+                const scaleX = rect.width / internalW;
+                const scaleY = rect.height / internalH;
+                const barWpx = barW * scaleX;
+                const barHpx = barH * scaleY;
 
-                // Tamaño de la barra en px de pantalla
-                const barW = Math.max(20, Math.min(cellW * 0.95, 28));
-                const barH = Math.max(20, Math.min(cellH * 0.95, 28));
-                console.log('📐 Axes debug:', {displayW, displayH, cellW, cellH, barW, barH, canvasW: mainCanvas.width, canvasH: mainCanvas.height});
-
-                // El canvas de ejes trabaja en px de pantalla directamente
-                axesCanvas.width = displayW + barW;
-                axesCanvas.height = displayH + barH;
-                axesCanvas.style.width = `${displayW + barW}px`;
-                axesCanvas.style.height = `${displayH + barH}px`;
-                axesCanvas.style.left = `-${barW}px`;
-                axesCanvas.style.top = `-${barH}px`;
+                // Canvas interno más grande, CSS más grande
+                axesCanvas.width = internalW + barW;
+                axesCanvas.height = internalH + barH;
+                axesCanvas.style.width = `${rect.width + barWpx}px`;
+                axesCanvas.style.height = `${rect.height + barHpx}px`;
+                axesCanvas.style.left = `-${barWpx}px`;
+                axesCanvas.style.top = `-${barHpx}px`;
 
                 ctx.clearRect(0, 0, axesCanvas.width, axesCanvas.height);
 
