@@ -1209,16 +1209,16 @@
                 const cellW = displayW / beadsWidth;
                 const cellH = displayH / beadsHeight;
 
-                // Barra en píxeles de pantalla
-                const barW = Math.max(20, Math.min(cellW * 0.95, 28));
-                const barH = Math.max(20, Math.min(cellH * 0.95, 28));
+                // Barra fija de 28px (igual que el padding del contenedor)
+                const barW = 28;
+                const barH = 28;
 
-                // Canvas de ejes: mismo tamaño visual que el patrón + barras
-                // Resolución interna = resolución visual (1:1) para evitar scaling issues
+                // Canvas de ejes ocupa el padding + el patrón completo
                 axesCanvas.width = Math.round(displayW + barW);
                 axesCanvas.height = Math.round(displayH + barH);
                 axesCanvas.style.width = `${displayW + barW}px`;
                 axesCanvas.style.height = `${displayH + barH}px`;
+                // Posición: desplazado para cubrir el padding
                 axesCanvas.style.left = `-${barW}px`;
                 axesCanvas.style.top = `-${barH}px`;
 
@@ -4771,7 +4771,10 @@
                                                     border: '2px solid var(--border)',
                                                     borderRadius: '8px',
                                                     backgroundColor: 'var(--surface-light)',
-                                                    display: 'inline-block'
+                                                    display: 'inline-block',
+                                                    paddingTop: showAxes ? '28px' : '0',
+                                                    paddingLeft: showAxes ? '28px' : '0',
+                                                    transition: 'padding 0.2s'
                                                 }}>
                                                     <div style={{position: 'relative', display: 'inline-block'}}>
                                                         
@@ -4799,14 +4802,15 @@
 
                                                         <div style={{position: 'relative', display: 'inline-block', overflow: 'visible'}}>
 
-                                                            {/* Axes overlay - FUERA del canvas principal, en div padre */}
-                                                            {result && showAxes && (
+                                                            {/* Axes overlay - posicionado sobre el padding del contenedor */}
+                                                            {result && (
                                                                 <canvas
                                                                     ref={axesCanvasRef}
                                                                     style={{
                                                                         position: 'absolute',
                                                                         pointerEvents: 'none',
-                                                                        zIndex: 10
+                                                                        zIndex: 10,
+                                                                        display: showAxes ? 'block' : 'none'
                                                                     }}
                                                                 />
                                                             )}
