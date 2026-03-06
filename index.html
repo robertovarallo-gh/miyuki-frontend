@@ -1132,13 +1132,19 @@
                 if (!numbersCanvasRef.current || !result || !showNumbers || !result.rowGuide) return;
                 if (activeTab !== 'editor') return;
                 
+                // Pequeño delay para que el canvas tenga las dimensiones correctas al volver de otro tab
+                const draw = () => {
                 const mainCanvas = canvasRef.current;
                 if (!mainCanvas) return;
 
                 const canvas = numbersCanvasRef.current;
 
+                // Usar dimensiones visuales para que coincida con el canvas mostrado
+                const rect = mainCanvas.getBoundingClientRect();
                 canvas.width = mainCanvas.width;
                 canvas.height = mainCanvas.height;
+                canvas.style.width = rect.width + 'px';
+                canvas.style.height = rect.height + 'px';
 
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1185,6 +1191,8 @@
                     });
                 });
                 
+                };
+                setTimeout(draw, 50);
             }, [result, showNumbers, activeTab, beadSize, beadSizeVersion]);
 
             // Vista Editor - Dibujar ejes X/Y overlay
