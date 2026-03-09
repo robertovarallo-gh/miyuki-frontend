@@ -687,6 +687,7 @@
             const [selection, setSelection] = useState(null); // {startX, startY, endX, endY}
             const [clipboard, setClipboard] = useState(null); // Área copiada
             const [isSelecting, setIsSelecting] = useState(false);
+            const [isPainting, setIsPainting] = useState(false);
             const [editedPattern, setEditedPattern] = useState(null);
             const [showNumbers, setShowNumbers] = useState(false);  // ← AGREGAR
             const [showAxes, setShowAxes] = useState(false);
@@ -2295,16 +2296,13 @@
                 }, 100);
             };
 
-            const handleCanvasClick = (e) => {
+            // Lógica de pintar un bead — usada por click y por drag
+            const paintBead = (e) => {
                 if (!selectedColor || !canvasRef.current) return;
-
-                // Guardar para deshacer
-                setUndoHistory(canvasRef.current.toDataURL());
 
                 const canvas = canvasRef.current;
                 const rect = canvas.getBoundingClientRect();
                 
-                // Calculate which bead was clicked
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
                 const isPeyote = result.pattern_type === 'peyote';
@@ -2312,91 +2310,56 @@
                 let beadX, beadY;
                 
                 if (isPeyote) {
-                    // Cálculo para PEYOTE (offset vertical por columna)
                     const pixelWidth = canvas.width / beadsWidth;
                     const pixelHeight = canvas.height / (beadsHeight + 0.5);
-                    
-                    const clickX = e.clientX - rect.left;
-                    const clickY = e.clientY - rect.top;
-                    
-                    // Escalar al tamaño del canvas real
-                    const canvasClickX = (clickX / rect.width) * canvas.width;
-                    const canvasClickY = (clickY / rect.height) * canvas.height;
-                    
-                    // Determinar columna
+                    const canvasClickX = ((e.clientX - rect.left) / rect.width) * canvas.width;
+                    const canvasClickY = ((e.clientY - rect.top) / rect.height) * canvas.height;
                     beadX = Math.floor(canvasClickX / pixelWidth);
-                    
-                    // Determinar fila considerando offset
                     const offsetY = (beadX % 2 === 1) ? (pixelHeight / 2) : 0;
                     beadY = Math.floor((canvasClickY - offsetY) / pixelHeight);
-                    
                 } else {
-                    // Cálculo para CUADRÍCULA (normal)
                     beadX = Math.floor((e.clientX - rect.left) / rect.width * beadsWidth);
                     beadY = Math.floor((e.clientY - rect.top) / rect.height * beadsHeight);
                 }
                 
-                // Validar que está dentro de los límites
-                if (beadX < 0 || beadX >= beadsWidth || beadY < 0 || beadY >= beadsHeight) {
-                    console.log('❌ Click fuera de límites');
-                    return;
-                }
+                if (beadX < 0 || beadX >= beadsWidth || beadY < 0 || beadY >= beadsHeight) return;
                 
-                console.log(`🎨 Filling bead at (${beadX}, ${beadY}) with color:`, selectedColor.code);
-
-                // Calculate pixel size and position
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 
                 if (isPeyote) {
                     const pixelWidth = canvas.width / beadsWidth;
                     const pixelHeight = canvas.height / (beadsHeight + 0.5);
                     const offsetY = (beadX % 2 === 1) ? (pixelHeight / 2) : 0;
-
-                    // AGREGAR LOG AQUÍ:
-                    console.log('🎨 Pintando color:', {
-                        code: selectedColor.code,
-                        name: selectedColor.name_es,
-                        rgb_original: selectedColor.rgb,
-                        fillStyle: `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`
-                    });                    
-                    
                     ctx.fillStyle = `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`;
-                    ctx.fillRect(
-                        Math.floor(beadX * pixelWidth),
-                        Math.floor(beadY * pixelHeight + offsetY),
-                        Math.ceil(pixelWidth),
-                        Math.ceil(pixelHeight)
-                    );
-                    setHasUnsavedChanges(true); // Marcar que hay cambios sin guardar
+                    ctx.fillRect(Math.floor(beadX * pixelWidth), Math.floor(beadY * pixelHeight + offsetY), Math.ceil(pixelWidth), Math.ceil(pixelHeight));
                 } else {
                     const pixelWidth = canvas.width / beadsWidth;
                     const pixelHeight = canvas.height / beadsHeight;
-
-                    // AGREGAR LOG AQUÍ TAMBIÉN:
-                    console.log('🎨 Pintando color:', {
-                        code: selectedColor.code,
-                        name: selectedColor.name_es,
-                        rgb_original: selectedColor.rgb,
-                        fillStyle: `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`
-                    });                    
-                    
                     ctx.fillStyle = `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`;
-                    ctx.fillRect(
-                        Math.floor(beadX * pixelWidth),
-                        Math.floor(beadY * pixelHeight),
-                        Math.ceil(pixelWidth),
-                        Math.ceil(pixelHeight)
-                    );
-                    setHasUnsavedChanges(true); // Marcar que hay cambios sin guardar
+                    ctx.fillRect(Math.floor(beadX * pixelWidth), Math.floor(beadY * pixelHeight), Math.ceil(pixelWidth), Math.ceil(pixelHeight));
                 }
-
+                
+                setHasUnsavedChanges(true);
                 setUsedColorsVersion(v => v + 1);
-                const newPattern = canvas.toDataURL();
-                setEditedPattern(newPattern);
-                console.log('✅ Bead filled');
+                setEditedPattern(canvas.toDataURL());
+            };
+
+            const handleCanvasClick = (e) => {
+                if (!selectedColor || !canvasRef.current) return;
+
+                // Guardar para deshacer
+                setUndoHistory(canvasRef.current.toDataURL());
+
+                paintBead(e);
             };
 
             const handleMouseDown = (e) => {
+                if (toolMode === 'paint' && selectedColor) {
+                    setIsPainting(true);
+                    setUndoHistory(canvasRef.current.toDataURL());
+                    paintBead(e);
+                    return;
+                }
                 if (toolMode !== 'select' || !canvasRef.current) return;
                 
                 const canvas = canvasRef.current;
@@ -2448,6 +2411,11 @@
                     });
                 }
                 
+                // Pintar mientras se arrastra (drag to paint)
+                if (isPainting && toolMode === 'paint') {
+                    paintBead(e);
+                }
+                
                 // Continuar con lógica de selección si está activa
                 if (isSelecting && toolMode === 'select') {
                     setSelection(prev => ({
@@ -2459,7 +2427,8 @@
             };
 
             const handleMouseLeave = () => {
-                setMouseCoords(null); // Limpiar coordenadas cuando sale el mouse
+                setMouseCoords(null);
+                if (isPainting) setIsPainting(false);
             };
 
             // Normaliza colores del JSON guardado para asegurar que name sea siempre string
@@ -2533,6 +2502,9 @@
             };
 
             const handleMouseUp = () => {
+                if (isPainting) {
+                    setIsPainting(false);
+                }
                 if (isSelecting) {
                     setIsSelecting(false);
                     console.log('✅ Área seleccionada:', selection);
@@ -4852,7 +4824,7 @@
                                                                     // Si hay double-click, este timeout se cancelará
                                                                     const timeout = setTimeout(() => {
                                                                         if (toolMode === 'paint') {
-                                                                            handleCanvasClick(e);
+                                                                            // paint ya se maneja en mouseDown/mouseMove (drag)
                                                                         } else if (toolMode === 'paste') {
                                                                             handlePasteClick(e);
                                                                         } else if (toolMode === 'erase') {
