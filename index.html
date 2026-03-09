@@ -2354,10 +2354,35 @@
             };
 
             const handleMouseDown = (e) => {
-                if (toolMode === 'paint' && selectedColor) {
+                if (toolMode === 'paint') {
+                    const canvas = canvasRef.current;
+                    if (!canvas) return;
+                    
+                    // Leer el color del pixel clickeado
+                    const rect = canvas.getBoundingClientRect();
+                    const beadsWidth = result.pattern.width;
+                    const beadsHeight = result.pattern.height;
+                    const beadX = Math.floor((e.clientX - rect.left) / rect.width * beadsWidth);
+                    const beadY = Math.floor((e.clientY - rect.top) / rect.height * beadsHeight);
+                    
+                    if (beadX >= 0 && beadX < beadsWidth && beadY >= 0 && beadY < beadsHeight) {
+                        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                        const pixelWidth = canvas.width / beadsWidth;
+                        const pixelHeight = canvas.height / beadsHeight;
+                        const pixelData = ctx.getImageData(
+                            Math.floor(beadX * pixelWidth + pixelWidth / 2),
+                            Math.floor(beadY * pixelHeight + pixelHeight / 2),
+                            1, 1
+                        ).data;
+                        const rgb = [pixelData[0], pixelData[1], pixelData[2]];
+                        
+                        // Buscar el color en la paleta
+                        const pickedColor = findClosestColor(rgb);
+                        if (pickedColor) setSelectedColor(pickedColor);
+                    }
+                    
                     setIsPainting(true);
-                    setUndoHistory(canvasRef.current.toDataURL());
-                    paintBead(e);
+                    setUndoHistory(canvas.toDataURL());
                     return;
                 }
                 if (toolMode !== 'select' || !canvasRef.current) return;
