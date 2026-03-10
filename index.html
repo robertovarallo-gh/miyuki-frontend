@@ -727,6 +727,8 @@
             const numbersCanvasRef = React.useRef(null);
             const axesCanvasRef = React.useRef(null);
             const dragColorRef = React.useRef(null);
+            const hasDraggedRef = React.useRef(false);
+            const mouseDownEventRef = React.useRef(null);
             const [numbersReady, setNumbersReady] = React.useState(false);
             const [patternVersion, setPatternVersion] = React.useState(0);
 
