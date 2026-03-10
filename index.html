@@ -860,7 +860,9 @@
                 
                 console.log('✅ Canvas disponible, dibujando grid');
                 
+                const drawGrid = () => {
                 const gridCanvas = gridViewCanvasRef.current;
+                if (!gridCanvas) return;
                 const img = new Image();
                 
                 img.onload = () => {
@@ -946,16 +948,14 @@
                 };                
                 
                 img.src = result.images.grid;
+                };
+                
+                const t = setTimeout(drawGrid, 80);
+                return () => clearTimeout(t);
                 
             }, [result, showGridInView, activeTab, patternVersion, gridViewReady]);
 
-            // Cuando showGridInView se activa, esperar un tick y forzar redraw
-            React.useEffect(() => {
-                if (showGridInView) {
-                    const t = setTimeout(() => setGridViewReady(r => r + 1), 50);
-                    return () => clearTimeout(t);
-                }
-            }, [showGridInView, activeTab, result]);
+
 
             // Vista Coordenadas - Dibujar grid en vista Coordenadas
             React.useEffect(() => {
@@ -4688,21 +4688,19 @@ if (!colorToUse || !canvasRef.current) return;
                                                     }}
                                                 />
                                                 
-                                                {showGridInView && (
-                                                    <canvas
-                                                        ref={(el) => {
-                                                                gridViewCanvasRef.current = el;
-                                                        }}
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: '-1px',      // ← AGREGAR
-                                                            left: '-1px',     // ← AGREGAR
-                                                            pointerEvents: 'none',
-                                                            imageRendering: 'pixelated',
-                                                            display: showGridInView ? 'block' : 'none'  // Ocultar con CSS
-                                                        }}
-                                                    />
-                                                )}
+                                                <canvas
+                                                    ref={(el) => {
+                                                            gridViewCanvasRef.current = el;
+                                                    }}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '-1px',
+                                                        left: '-1px',
+                                                        pointerEvents: 'none',
+                                                        imageRendering: 'pixelated',
+                                                        display: showGridInView ? 'block' : 'none'
+                                                    }}
+                                                />
                                             </div>
                                         </div>
                                     )}
