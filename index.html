@@ -1397,6 +1397,7 @@
                             setEditedPattern(null);
                             setEditMode(false);
                             setActiveTab('grid');
+                            setShowGridInView(true);
                             setIsBlankCanvas(false);                            
 
                         }
@@ -2822,6 +2823,7 @@ if (!colorToUse || !canvasRef.current) return;
                             
                             setEditedPattern(editedImageData);
                             setActiveTab('grid');
+                            setShowGridInView(true);
                             setIsBlankCanvas(false);
                             setUsedColorsVersion(v => v + 1);
                             setProcessing(false);
@@ -2889,6 +2891,7 @@ if (!colorToUse || !canvasRef.current) return;
                             });
                             setEditedPattern(editedImageData);
                             setActiveTab('grid');
+                            setShowGridInView(true);
                             setGridViewReady(false);
                             setIsBlankCanvas(false);  // ← AGREGAR ESTA LÍNEA
                             setUsedColorsVersion(v => v + 1);  // ← Y ESTA TAMBIÉN (para actualizar cache)
@@ -2947,6 +2950,7 @@ if (!colorToUse || !canvasRef.current) return;
                         setEditedPattern(data.images.grid);
                         setEditMode(false);
                         setActiveTab('grid');
+                        setShowGridInView(true);
                         setGridViewReady(false);
 
                         const palette = await loadFullPalette();
