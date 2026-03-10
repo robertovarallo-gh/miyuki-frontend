@@ -949,6 +949,14 @@
                 
             }, [result, showGridInView, activeTab, patternVersion, gridViewReady]);
 
+            // Cuando showGridInView se activa, esperar un tick y forzar redraw
+            React.useEffect(() => {
+                if (showGridInView) {
+                    const t = setTimeout(() => setGridViewReady(r => r + 1), 50);
+                    return () => clearTimeout(t);
+                }
+            }, [showGridInView, activeTab, result]);
+
             // Vista Coordenadas - Dibujar grid en vista Coordenadas
             React.useEffect(() => {
 
@@ -4684,7 +4692,6 @@ if (!colorToUse || !canvasRef.current) return;
                                                     <canvas
                                                         ref={(el) => {
                                                                 gridViewCanvasRef.current = el;
-                                                                if (el) setGridViewReady(r => r + 1);
                                                         }}
                                                         style={{
                                                             position: 'absolute',
