@@ -729,6 +729,7 @@
             const dragColorRef = React.useRef(null);
             const hasDraggedRef = React.useRef(false);
             const mouseDownEventRef = React.useRef(null);
+            const isDoubleClickRef = React.useRef(false);
             const [numbersReady, setNumbersReady] = React.useState(false);
             const [patternVersion, setPatternVersion] = React.useState(0);
 
@@ -1499,6 +1500,8 @@
             };
 
             const handleDoubleClick = (e) => {
+                isDoubleClickRef.current = true; // evitar que mouseUp pinte
+                if (clickTimeout) clearTimeout(clickTimeout); // cancelar paint pendiente
                 console.time('Double click total'); // ← AGREGAR
 
                 if (!canvasRef.current || lastViewedTab === 'coords') return;
@@ -2496,14 +2499,26 @@ if (!colorToUse || !canvasRef.current) return;
 
             const handleMouseUp = () => {
                 if (isPainting) {
-                    // Click simple sin drag → pintar con el color del panel
-                    if (!hasDraggedRef.current && selectedColor && mouseDownEventRef.current) {
-                        dragColorRef.current = selectedColor; // usar color del panel
-                        paintBead(mouseDownEventRef.current);
-                    }
+                    const wasDragging = hasDraggedRef.current;
+                    const savedEvent = mouseDownEventRef.current;
+                    const savedColor = selectedColor;
+                    
                     setIsPainting(false);
                     dragColorRef.current = null;
                     hasDraggedRef.current = false;
+
+                    // Click simple sin drag → pintar con delay para que doble click pueda cancelar
+                    if (!wasDragging && savedColor && savedEvent) {
+                        const t = setTimeout(() => {
+                            if (!isDoubleClickRef.current) {
+                                dragColorRef.current = savedColor;
+                                paintBead(savedEvent);
+                                dragColorRef.current = null;
+                            }
+                            isDoubleClickRef.current = false;
+                        }, 250);
+                        setClickTimeout(t);
+                    }
                 }
                 if (isSelecting) {
                     setIsSelecting(false);
