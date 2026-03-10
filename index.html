@@ -2510,13 +2510,16 @@ if (!colorToUse || !canvasRef.current) return;
                     // Click simple sin drag → pintar con delay para que doble click pueda cancelar
                     if (!wasDragging && savedColor && savedEvent) {
                         const savedCanvas = canvasRef.current;
+                        console.log('🖱️ mouseUp: programando paint en 250ms', { savedColor: savedColor?.code, hasCanvas: !!savedCanvas });
                         const t = setTimeout(() => {
+                            console.log('⏱️ timeout ejecutado, isDoubleClick:', isDoubleClickRef.current);
                             if (!isDoubleClickRef.current && savedCanvas) {
                                 const rect = savedCanvas.getBoundingClientRect();
                                 const beadsWidth = result.pattern.width;
                                 const beadsHeight = result.pattern.height;
                                 const beadX = Math.floor((savedEvent.clientX - rect.left) / rect.width * beadsWidth);
                                 const beadY = Math.floor((savedEvent.clientY - rect.top) / rect.height * beadsHeight);
+                                console.log('🎨 pintando bead', beadX, beadY, 'color:', savedColor?.code);
                                 if (beadX >= 0 && beadX < beadsWidth && beadY >= 0 && beadY < beadsHeight) {
                                     const ctx = savedCanvas.getContext('2d', { willReadFrequently: true });
                                     const pixelWidth = savedCanvas.width / beadsWidth;
