@@ -2300,8 +2300,7 @@
             // Lógica de pintar un bead — usada por click y por drag
             const paintBead = (e) => {
                 const colorToUse = dragColorRef.current || selectedColor;
-                console.log('🎨 paintBead dragColorRef:', dragColorRef.current?.code, 'selectedColor:', selectedColor?.code, '→ using:', colorToUse?.code);
-                if (!colorToUse || !canvasRef.current) return;
+if (!colorToUse || !canvasRef.current) return;
 
                 const canvas = canvasRef.current;
                 const rect = canvas.getBoundingClientRect();
@@ -2379,17 +2378,13 @@
                         ).data;
                         const rgb = [pixelData[0], pixelData[1], pixelData[2]];
                         
-                        // Buscar el color en la paleta
+                        // Guardar color del pixel para si hay drag — NO cambiar selectedColor todavía
                         const pickedColor = findClosestColor(rgb);
-                        console.log('🖱️ mouseDown picked rgb:', rgb, '→ color:', pickedColor?.code);
-                        if (pickedColor) {
-                            dragColorRef.current = pickedColor;
-                            setSelectedColor(pickedColor);
-                        } else {
-                            dragColorRef.current = selectedColor;
-                        }
+                        dragColorRef.current = pickedColor || selectedColor;
                     }
                     
+                    hasDraggedRef.current = false;
+                    mouseDownEventRef.current = e;
                     setIsPainting(true);
                     setUndoHistory(canvas.toDataURL());
                     return;
@@ -2447,6 +2442,7 @@
                 
                 // Pintar mientras se arrastra (drag to paint)
                 if (isPainting && toolMode === 'paint') {
+                    hasDraggedRef.current = true;
                     paintBead(e);
                 }
                 
@@ -2465,6 +2461,7 @@
                 if (isPainting) {
                     setIsPainting(false);
                     dragColorRef.current = null;
+                    hasDraggedRef.current = false;
                 }
             };
 
@@ -2540,8 +2537,14 @@
 
             const handleMouseUp = () => {
                 if (isPainting) {
+                    // Click simple sin drag → pintar con el color del panel
+                    if (!hasDraggedRef.current && selectedColor && mouseDownEventRef.current) {
+                        dragColorRef.current = selectedColor; // usar color del panel
+                        paintBead(mouseDownEventRef.current);
+                    }
                     setIsPainting(false);
                     dragColorRef.current = null;
+                    hasDraggedRef.current = false;
                 }
                 if (isSelecting) {
                     setIsSelecting(false);
