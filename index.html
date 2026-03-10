@@ -2518,15 +2518,35 @@ if (!colorToUse || !canvasRef.current) return;
                                 const rect = savedCanvas.getBoundingClientRect();
                                 const beadsWidth = result.pattern.width;
                                 const beadsHeight = result.pattern.height;
-                                const beadX = Math.floor((savedEvent.clientX - rect.left) / rect.width * beadsWidth);
-                                const beadY = Math.floor((savedEvent.clientY - rect.top) / rect.height * beadsHeight);
+                                const isPeyote = result.pattern_type === 'peyote';
+                                let beadX, beadY;
+                                if (isPeyote) {
+                                    const pixelWidth = savedCanvas.width / beadsWidth;
+                                    const pixelHeight = savedCanvas.height / (beadsHeight + 0.5);
+                                    const canvasClickX = ((savedEvent.clientX - rect.left) / rect.width) * savedCanvas.width;
+                                    const canvasClickY = ((savedEvent.clientY - rect.top) / rect.height) * savedCanvas.height;
+                                    beadX = Math.floor(canvasClickX / pixelWidth);
+                                    const offsetY = (beadX % 2 === 1) ? (pixelHeight / 2) : 0;
+                                    beadY = Math.floor((canvasClickY - offsetY) / pixelHeight);
+                                } else {
+                                    beadX = Math.floor((savedEvent.clientX - rect.left) / rect.width * beadsWidth);
+                                    beadY = Math.floor((savedEvent.clientY - rect.top) / rect.height * beadsHeight);
+                                }
                                 console.log('🎨 pintando bead', beadX, beadY, 'color:', savedColor?.code);
                                 if (beadX >= 0 && beadX < beadsWidth && beadY >= 0 && beadY < beadsHeight) {
                                     const ctx = savedCanvas.getContext('2d', { willReadFrequently: true });
-                                    const pixelWidth = savedCanvas.width / beadsWidth;
-                                    const pixelHeight = savedCanvas.height / beadsHeight;
-                                    ctx.fillStyle = `rgb(${savedColor.rgb[0]},${savedColor.rgb[1]},${savedColor.rgb[2]})`;
-                                    ctx.fillRect(Math.floor(beadX * pixelWidth), Math.floor(beadY * pixelHeight), Math.ceil(pixelWidth), Math.ceil(pixelHeight));
+                                    if (isPeyote) {
+                                        const pixelWidth = savedCanvas.width / beadsWidth;
+                                        const pixelHeight = savedCanvas.height / (beadsHeight + 0.5);
+                                        const offsetY = (beadX % 2 === 1) ? (pixelHeight / 2) : 0;
+                                        ctx.fillStyle = `rgb(${savedColor.rgb[0]},${savedColor.rgb[1]},${savedColor.rgb[2]})`;
+                                        ctx.fillRect(Math.floor(beadX * pixelWidth), Math.floor(beadY * pixelHeight + offsetY), Math.ceil(pixelWidth), Math.ceil(pixelHeight));
+                                    } else {
+                                        const pixelWidth = savedCanvas.width / beadsWidth;
+                                        const pixelHeight = savedCanvas.height / beadsHeight;
+                                        ctx.fillStyle = `rgb(${savedColor.rgb[0]},${savedColor.rgb[1]},${savedColor.rgb[2]})`;
+                                        ctx.fillRect(Math.floor(beadX * pixelWidth), Math.floor(beadY * pixelHeight), Math.ceil(pixelWidth), Math.ceil(pixelHeight));
+                                    }
                                     setHasUnsavedChanges(true);
                                     setUsedColorsVersion(v => v + 1);
                                     setEditedPattern(savedCanvas.toDataURL());
