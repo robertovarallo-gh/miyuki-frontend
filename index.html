@@ -3903,7 +3903,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                             </div>
                                                             {getSuggestedDimension() && (
                                                                 <div style={{color: '#0066cc', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap'}}>
-                                                                    <span>
+                                                                    <span style={{color: '#0066cc'}}>
                                                                         💡 <strong>Sugerencia:</strong> {getSuggestedDimension().type === 'altura' ? 'Alto' : 'Ancho'} ≈ <strong>{getSuggestedDimension().value} {getSuggestedDimension().unit}</strong>
                                                                     </span>
                                                                     <button
