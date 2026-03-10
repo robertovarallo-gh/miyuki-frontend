@@ -721,7 +721,7 @@
             const gridCanvasRef = React.useRef(null);
             const [showGridInView, setShowGridInView] = React.useState(true);
             const gridViewCanvasRef = React.useRef(null);
-            const [gridViewReady, setGridViewReady] = React.useState(false);
+            const [gridViewReady, setGridViewReady] = React.useState(0);
             const gridCoordsCanvasRef = React.useRef(null);
             const [gridCoordsReady, setGridCoordsReady] = React.useState(false);
             const numbersCanvasRef = React.useRef(null);
@@ -947,7 +947,7 @@
                 
                 img.src = result.images.grid;
                 
-            }, [result, showGridInView, activeTab, patternVersion]);
+            }, [result, showGridInView, activeTab, patternVersion, gridViewReady]);
 
             // Vista Coordenadas - Dibujar grid en vista Coordenadas
             React.useEffect(() => {
@@ -1675,7 +1675,7 @@
                         setResult(data);
                         
                         setActiveTab('grid');  // ← AGREGAR
-                        setGridViewReady(false);  // Resetear estado para forzar redraw
+                        setGridViewReady(0);  // Resetear estado para forzar redraw
                         setPatternVersion(v => v + 1);
 
                         // AGREGAR AQUÍ:
@@ -2836,7 +2836,7 @@ if (!colorToUse || !canvasRef.current) return;
                     }
                     
                     setEditMode(false);
-                    setGridViewReady(false);
+                    setGridViewReady(0);
                     setHasUnsavedChanges(false);
                     return;
                 }
@@ -2892,7 +2892,7 @@ if (!colorToUse || !canvasRef.current) return;
                             setEditedPattern(editedImageData);
                             setActiveTab('grid');
                             setShowGridInView(true);
-                            setGridViewReady(false);
+                            setGridViewReady(0);
                             setIsBlankCanvas(false);  // ← AGREGAR ESTA LÍNEA
                             setUsedColorsVersion(v => v + 1);  // ← Y ESTA TAMBIÉN (para actualizar cache)
                             setProcessing(false);
@@ -2951,7 +2951,7 @@ if (!colorToUse || !canvasRef.current) return;
                         setEditMode(false);
                         setActiveTab('grid');
                         setShowGridInView(true);
-                        setGridViewReady(false);
+                        setGridViewReady(0);
 
                         const palette = await loadFullPalette();
                         setFullPalette(palette);
@@ -3094,7 +3094,7 @@ if (!colorToUse || !canvasRef.current) return;
                         setResult(data);
 
                         setActiveTab('grid');  // ← AGREGAR
-                        setGridViewReady(false);  // Resetear
+                        setGridViewReady(0);  // Resetear
                         setPatternVersion(v => v + 1);
 
                         // AGREGAR AQUÍ:
@@ -3193,7 +3193,7 @@ if (!colorToUse || !canvasRef.current) return;
                     setHeight(pattern.height);  
 
                     setActiveTab('grid');  // ← AGREGAR
-                    setGridViewReady(false);  // Resetear
+                    setGridViewReady(0);  // Resetear
                     setPatternVersion(v => v + 1);
                     
                     // Incrementar contador
@@ -4598,11 +4598,11 @@ if (!colorToUse || !canvasRef.current) return;
                                                     // Salir SIN guardar
                                                     if (isBlankCanvas) {
                                                         setActiveTab('grid');
-                                                        setGridViewReady(false);
+                                                        setGridViewReady(0);
                                                     } else {
                                                         setEditMode(false);
                                                         setActiveTab('grid');
-                                                        setGridViewReady(false);
+                                                        setGridViewReady(0);
                                                     }
                                                 }}
                                                 style={{flex: 1}}
@@ -4684,6 +4684,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                     <canvas
                                                         ref={(el) => {
                                                                 gridViewCanvasRef.current = el;
+                                                                if (el) setGridViewReady(r => r + 1);
                                                         }}
                                                         style={{
                                                             position: 'absolute',
