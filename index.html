@@ -2572,32 +2572,37 @@ if (!colorToUse || !canvasRef.current) return;
                 const rect = canvas.getBoundingClientRect();
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 
-                // Calcular posición del click en beads
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
-                const beadX = Math.floor((e.clientX - rect.left) / rect.width * beadsWidth);
-                const beadY = Math.floor((e.clientY - rect.top) / rect.height * beadsHeight);
+                const isPeyote = result.pattern_type === 'peyote';
+
+                let beadX, beadY, pixelWidth, pixelHeight, x, y;
+
+                if (isPeyote) {
+                    pixelWidth = canvas.width / beadsWidth;
+                    pixelHeight = canvas.height / (beadsHeight + 0.5);
+                    const canvasClickX = ((e.clientX - rect.left) / rect.width) * canvas.width;
+                    const canvasClickY = ((e.clientY - rect.top) / rect.height) * canvas.height;
+                    beadX = Math.floor(canvasClickX / pixelWidth);
+                    const offsetY = (beadX % 2 === 1) ? (pixelHeight / 2) : 0;
+                    beadY = Math.floor((canvasClickY - offsetY) / pixelHeight);
+                    x = Math.floor(beadX * pixelWidth);
+                    y = Math.floor(beadY * pixelHeight + offsetY);
+                } else {
+                    pixelWidth = canvas.width / beadsWidth;
+                    pixelHeight = canvas.height / beadsHeight;
+                    beadX = Math.floor((e.clientX - rect.left) / rect.width * beadsWidth);
+                    beadY = Math.floor((e.clientY - rect.top) / rect.height * beadsHeight);
+                    x = Math.floor(beadX * pixelWidth);
+                    y = Math.floor(beadY * pixelHeight);
+                }
                 
                 console.log(`📐 Pegando en (${beadX}, ${beadY})`);
-                
-                // Calcular píxeles en canvas
-                const pixelWidth = canvas.width / beadsWidth;
-                const pixelHeight = canvas.height / beadsHeight;
-                
-                const x = Math.floor(beadX * pixelWidth);
-                const y = Math.floor(beadY * pixelHeight);
-                
-                // Pegar imageData
                 ctx.putImageData(clipboard.imageData, x, y);
 
-                setHasUnsavedChanges(true);  // ← AGREGAR ESTA LÍNEA
-
-                setUsedColorsVersion(v => v + 1); // Actualizar colores usados 
-                
-                // Guardar cambios
-                const newPattern = canvas.toDataURL();
-                setEditedPattern(newPattern);
-                
+                setHasUnsavedChanges(true);
+                setUsedColorsVersion(v => v + 1);
+                setEditedPattern(canvas.toDataURL());
                 console.log('✅ Área pegada');
             };
 
@@ -2611,25 +2616,39 @@ if (!colorToUse || !canvasRef.current) return;
                 const rect = canvas.getBoundingClientRect();
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
-                
-                const beadX = Math.floor((e.clientX - rect.left) / rect.width * beadsWidth);
-                const beadY = Math.floor((e.clientY - rect.top) / rect.height * beadsHeight);
+                const isPeyote = result.pattern_type === 'peyote';
 
-                const pixelWidth = canvas.width / beadsWidth;
-                const pixelHeight = canvas.height / beadsHeight;
-                
+                let beadX, beadY, pixelWidth, pixelHeight, offsetY;
+
+                if (isPeyote) {
+                    pixelWidth = canvas.width / beadsWidth;
+                    pixelHeight = canvas.height / (beadsHeight + 0.5);
+                    const canvasClickX = ((e.clientX - rect.left) / rect.width) * canvas.width;
+                    const canvasClickY = ((e.clientY - rect.top) / rect.height) * canvas.height;
+                    beadX = Math.floor(canvasClickX / pixelWidth);
+                    offsetY = (beadX % 2 === 1) ? (pixelHeight / 2) : 0;
+                    beadY = Math.floor((canvasClickY - offsetY) / pixelHeight);
+                } else {
+                    pixelWidth = canvas.width / beadsWidth;
+                    pixelHeight = canvas.height / beadsHeight;
+                    offsetY = 0;
+                    beadX = Math.floor((e.clientX - rect.left) / rect.width * beadsWidth);
+                    beadY = Math.floor((e.clientY - rect.top) / rect.height * beadsHeight);
+                }
+
+                if (beadX < 0 || beadX >= beadsWidth || beadY < 0 || beadY >= beadsHeight) return;
+
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                ctx.fillStyle = 'rgb(255, 255, 255)'; // Blanco puro
+                ctx.fillStyle = 'rgb(255, 255, 255)';
                 ctx.fillRect(
-                    Math.floor(beadX * pixelWidth), 
-                    Math.floor(beadY * pixelHeight), 
-                    Math.ceil(pixelWidth), 
+                    Math.floor(beadX * pixelWidth),
+                    Math.floor(beadY * pixelHeight + offsetY),
+                    Math.ceil(pixelWidth),
                     Math.ceil(pixelHeight)
                 );
-                setHasUnsavedChanges(true); // Marcar que hay cambios sin guardar
-
-                const newPattern = canvas.toDataURL();
-                setEditedPattern(newPattern);
+                setHasUnsavedChanges(true);
+                setUsedColorsVersion(v => v + 1);
+                setEditedPattern(canvas.toDataURL());
             };
 
             const getUsedColors = useCallback(() => {
@@ -5112,11 +5131,13 @@ if (!colorToUse || !canvasRef.current) return;
                                                                 // Calcular píxeles en canvas
                                                                 const beadsWidth = result.pattern.width;
                                                                 const beadsHeight = result.pattern.height;
+                                                                const isPeyote = result.pattern_type === 'peyote';
                                                                 const pixelWidth = canvas.width / beadsWidth;
-                                                                const pixelHeight = canvas.height / beadsHeight;
+                                                                const pixelHeight = isPeyote ? canvas.height / (beadsHeight + 0.5) : canvas.height / beadsHeight;
+                                                                const offsetY = isPeyote ? (startX % 2 === 1 ? pixelHeight / 2 : 0) : 0;
                                                                 
                                                                 const x = Math.floor(startX * pixelWidth);
-                                                                const y = Math.floor(startY * pixelHeight);
+                                                                const y = Math.floor(startY * pixelHeight + offsetY);
                                                                 const w = Math.ceil(width * pixelWidth);
                                                                 const h = Math.ceil(height * pixelHeight);
                                                                 
