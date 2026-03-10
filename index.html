@@ -730,6 +730,7 @@
             const hasDraggedRef = React.useRef(false);
             const mouseDownEventRef = React.useRef(null);
             const isDoubleClickRef = React.useRef(false);
+            const paintTimeoutRef = React.useRef(null);
             const [numbersReady, setNumbersReady] = React.useState(false);
             const [patternVersion, setPatternVersion] = React.useState(0);
 
@@ -1500,8 +1501,8 @@
             };
 
             const handleDoubleClick = (e) => {
-                isDoubleClickRef.current = true; // evitar que mouseUp pinte
-                if (clickTimeout) clearTimeout(clickTimeout); // cancelar paint pendiente
+                isDoubleClickRef.current = true;
+                if (paintTimeoutRef.current) clearTimeout(paintTimeoutRef.current);
                 console.time('Double click total'); // ← AGREGAR
 
                 if (!canvasRef.current || lastViewedTab === 'coords') return;
@@ -2511,7 +2512,7 @@ if (!colorToUse || !canvasRef.current) return;
                     if (!wasDragging && savedColor && savedEvent) {
                         const savedCanvas = canvasRef.current;
                         console.log('🖱️ mouseUp: programando paint en 250ms', { savedColor: savedColor?.code, hasCanvas: !!savedCanvas });
-                        const t = setTimeout(() => {
+                        paintTimeoutRef.current = setTimeout(() => {
                             console.log('⏱️ timeout ejecutado, isDoubleClick:', isDoubleClickRef.current);
                             if (!isDoubleClickRef.current && savedCanvas) {
                                 const rect = savedCanvas.getBoundingClientRect();
@@ -2533,7 +2534,6 @@ if (!colorToUse || !canvasRef.current) return;
                             }
                             isDoubleClickRef.current = false;
                         }, 250);
-                        setClickTimeout(t);
                     }
                 }
                 if (isSelecting) {
