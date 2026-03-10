@@ -2826,7 +2826,6 @@ if (!colorToUse || !canvasRef.current) return;
                             setUsedColorsVersion(v => v + 1);
                             setProcessing(false);
                             setHasUnsavedChanges(false);
-                            setShowGridInView(false);
                             alert('✅ Patrón peyote guardado y coordenadas actualizadas');
                         }
                     } catch (err) {
@@ -2895,7 +2894,6 @@ if (!colorToUse || !canvasRef.current) return;
                             setUsedColorsVersion(v => v + 1);  // ← Y ESTA TAMBIÉN (para actualizar cache)
                             setProcessing(false);
                             setHasUnsavedChanges(false);
-                            setShowGridInView(false);
                             alert('✅ Cambios guardados y guías actualizadas.');
                         }
                     } catch (err) {
@@ -2950,7 +2948,6 @@ if (!colorToUse || !canvasRef.current) return;
                         setEditMode(false);
                         setActiveTab('grid');
                         setGridViewReady(false);
-                        setShowGridInView(false);
 
                         const palette = await loadFullPalette();
                         setFullPalette(palette);
@@ -3945,10 +3942,27 @@ if (!colorToUse || !canvasRef.current) return;
                                                                 ({imageDimensions.aspectRatio > 1 ? 'Horizontal' : imageDimensions.aspectRatio < 1 ? 'Vertical' : 'Cuadrada'})
                                                             </div>
                                                             {getSuggestedDimension() && (
-                                                                <div style={{color: '#0066cc'}}>
-                                                                    💡 <strong>Sugerencia:</strong> Para mantener la proporción de la imagen,
-                                                                    el {getSuggestedDimension().type} debería ser aproximadamente{' '}
-                                                                    <strong>{getSuggestedDimension().value} {getSuggestedDimension().unit}</strong>
+                                                                <div style={{color: '#0066cc', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap'}}>
+                                                                    <span>
+                                                                        💡 <strong>Sugerencia:</strong> {getSuggestedDimension().type === 'altura' ? 'Alto' : 'Ancho'} ≈ <strong>{getSuggestedDimension().value} {getSuggestedDimension().unit}</strong>
+                                                                    </span>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            const s = getSuggestedDimension();
+                                                                            if (s.type === 'altura') setHeight(String(s.value));
+                                                                            else setWidth(String(s.value));
+                                                                        }}
+                                                                        style={{
+                                                                            fontSize: '0.8em',
+                                                                            padding: '2px 8px',
+                                                                            backgroundColor: '#0066cc',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            whiteSpace: 'nowrap'
+                                                                        }}
+                                                                    >Aplicar</button>
                                                                 </div>
                                                             )}
                                                         </div>
