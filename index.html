@@ -726,6 +726,7 @@
             const [gridCoordsReady, setGridCoordsReady] = React.useState(false);
             const numbersCanvasRef = React.useRef(null);
             const axesCanvasRef = React.useRef(null);
+            const dragColorRef = React.useRef(null);
             const [numbersReady, setNumbersReady] = React.useState(false);
             const [patternVersion, setPatternVersion] = React.useState(0);
 
@@ -2298,7 +2299,9 @@
 
             // Lógica de pintar un bead — usada por click y por drag
             const paintBead = (e) => {
-                if (!selectedColor || !canvasRef.current) return;
+                const colorToUse = dragColorRef.current || selectedColor;
+                console.log('🎨 paintBead dragColorRef:', dragColorRef.current?.code, 'selectedColor:', selectedColor?.code, '→ using:', colorToUse?.code);
+                if (!colorToUse || !canvasRef.current) return;
 
                 const canvas = canvasRef.current;
                 const rect = canvas.getBoundingClientRect();
@@ -2330,12 +2333,12 @@
                     const pixelWidth = canvas.width / beadsWidth;
                     const pixelHeight = canvas.height / (beadsHeight + 0.5);
                     const offsetY = (beadX % 2 === 1) ? (pixelHeight / 2) : 0;
-                    ctx.fillStyle = `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`;
+                    ctx.fillStyle = `rgb(${colorToUse.rgb[0]},${colorToUse.rgb[1]},${colorToUse.rgb[2]})`;
                     ctx.fillRect(Math.floor(beadX * pixelWidth), Math.floor(beadY * pixelHeight + offsetY), Math.ceil(pixelWidth), Math.ceil(pixelHeight));
                 } else {
                     const pixelWidth = canvas.width / beadsWidth;
                     const pixelHeight = canvas.height / beadsHeight;
-                    ctx.fillStyle = `rgb(${selectedColor.rgb[0]},${selectedColor.rgb[1]},${selectedColor.rgb[2]})`;
+                    ctx.fillStyle = `rgb(${colorToUse.rgb[0]},${colorToUse.rgb[1]},${colorToUse.rgb[2]})`;
                     ctx.fillRect(Math.floor(beadX * pixelWidth), Math.floor(beadY * pixelHeight), Math.ceil(pixelWidth), Math.ceil(pixelHeight));
                 }
                 
@@ -2378,7 +2381,13 @@
                         
                         // Buscar el color en la paleta
                         const pickedColor = findClosestColor(rgb);
-                        if (pickedColor) setSelectedColor(pickedColor);
+                        console.log('🖱️ mouseDown picked rgb:', rgb, '→ color:', pickedColor?.code);
+                        if (pickedColor) {
+                            dragColorRef.current = pickedColor;
+                            setSelectedColor(pickedColor);
+                        } else {
+                            dragColorRef.current = selectedColor;
+                        }
                     }
                     
                     setIsPainting(true);
@@ -2453,7 +2462,10 @@
 
             const handleMouseLeave = () => {
                 setMouseCoords(null);
-                if (isPainting) setIsPainting(false);
+                if (isPainting) {
+                    setIsPainting(false);
+                    dragColorRef.current = null;
+                }
             };
 
             // Normaliza colores del JSON guardado para asegurar que name sea siempre string
@@ -2529,6 +2541,7 @@
             const handleMouseUp = () => {
                 if (isPainting) {
                     setIsPainting(false);
+                    dragColorRef.current = null;
                 }
                 if (isSelecting) {
                     setIsSelecting(false);
