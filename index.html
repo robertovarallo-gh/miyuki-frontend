@@ -849,39 +849,17 @@
                     patternVersion
                 });
                 
-                if (!gridViewCanvasRef.current || !result || !showGridInView) {
-                        console.log('❌ Detalles:', {
-                            hasCanvas: !!gridViewCanvasRef.current,
-                            hasResult: !!result,
-                            showGridInView
-                        });
-                    return;
-                }
-                
-                console.log('✅ Canvas disponible, dibujando grid');
+                if (!result || !showGridInView) return;
                 
                 const drawGrid = () => {
-                const gridCanvas = gridViewCanvasRef.current;
-                if (!gridCanvas) return;
-                const img = new Image();
-                
-                img.onload = () => {
-                    console.log('🔍 Entrando en img.onload de Cuadrícula');
-
-                    const imgElement = gridViewCanvasRef.current?.parentElement?.querySelector('img');
-                    if (!imgElement) {
-                        console.log('❌ No se encontró imagen en #grid-view-container');
-                        return;
-                    }
+                    const gridCanvas = gridViewCanvasRef.current;
+                    if (!gridCanvas) return;
+                    
+                    const imgElement = gridCanvas.parentElement?.querySelector('img');
+                    if (!imgElement) return;
                     
                     const rect = imgElement.getBoundingClientRect();
-
-                    console.log('🔍 Grid Cuadrícula dimensiones:', {
-                        rectWidth: rect.width,
-                        rectHeight: rect.height,
-                        beadsWidth: result.pattern.width,
-                        beadsHeight: result.pattern.height
-                    });                    
+                    if (!rect.width || !rect.height) return;
                     
                     gridCanvas.width = rect.width;
                     gridCanvas.height = rect.height;
@@ -892,13 +870,6 @@
                     const beadsWidth = result.pattern.width;
                     const beadsHeight = result.pattern.height;
                     const isPeyote = result.pattern_type === 'peyote';
-
-                    console.log('🔍 Grid Cuadrícula dimensiones:', {
-                        imgWidth: img.width,
-                        imgHeight: img.height,
-                        beadsWidth: result.pattern.width,
-                        beadsHeight: result.pattern.height
-                    });
                     
                     ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
                     ctx.lineWidth = 1;
@@ -906,51 +877,28 @@
                     if (isPeyote) {
                         const pixelWidth = gridCanvas.width / beadsWidth;
                         const pixelHeight = gridCanvas.height / (beadsHeight + 0.5);
-                        
                         for (let x = 0; x <= beadsWidth; x++) {
-                            ctx.beginPath();
-                            ctx.moveTo(x * pixelWidth, 0);
-                            ctx.lineTo(x * pixelWidth, gridCanvas.height);
-                            ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(x * pixelWidth, 0); ctx.lineTo(x * pixelWidth, gridCanvas.height); ctx.stroke();
                         }
-                        
                         for (let x = 0; x < beadsWidth; x++) {
                             const offsetY = (x % 2 === 1) ? (pixelHeight / 2) : 0;
                             for (let y = 0; y <= beadsHeight; y++) {
-                                ctx.beginPath();
-                                ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY);
-                                ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY);
-                                ctx.stroke();
+                                ctx.beginPath(); ctx.moveTo(x * pixelWidth, y * pixelHeight + offsetY); ctx.lineTo((x + 1) * pixelWidth, y * pixelHeight + offsetY); ctx.stroke();
                             }
                         }
                     } else {
                         const pixelWidth = gridCanvas.width / beadsWidth;
                         const pixelHeight = gridCanvas.height / beadsHeight;
-                        
                         for (let x = 0; x <= beadsWidth; x++) {
-                            ctx.beginPath();
-                            ctx.moveTo(x * pixelWidth, 0);
-                            ctx.lineTo(x * pixelWidth, gridCanvas.height);
-                            ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(x * pixelWidth, 0); ctx.lineTo(x * pixelWidth, gridCanvas.height); ctx.stroke();
                         }
-                        
                         for (let y = 0; y <= beadsHeight; y++) {
-                            ctx.beginPath();
-                            ctx.moveTo(0, y * pixelHeight);
-                            ctx.lineTo(gridCanvas.width, y * pixelHeight);
-                            ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(0, y * pixelHeight); ctx.lineTo(gridCanvas.width, y * pixelHeight); ctx.stroke();
                         }
                     }
                 };
                 
-                img.onerror = () => {
-                    console.error('❌ Error cargando imagen para grid');
-                };                
-                
-                img.src = result.images.grid;
-                };
-                
-                const t = setTimeout(drawGrid, 80);
+                const t = setTimeout(drawGrid, 100);
                 return () => clearTimeout(t);
                 
             }, [result, showGridInView, activeTab, patternVersion, gridViewReady]);
@@ -4680,11 +4628,12 @@ if (!colorToUse || !canvasRef.current) return;
                                                 <img 
                                                     src={result.images.grid} 
                                                     className="pattern-canvas"
+                                                    onLoad={() => setGridViewReady(r => r + 1)}
                                                     style={{
                                                         display: 'block',
                                                         imageRendering: 'pixelated',
-                                                        maxWidth: '100%',      // ← AGREGAR
-                                                        height: 'auto'         // ← AGREGAR
+                                                        maxWidth: '100%',
+                                                        height: 'auto'
                                                     }}
                                                 />
                                                 
