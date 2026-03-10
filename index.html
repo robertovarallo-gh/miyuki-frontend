@@ -2509,11 +2509,24 @@ if (!colorToUse || !canvasRef.current) return;
 
                     // Click simple sin drag → pintar con delay para que doble click pueda cancelar
                     if (!wasDragging && savedColor && savedEvent) {
+                        const savedCanvas = canvasRef.current;
                         const t = setTimeout(() => {
-                            if (!isDoubleClickRef.current) {
-                                dragColorRef.current = savedColor;
-                                paintBead(savedEvent);
-                                dragColorRef.current = null;
+                            if (!isDoubleClickRef.current && savedCanvas) {
+                                const rect = savedCanvas.getBoundingClientRect();
+                                const beadsWidth = result.pattern.width;
+                                const beadsHeight = result.pattern.height;
+                                const beadX = Math.floor((savedEvent.clientX - rect.left) / rect.width * beadsWidth);
+                                const beadY = Math.floor((savedEvent.clientY - rect.top) / rect.height * beadsHeight);
+                                if (beadX >= 0 && beadX < beadsWidth && beadY >= 0 && beadY < beadsHeight) {
+                                    const ctx = savedCanvas.getContext('2d', { willReadFrequently: true });
+                                    const pixelWidth = savedCanvas.width / beadsWidth;
+                                    const pixelHeight = savedCanvas.height / beadsHeight;
+                                    ctx.fillStyle = `rgb(${savedColor.rgb[0]},${savedColor.rgb[1]},${savedColor.rgb[2]})`;
+                                    ctx.fillRect(Math.floor(beadX * pixelWidth), Math.floor(beadY * pixelHeight), Math.ceil(pixelWidth), Math.ceil(pixelHeight));
+                                    setHasUnsavedChanges(true);
+                                    setUsedColorsVersion(v => v + 1);
+                                    setEditedPattern(savedCanvas.toDataURL());
+                                }
                             }
                             isDoubleClickRef.current = false;
                         }, 250);
