@@ -2129,10 +2129,15 @@
                     settings: {
                         width: width,
                         height: height,
+                        dimensionMode: dimensionMode,
                         beadType: beadType,
                         colorMode: colorMode,
                         colorCount: colorCount,
-                        patternType: result.pattern_type || 'grid'  // ← NUEVA LÍNEA
+                        patternType: result.pattern_type || 'grid',
+                        widthBeads: result.pattern.width,
+                        heightBeads: result.pattern.height,
+                        widthCm: parseFloat((result.pattern.width * 1.3 / 10).toFixed(1)),
+                        heightCm: parseFloat((result.pattern.height * 1.6 / 10).toFixed(1))
                     }
                 };
 
@@ -2216,12 +2221,37 @@
 
                         // Restaurar configuraciones
                         if (patternData.settings) {
-                            setWidth(patternData.settings.width);
-                            setHeight(patternData.settings.height);
-                            setBeadType(patternData.settings.beadType || 'delica');
-                            setColorMode(patternData.settings.colorMode);
-                            setColorCount(patternData.settings.colorCount);
-                            setPatternType(patternData.settings.patternType || patternData.pattern.pattern_type || 'grid');  // ← NUEVA LÍNEA
+                            const s = patternData.settings;
+                            // Determinar dimensionMode: usar el guardado, o inferir de valores
+                            let restoredDimMode = s.dimensionMode || null;
+                            if (!restoredDimMode) {
+                                // JSON viejo sin dimensionMode: inferir comparando width con beads
+                                restoredDimMode = (s.width === patternData.pattern.width) ? 'beads' : 'cm';
+                            }
+                            setDimensionMode(restoredDimMode);
+                            // Usar widthBeads/heightBeads como fuente de verdad si existen
+                            if (s.widthBeads && s.heightBeads) {
+                                if (restoredDimMode === 'cm') {
+                                    setWidth(s.widthCm ?? parseFloat((s.widthBeads * 1.3 / 10).toFixed(1)));
+                                    setHeight(s.heightCm ?? parseFloat((s.heightBeads * 1.6 / 10).toFixed(1)));
+                                } else {
+                                    setWidth(s.widthBeads);
+                                    setHeight(s.heightBeads);
+                                }
+                            } else {
+                                // JSON viejo: usar width/height del settings
+                                if (restoredDimMode === 'cm') {
+                                    setWidth(s.width);
+                                    setHeight(s.height);
+                                } else {
+                                    setWidth(patternData.pattern.width);
+                                    setHeight(patternData.pattern.height);
+                                }
+                            }
+                            setBeadType(s.beadType || 'delica');
+                            setColorMode(s.colorMode);
+                            setColorCount(s.colorCount);
+                            setPatternType(s.patternType || patternData.pattern.pattern_type || 'grid');
                         }
 
                         // Cambiar a vista de resultado
@@ -2805,13 +2835,9 @@ if (!colorToUse || !canvasRef.current) return;
                     setProcessing(true);
                     
                     try {
-                        const widthToSend = dimensionMode === 'cm'
-                            ? Number(width)
-                            : Number(((width * beadWidth) / 10).toFixed(1));
-
-                        const heightToSend = dimensionMode === 'cm'
-                            ? Number(height)
-                            : Number(((height * beadHeight) / 10).toFixed(1));
+                        // Usar siempre result.pattern como fuente de verdad (en cuentas → cm)
+                        const widthToSend = parseFloat((result.pattern.width * 1.3 / 10).toFixed(1));
+                        const heightToSend = parseFloat((result.pattern.height * 1.6 / 10).toFixed(1));
 
                         const response = await fetch(`${API_URL}/generate`, {
                             method: 'POST',
@@ -2879,15 +2905,9 @@ if (!colorToUse || !canvasRef.current) return;
                 if (isBlankCanvas) {
                     setProcessing(true);
                     try {
-                        const widthToSend =
-                            dimensionMode === 'cm'
-                                ? Number(width)
-                                : Number(((width * beadWidth) / 10).toFixed(1));
-
-                        const heightToSend =
-                            dimensionMode === 'cm'
-                                ? Number(height)
-                                : Number(((height * beadHeight) / 10).toFixed(1));
+                        // Usar result.pattern como fuente de verdad (en cuentas → cm)
+                        const widthToSend = parseFloat((result.pattern.width * 1.3 / 10).toFixed(1));
+                        const heightToSend = parseFloat((result.pattern.height * 1.6 / 10).toFixed(1));
 
                         const response = await fetch(`${API_URL}/generate`, {
                             method: 'POST',
@@ -2944,15 +2964,9 @@ if (!colorToUse || !canvasRef.current) return;
                 // Si es desde foto cuadrícula, regenerar normalmente
                 setProcessing(true);
 
-                const widthToSend =
-                    dimensionMode === 'cm'
-                        ? Number(width)
-                        : Number(((width * beadWidth) / 10).toFixed(1));
-
-                const heightToSend =
-                    dimensionMode === 'cm'
-                        ? Number(height)
-                        : Number(((height * beadHeight) / 10).toFixed(1));
+                // Usar result.pattern como fuente de verdad (en cuentas → cm)
+                const widthToSend = parseFloat((result.pattern.width * 1.3 / 10).toFixed(1));
+                const heightToSend = parseFloat((result.pattern.height * 1.6 / 10).toFixed(1));
 
                 try {
                     const response = await fetch(`${API_URL}/generate`, {
