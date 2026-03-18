@@ -653,14 +653,8 @@
             const [image, setImage] = useState(null);
             const [width, setWidth] = useState(5.0);
             const [height, setHeight] = useState(5.0);            
-            const [beadType, setBeadType] = useState('delica');
+            const [beadSize, setBeadSize] = useState(1.5);
             const [beadSizeVersion, setBeadSizeVersion] = React.useState(0);
-            const BEAD_TYPES = {
-                delica: { label: 'Miyuki Delica 11/0 (1.3 × 1.6mm)', beadWidth: 1.3, beadHeight: 1.6 },
-            };
-            const beadWidth = BEAD_TYPES[beadType]?.beadWidth ?? 1.3;
-            const beadHeight = BEAD_TYPES[beadType]?.beadHeight ?? 1.6;
-            const beadSize = beadWidth; // compatibilidad temporal — eliminar cuando todos los cálculos usen beadWidth/beadHeight
             const [dimensionMode, setDimensionMode] = useState('cm'); // 'cm' o 'beads'
             const [colorCount, setColorCount] = useState(10);
             const [colorMode, setColorMode] = useState('miyuki'); // 'miyuki' or 'rgb'
@@ -704,7 +698,7 @@
             const [replaceSelectingMode, setReplaceSelectingMode] = useState(null); // 'from' o 'to'
             const [mouseCoords, setMouseCoords] = useState(null); // {x, y} coordenadas del píxel bajo el mouse
             const loadPatternInputRef = useRef(null);
-            const [undoHistory, setUndoHistory] = useState(null); // Guardar estado anteriores para deshacer
+            const [undoStack, setUndoStack] = useState([]); // Historial de hasta 3 estados para deshacer
             const [menuCollapsed, setMenuCollapsed] = useState(false);
             const [paletteTab, setPaletteTab] = useState('used'); // 'used' o 'all'
             const [usedColorsVersion, setUsedColorsVersion] = useState(0);
@@ -1255,7 +1249,7 @@
                     canvasHeight: mainCanvas.height,
                     beadsWidth: result.pattern.width,
                     beadsHeight: result.pattern.height,
-                    beadWidth, beadHeight
+                    beadSize
                 });                
                 
                 // Igualar dimensiones
@@ -1474,9 +1468,8 @@
                 }
             };
 
-            const handleBeadTypeChange = (e) => {
-                setBeadType(e.target.value);
-                setBeadSizeVersion(v => v + 1);
+            const handleBeadSizeChange = (e) => {
+                setBeadSize(parseFloat(e.target.value));
             };
 
             const getSuggestedDimension = () => {
@@ -1606,12 +1599,12 @@
                 const widthToSend =
                     dimensionMode === 'cm'
                         ? Number(width)
-                        : Number(((width * beadWidth) / 10).toFixed(1)); // beads -> cm
+                        : Number(((width * beadSize) / 10).toFixed(1)); // beads -> cm
 
                 const heightToSend =
                     dimensionMode === 'cm'
                         ? Number(height)
-                        : Number(((height * beadHeight) / 10).toFixed(1)); // beads -> cm
+                        : Number(((height * beadSize) / 10).toFixed(1)); // beads -> cm
 
                 try {
                     const response = await fetch(`${API_URL}/generate`, {
@@ -1623,7 +1616,7 @@
                             image: image,
                             width: widthToSend,
                             height: heightToSend,
-                            beadType: beadType,
+                            beadSize: beadSize,
                             numColors: colorCount,
                             saturation: saturation,
                             brightness: brightness,
@@ -2129,7 +2122,7 @@
                     settings: {
                         width: width,
                         height: height,
-                        beadType: beadType,
+                        beadSize: beadSize,
                         colorMode: colorMode,
                         colorCount: colorCount,
                         patternType: result.pattern_type || 'grid'  // ← NUEVA LÍNEA
@@ -2218,7 +2211,7 @@
                         if (patternData.settings) {
                             setWidth(patternData.settings.width);
                             setHeight(patternData.settings.height);
-                            setBeadType(patternData.settings.beadType || 'delica');
+                            setBeadSize(patternData.settings.beadSize);
                             setColorMode(patternData.settings.colorMode);
                             setColorCount(patternData.settings.colorCount);
                             setPatternType(patternData.settings.patternType || patternData.pattern.pattern_type || 'grid');  // ← NUEVA LÍNEA
@@ -2320,7 +2313,7 @@ if (!colorToUse || !canvasRef.current) return;
                 if (!selectedColor || !canvasRef.current) return;
 
                 // Guardar para deshacer
-                setUndoHistory(canvasRef.current.toDataURL());
+                setUndoStack(prev => [...prev.slice(-2), canvasRef.current.toDataURL()]);
 
                 paintBead(e);
             };
@@ -2356,7 +2349,7 @@ if (!colorToUse || !canvasRef.current) return;
                     hasDraggedRef.current = false;
                     mouseDownEventRef.current = e;
                     setIsPainting(true);
-                    setUndoHistory(canvas.toDataURL());
+                    setUndoStack(prev => [...prev.slice(-2), canvas.toDataURL()]);
                     return;
                 }
                 if (toolMode !== 'select' || !canvasRef.current) return;
@@ -2490,19 +2483,20 @@ if (!colorToUse || !canvasRef.current) return;
             };
 
             const handleUndo = () => {
-                if (!undoHistory || !canvasRef.current) return;
+                if (undoStack.length === 0 || !canvasRef.current) return;
                 
                 const canvas = canvasRef.current;
                 const ctx = canvas.getContext('2d');
                 const img = new Image();
+                const prevState = undoStack[undoStack.length - 1];
                 
                 img.onload = () => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0);
-                    setUndoHistory(null); // Limpiar historial después de deshacer
+                    setUndoStack(prev => prev.slice(0, -1));
                 };
                 
-                img.src = undoHistory;
+                img.src = prevState;
             };
 
             const handleMouseUp = () => {
@@ -2573,7 +2567,7 @@ if (!colorToUse || !canvasRef.current) return;
                 if (toolMode !== 'paste' || !clipboard || !canvasRef.current) return;
 
                 // Guardar para deshacer
-                setUndoHistory(canvasRef.current.toDataURL());
+                setUndoStack(prev => [...prev.slice(-2), canvasRef.current.toDataURL()]);
                 
                 const canvas = canvasRef.current;
                 const rect = canvas.getBoundingClientRect();
@@ -2617,7 +2611,7 @@ if (!colorToUse || !canvasRef.current) return;
                 if (toolMode !== 'erase' || !canvasRef.current) return;
 
                 // Guardar para deshacer
-                setUndoHistory(canvasRef.current.toDataURL());
+                setUndoStack(prev => [...prev.slice(-2), canvasRef.current.toDataURL()]);
 
                 const canvas = canvasRef.current;
                 const rect = canvas.getBoundingClientRect();
@@ -2806,11 +2800,11 @@ if (!colorToUse || !canvasRef.current) return;
                     try {
                         const widthToSend = dimensionMode === 'cm'
                             ? Number(width)
-                            : Number(((width * beadWidth) / 10).toFixed(1));
+                            : Number(((width * beadSize) / 10).toFixed(1));
 
                         const heightToSend = dimensionMode === 'cm'
                             ? Number(height)
-                            : Number(((height * beadHeight) / 10).toFixed(1));
+                            : Number(((height * beadSize) / 10).toFixed(1));
 
                         const response = await fetch(`${API_URL}/generate`, {
                             method: 'POST',
@@ -2821,7 +2815,7 @@ if (!colorToUse || !canvasRef.current) return;
                                 image: editedImageData,
                                 width: widthToSend,
                                 height: heightToSend,
-                                beadType: beadType,
+                                beadSize: beadSize,
                                 numColors: 100,
                                 saturation: 1.0,
                                 brightness: 1.0,
@@ -2881,12 +2875,12 @@ if (!colorToUse || !canvasRef.current) return;
                         const widthToSend =
                             dimensionMode === 'cm'
                                 ? Number(width)
-                                : Number(((width * beadWidth) / 10).toFixed(1));
+                                : Number(((width * beadSize) / 10).toFixed(1));
 
                         const heightToSend =
                             dimensionMode === 'cm'
                                 ? Number(height)
-                                : Number(((height * beadHeight) / 10).toFixed(1));
+                                : Number(((height * beadSize) / 10).toFixed(1));
 
                         const response = await fetch(`${API_URL}/generate`, {
                             method: 'POST',
@@ -2897,7 +2891,7 @@ if (!colorToUse || !canvasRef.current) return;
                                 image: editedImageData,
                                 width: widthToSend,
                                 height: heightToSend,
-                                beadType: beadType,
+                                beadSize: beadSize,
                                 numColors: 100,
                                 saturation: 1.0,
                                 brightness: 1.0,
@@ -2946,12 +2940,12 @@ if (!colorToUse || !canvasRef.current) return;
                 const widthToSend =
                     dimensionMode === 'cm'
                         ? Number(width)
-                        : Number(((width * beadWidth) / 10).toFixed(1));
+                        : Number(((width * beadSize) / 10).toFixed(1));
 
                 const heightToSend =
                     dimensionMode === 'cm'
                         ? Number(height)
-                        : Number(((height * beadHeight) / 10).toFixed(1));
+                        : Number(((height * beadSize) / 10).toFixed(1));
 
                 try {
                     const response = await fetch(`${API_URL}/generate`, {
@@ -2963,7 +2957,7 @@ if (!colorToUse || !canvasRef.current) return;
                             image: editedImageData,
                             width: widthToSend,
                             height: heightToSend,
-                            beadType: beadType,
+                            beadSize: beadSize,
                             numColors: colorCount,
                             saturation: saturation,
                             brightness: brightness,
@@ -3047,14 +3041,14 @@ if (!colorToUse || !canvasRef.current) return;
                     const widthBeads =
                         dimensionMode === 'beads'
                             ? width
-                            : Math.round((width * 10) / beadWidth);
-                    // const widthBeads = Math.round((width * 10) / beadWidth);
+                            : Math.round((width * 10) / beadSize);
+                    // const widthBeads = Math.round((width * 10) / beadSize);
                     
                     const heightBeads =
                         dimensionMode === 'beads'
                             ? height
-                            : Math.round((height * 10) / beadHeight);    
-                    // const heightBeads = Math.round((height * 10) / beadHeight);
+                            : Math.round((height * 10) / beadSize);    
+                    // const heightBeads = Math.round((height * 10) / beadSize);
 
                     console.log('📐 Creando canvas blanco:', widthBeads, 'x', heightBeads, 'beads');
                     
@@ -3090,12 +3084,12 @@ if (!colorToUse || !canvasRef.current) return;
                     const widthToSend =
                         dimensionMode === 'cm'
                             ? Number(width)
-                            : Number(((width * beadWidth) / 10).toFixed(1)); // beads -> cm
+                            : Number(((width * beadSize) / 10).toFixed(1)); // beads -> cm
 
                     const heightToSend =
                         dimensionMode === 'cm'
                             ? Number(height)
-                            : Number(((height * beadHeight) / 10).toFixed(1)); // beads -> cm
+                            : Number(((height * beadSize) / 10).toFixed(1)); // beads -> cm
                     
                     // Call backend to generate pattern (same as from photo)
                     const response = await fetch(`${API_URL}/generate`, {
@@ -3107,7 +3101,7 @@ if (!colorToUse || !canvasRef.current) return;
                             image: blankImage,
                             width: widthToSend,
                             height: heightToSend,
-                            beadType: beadType,
+                            beadSize: beadSize,
                             numColors: 1, // Only white for blank canvas
                             saturation: 1.0,
                             brightness: 1.0,
@@ -3313,8 +3307,8 @@ if (!colorToUse || !canvasRef.current) return;
                 }
             };
 
-            const widthBeads = Math.round((width * 10) / beadWidth);
-            const heightBeads = Math.round((height * 10) / beadHeight);
+            const widthBeads = Math.round((width * 10) / beadSize);
+            const heightBeads = Math.round((height * 10) / beadSize);
             const totalBeads = widthBeads * heightBeads;
 
             return (
@@ -4008,12 +4002,12 @@ if (!colorToUse || !canvasRef.current) return;
                                                     {/* Info de conversión */}
                                                     {dimensionMode === 'cm' && (
                                                         <div style={{fontSize: '0.9em', color: 'var(--text-secondary)', marginTop: '8px', marginBottom: '8px'}}>
-                                                            ≈ {Math.round((width * 10) / beadWidth)} × {Math.round((height * 10) / beadHeight)} cuentas
+                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} cuentas
                                                         </div>
                                                     )}
                                                     {dimensionMode === 'beads' && (
                                                         <div style={{fontSize: '0.9em', color: 'var(--text-secondary)', marginTop: '8px', marginBottom: '8px'}}>
-                                                            ≈ {((width * beadWidth) / 10).toFixed(1)} × {((height * beadHeight) / 10).toFixed(1)} cm
+                                                            ≈ {((width * beadSize) / 10).toFixed(1)} × {((height * beadSize) / 10).toFixed(1)} cm
                                                         </div>
                                                     )}
                                                     {/* Total de cuentas */}
@@ -4027,16 +4021,18 @@ if (!colorToUse || !canvasRef.current) return;
                                                         borderRadius: '4px'
                                                     }}>
                                                         📊 Total: {dimensionMode === 'cm' 
-                                                            ? (Math.round((width * 10) / beadWidth) * Math.round((height * 10) / beadHeight)).toLocaleString()
+                                                            ? (Math.round((width * 10) / beadSize) * Math.round((height * 10) / beadSize)).toLocaleString()
                                                             : (Math.round(width) * Math.round(height)).toLocaleString()
                                                         } cuentas
                                                     </div> 
                                                 </div>
 
                                                 <div className="controls-group">
-                                                    <label>Tipo de Cuenta</label>
-                                                    <select value={beadType} onChange={handleBeadTypeChange}>
-                                                        <option value="delica">Miyuki Delica 11/0 (1.3 × 1.6mm)</option>
+                                                    <label>Tamaño de Cuenta</label>
+                                                    <select value={beadSize} onChange={handleBeadSizeChange}>
+                                                        <option value={2.0}>2.0mm - Miyuki Delica</option>
+                                                        <option value={1.5}>1.5mm - Seed Beads 15/0</option>
+                                                        <option value={1.0}>1.0mm - Seed Beads 18/0</option>
                                                     </select>
                                                 </div>
 
@@ -4154,11 +4150,11 @@ if (!colorToUse || !canvasRef.current) return;
                                                 {(() => {
                                                     const displayWidthBeads = dimensionMode === 'beads'
                                                         ? Number(width)
-                                                        : Math.round((Number(width) * 10) / beadWidth);
+                                                        : Math.round((Number(width) * 10) / beadSize);
 
                                                     const displayHeightBeads = dimensionMode === 'beads'
                                                         ? Number(height)
-                                                        : Math.round((Number(height) * 10) / beadHeight);
+                                                        : Math.round((Number(height) * 10) / beadSize);
 
                                                     const displayTotalBeads = displayWidthBeads * displayHeightBeads;
 
@@ -4327,12 +4323,12 @@ if (!colorToUse || !canvasRef.current) return;
                                                     {/* Info de conversión */}
                                                     {dimensionMode === 'cm' && (
                                                         <div style={{fontSize: '0.9em', color: 'var(--text-secondary)', marginTop: '8px', marginBottom: '8px'}}>
-                                                            ≈ {Math.round((width * 10) / beadWidth)} × {Math.round((height * 10) / beadHeight)} cuentas 
+                                                            ≈ {Math.round((width * 10) / beadSize)} × {Math.round((height * 10) / beadSize)} cuentas 
                                                         </div>
                                                     )}
                                                     {dimensionMode === 'beads' && (
                                                         <div style={{fontSize: '0.9em', color: 'var(--text-secondary)', marginTop: '8px', marginBottom: '8px'}}>
-                                                            ≈ {((width * beadWidth) / 10).toFixed(1)} × {((height * beadHeight) / 10).toFixed(1)} cm 
+                                                            ≈ {((width * beadSize) / 10).toFixed(1)} × {((height * beadSize) / 10).toFixed(1)} cm 
                                                         </div>
                                                     )}
                                                     {/* Total de cuentas */}
@@ -4346,19 +4342,24 @@ if (!colorToUse || !canvasRef.current) return;
                                                         borderRadius: '4px'
                                                     }}>
                                                         📊 Total: {dimensionMode === 'cm' 
-                                                            ? (Math.round((width * 10) / beadWidth) * Math.round((height * 10) / beadHeight)).toLocaleString()
+                                                            ? (Math.round((width * 10) / beadSize) * Math.round((height * 10) / beadSize)).toLocaleString()
                                                             : (Math.round(width) * Math.round(height)).toLocaleString()
                                                         } cuentas
                                                     </div>
                                                 </div>
 
                                                 <div className="controls-group">
-                                                    <label>Tipo de Cuenta</label>
+                                                    <label>Tamaño de Cuenta</label>
                                                     <select 
-                                                        value={beadType} 
-                                                        onChange={handleBeadTypeChange}
+                                                        value={beadSize} 
+                                                        onChange={(e) => {
+                                                            setBeadSize(parseFloat(e.target.value));
+                                                            setBeadSizeVersion(v => v + 1);
+                                                        }}
                                                     >
-                                                        <option value="delica">Miyuki Delica 11/0 (1.3 × 1.6mm)</option>
+                                                        <option value={2.0}>2.0mm - Miyuki Delica</option>
+                                                        <option value={1.5}>1.5mm - Seed Beads 15/0</option>
+                                                        <option value={1.0}>1.0mm - Seed Beads 18/0</option>
                                                     </select>
                                                 </div>
 
@@ -4471,7 +4472,7 @@ if (!colorToUse || !canvasRef.current) return;
                                         borderRadius: '6px',
                                         border: '1px solid var(--border)'
                                     }}>
-                                        📐 {result.pattern.width} × {result.pattern.height} cuentas &nbsp;·&nbsp; {(result.pattern.width * 1.3 / 10).toFixed(1)} × {(result.pattern.height * 1.6 / 10).toFixed(1)} cm
+                                        📐 {result.pattern.width} × {result.pattern.height} beads
                                     </span>
                                 )}
                             </div>
@@ -5197,21 +5198,21 @@ if (!colorToUse || !canvasRef.current) return;
 
                                                         <button
                                                             onClick={handleUndo}
-                                                            disabled={!undoHistory}
+                                                            disabled={undoStack.length === 0}
                                                             style={{
                                                                 flex: '1 1 auto',
                                                                 padding: '8px 12px',
                                                                 fontSize: '0.85rem',
-                                                                backgroundColor: undoHistory ? '#FFD700' : '#e0e0e0',
-                                                                color: undoHistory ? '#000000' : '#666666',
+                                                                backgroundColor: undoStack.length > 0 ? '#FFD700' : '#e0e0e0',
+                                                                color: undoStack.length > 0 ? '#000000' : '#666666',
                                                                 border: 'none',
                                                                 borderRadius: '8px',
-                                                                fontWeight: undoHistory ? 'bold' : 'normal',
-                                                                cursor: undoHistory ? 'pointer' : 'not-allowed',
-                                                                opacity: undoHistory ? 1 : 0.6
+                                                                fontWeight: undoStack.length > 0 ? 'bold' : 'normal',
+                                                                cursor: undoStack.length > 0 ? 'pointer' : 'not-allowed',
+                                                                opacity: undoStack.length > 0 ? 1 : 0.6
                                                             }}
                                                         >
-                                                            ↩️ Deshacer
+                                                            ↩️ Deshacer {undoStack.length > 0 ? `(${undoStack.length})` : ''}
                                                         </button>
 
                                                     </div>
@@ -5799,7 +5800,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                                 }
                                                                 
                                                                 // Guardar para deshacer
-                                                                setUndoHistory(canvasRef.current.toDataURL());
+                                                                setUndoStack(prev => [...prev.slice(-2), canvasRef.current.toDataURL()]);
                                                                 
                                                                 const canvas = canvasRef.current;
                                                                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -5858,7 +5859,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                                 }
                                                                 
                                                                 // Guardar para deshacer
-                                                                setUndoHistory(canvasRef.current.toDataURL());
+                                                                setUndoStack(prev => [...prev.slice(-2), canvasRef.current.toDataURL()]);
                                                                 
                                                                 const canvas = canvasRef.current;
                                                                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
