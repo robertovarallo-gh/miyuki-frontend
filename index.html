@@ -1481,7 +1481,7 @@
                 } catch (error) {
                     console.error('Error reenviando email:', error);
                     if (error.code === 'auth/too-many-requests') {
-                        alert('⚠️ Demasiados intentos. Espera unos minutos antes de volver a intentar.');
+                        alert('📧 El email de verificación ya fue enviado recientemente.\n\nEspera 5-10 minutos antes de solicitar uno nuevo.\n\nRevisa también tu carpeta de spam.');
                     } else {
                         alert('❌ Error al reenviar el email: ' + error.message);
                     }
