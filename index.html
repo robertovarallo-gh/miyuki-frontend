@@ -1474,6 +1474,20 @@
                 }
             };
 
+            const resendVerificationEmail = async () => {
+                try {
+                    await window.firebaseSendEmailVerification(window.firebaseAuth.currentUser);
+                    alert('📧 Email de verificación reenviado. Revisa tu bandeja de entrada y también el spam.');
+                } catch (error) {
+                    console.error('Error reenviando email:', error);
+                    if (error.code === 'auth/too-many-requests') {
+                        alert('⚠️ Demasiados intentos. Espera unos minutos antes de volver a intentar.');
+                    } else {
+                        alert('❌ Error al reenviar el email: ' + error.message);
+                    }
+                }
+            };
+
             const handleBeadTypeChange = (e) => {
                 setBeadType(e.target.value);
                 setBeadSizeVersion(v => v + 1);
@@ -3412,7 +3426,45 @@ if (!colorToUse || !canvasRef.current) return;
                                             <div style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>
                                                 Plan: {userData?.plan === 'premium' ? '💎 Premium' : '🆓 Free'}
                                             </div>
+                                            {!user.emailVerified && (
+                                                <div style={{fontSize: '0.7rem', color: '#FF6B6B', fontWeight: 'bold'}}>
+                                                    ⚠️ Email no verificado
+                                                </div>
+                                            )}
                                         </div>
+
+                                        {/* Banner de email no verificado */}
+                                        {!user.emailVerified && (
+                                            <div style={{
+                                                backgroundColor: 'rgba(255, 107, 107, 0.15)',
+                                                border: '1px solid #FF6B6B',
+                                                borderRadius: '8px',
+                                                padding: '8px 12px',
+                                                fontSize: '0.78rem',
+                                                color: 'var(--text)',
+                                                textAlign: 'center',
+                                                width: '100%'
+                                            }}>
+                                                <div style={{marginBottom: '6px'}}>
+                                                    📧 Verifica tu email para usar la app
+                                                </div>
+                                                <button
+                                                    onClick={resendVerificationEmail}
+                                                    style={{
+                                                        padding: '5px 12px',
+                                                        background: '#FF6B6B',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        color: '#fff',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.78rem',
+                                                        fontWeight: 'bold'
+                                                    }}
+                                                >
+                                                    🔁 Reenviar email
+                                                </button>
+                                            </div>
+                                        )}
 
                                         {/* Botón Upgrade a Premium - solo si es Free */}
                                         {userData?.plan !== 'premium' && (
