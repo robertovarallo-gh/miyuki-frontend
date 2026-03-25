@@ -21,7 +21,7 @@
     <!-- AGREGAR FIREBASE AQUÍ -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification, updateProfile } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
         import { getFirestore, doc, setDoc, getDoc, updateDoc, getDocs, collection } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
         const firebaseConfig = {
@@ -45,6 +45,7 @@
         window.firebaseSignOut = signOut;
         window.firebaseOnAuthStateChanged = onAuthStateChanged;
         window.firebaseSendEmailVerification = sendEmailVerification;
+        window.firebaseUpdateProfile = updateProfile;
         window.firebaseDoc = doc;
         window.firebaseSetDoc = setDoc;
         window.firebaseGetDoc = getDoc;
@@ -3420,7 +3421,12 @@ if (!colorToUse || !canvasRef.current) return;
                                         border: '1px solid var(--border)'
                                     }}>
                                         <div style={{textAlign: 'right'}}>
-                                            <div style={{fontSize: '0.9rem', fontWeight: 'bold'}}>
+                                            {user.displayName && (
+                                                <div style={{fontSize: '0.95rem', fontWeight: 'bold'}}>
+                                                    {user.displayName}
+                                                </div>
+                                            )}
+                                            <div style={{fontSize: '0.9rem', fontWeight: user.displayName ? 'normal' : 'bold', color: user.displayName ? 'var(--text-dim)' : 'var(--text)'}}>
                                                 {user.email}
                                             </div>
                                             <div style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>
@@ -3584,6 +3590,7 @@ if (!colorToUse || !canvasRef.current) return;
                                         e.preventDefault();
                                         const email = e.target.email.value;
                                         const password = e.target.password.value;
+                                        const nombre = e.target.nombre.value.trim();
                                         const isLogin = e.nativeEvent.submitter.name === 'login';
                                         
                                         try {
@@ -3603,6 +3610,16 @@ if (!colorToUse || !canvasRef.current) return;
                                                     password
                                                 );
 
+                                                // Guardar nombre en Firebase Auth (para %DISPLAY_NAME% en emails)
+                                                if (nombre) {
+                                                    try {
+                                                        await window.firebaseUpdateProfile(userCredential.user, { displayName: nombre });
+                                                        console.log('✅ Nombre guardado:', nombre);
+                                                    } catch (profileError) {
+                                                        console.error('❌ Error guardando nombre:', profileError);
+                                                    }
+                                                }
+
                                                 try {
                                                     await window.firebaseSendEmailVerification(userCredential.user);
                                                     console.log('✅ Email de verificación enviado');
@@ -3616,6 +3633,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                 const userRef = window.firebaseDoc(window.firebaseDB, 'users', userCredential.user.uid);
                                                 await window.firebaseSetDoc(userRef, {
                                                     email: email,
+                                                    nombre: nombre || '',
                                                     plan: 'free',
                                                     createdAt: new Date().toISOString(),
                                                     patternsFromPhoto: 0,
@@ -3642,6 +3660,30 @@ if (!colorToUse || !canvasRef.current) return;
                                             }
                                         }
                                 }}>
+                                    <div style={{marginBottom: '20px'}}>
+                                        <label style={{
+                                            display: 'block',
+                                            marginBottom: '8px',
+                                            fontSize: '0.95rem'
+                                        }}>
+                                            {i18n.currentLanguage === 'es' ? 'Nombre:' : 'Name:'}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="nombre"
+                                            placeholder={i18n.currentLanguage === 'es' ? 'Tu nombre' : 'Your name'}
+                                            style={{
+                                                width: '100%',
+                                                padding: '12px',
+                                                background: 'var(--surface-light)',
+                                                border: '1px solid var(--border)',
+                                                borderRadius: '8px',
+                                                color: 'var(--text)',
+                                                fontSize: '1rem'
+                                            }}
+                                        />
+                                    </div>
+
                                     <div style={{marginBottom: '20px'}}>
                                         <label style={{
                                             display: 'block',
