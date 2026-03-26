@@ -1184,34 +1184,77 @@
                 }
 
                 if (isPeyotePattern) {
-                    // PEYOTE: numerar solo columnas pares (no desplazadas), por fila
-                    // Columnas pares (0,2,4...) son las no desplazadas
+                    // PEYOTE: En cada fila del rowGuide hay beads de columnas pares e impares
+                    // Columnas impares (1,3,5...) = filas 1,2,3... (no desplazadas)
+                    // Columnas pares  (0,2,4...) = filas 1.5,2.5... (desplazadas media cuenta abajo)
+                    // activeRow: 0=fila1, 1=fila1.5, 2=fila2, 3=fila2.5, ...
+                    // fila real en rowGuide = Math.floor(activeRow / 2)
+                    // es .5 si activeRow es impar
+
                     result.rowGuide.rows.forEach((row, rowIndex) => {
-                        // Resaltar fila activa
-                        if (rowIndex === activeRow) {
+                        // Filas completas: impares (rowIndex*2) y semifilas: pares (rowIndex*2+1)
+                        const activeIndexFull = activeRow;  // índice global en la navegación
+                        const thisFullRow  = rowIndex * 2;       // índice nav de fila entera
+                        const thisHalfRow  = rowIndex * 2 + 1;   // índice nav de semilínea
+
+                        // Resaltar fila entera (columnas impares)
+                        if (thisFullRow === activeIndexFull) {
                             ctx.fillStyle = 'rgba(255, 220, 0, 0.3)';
-                            // Calcular altura de la fila considerando el offset peyote
-                            const yTop = rowIndex * cellH;
-                            ctx.fillRect(0, yTop, canvas.width, cellH);
+                            ctx.fillRect(0, rowIndex * cellH, canvas.width, cellH);
+                        }
+                        // Resaltar semilínea (columnas pares, desplazadas)
+                        if (thisHalfRow === activeIndexFull) {
+                            ctx.fillStyle = 'rgba(255, 220, 0, 0.3)';
+                            ctx.fillRect(0, rowIndex * cellH + cellH / 2, canvas.width, cellH);
                         }
 
-                        let colIndex = 0; // índice real de columna en el canvas
-                        let numCounter = 1; // número visible (solo columnas no desplazadas)
-                        let xPos = 0;
+                        // Dibujar números — filas enteras: columnas impares (col % 2 === 1)
+                        // Dibujar números — semifilas:    columnas pares   (col % 2 === 0)
+                        // Numeración: reinicia en 1 cada vez que cambia el color
 
+                        // -- Fila entera (columnas impares) --
+                        let xPos = 0;
+                        let lastCode = null;
+                        let segCounter = 1;
                         row.sequence.forEach(segment => {
                             const rgb = colorMap[segment.code] || [128, 128, 128];
                             const textColor = getContrastColor(rgb);
+                            if (segment.code !== lastCode) {
+                                segCounter = 1;
+                                lastCode = segment.code;
+                            }
                             for (let i = 0; i < segment.count; i++) {
-                                const col = xPos + i; // columna real en el patrón
-                                // Solo numerar columnas pares (no desplazadas)
-                                if (col % 2 === 0) {
-                                    const offsetY = (col % 2 === 1) ? (cellH / 2) : 0;
+                                const col = xPos + i;
+                                if (col % 2 === 1) { // columnas impares = fila entera
                                     const canvasX = (col + 0.5) * cellW;
-                                    const canvasY = (rowIndex + 0.5) * cellH + offsetY;
+                                    const canvasY = (rowIndex + 0.5) * cellH;
                                     ctx.fillStyle = textColor;
-                                    ctx.fillText(String(numCounter), canvasX, canvasY);
-                                    numCounter++;
+                                    ctx.fillText(String(segCounter), canvasX, canvasY);
+                                    segCounter++;
+                                }
+                            }
+                            xPos += segment.count;
+                        });
+
+                        // -- Semilínea (columnas pares, desplazadas) --
+                        xPos = 0;
+                        lastCode = null;
+                        segCounter = 1;
+                        row.sequence.forEach(segment => {
+                            const rgb = colorMap[segment.code] || [128, 128, 128];
+                            const textColor = getContrastColor(rgb);
+                            if (segment.code !== lastCode) {
+                                segCounter = 1;
+                                lastCode = segment.code;
+                            }
+                            for (let i = 0; i < segment.count; i++) {
+                                const col = xPos + i;
+                                if (col % 2 === 0) { // columnas pares = semilínea desplazada
+                                    const canvasX = (col + 0.5) * cellW;
+                                    const canvasY = (rowIndex + 0.5) * cellH + (cellH / 2);
+                                    ctx.fillStyle = textColor;
+                                    ctx.fillText(String(segCounter), canvasX, canvasY);
+                                    segCounter++;
                                 }
                             }
                             xPos += segment.count;
@@ -1244,29 +1287,32 @@
                 if (!showNumbers || result?.pattern_type !== 'peyote') return;
 
                 const handleKeyDown = (e) => {
+                    // Total de pasos: cada fila tiene fila entera + semilínea = beadsHeight * 2
+                    const totalSteps = (result?.pattern?.height ?? 1) * 2 - 1;
+
+                    const scrollToRow = (rowStep) => {
+                        const canvas = numbersCanvasRef.current;
+                        if (!canvas) return;
+                        const beadsH = result?.pattern?.height ?? 1;
+                        const cellH = canvas.height / (beadsH + 0.5);
+                        // rowStep 0,1 = fila 1 y 1.5, rowStep 2,3 = fila 2 y 2.5, etc.
+                        const realRow = rowStep / 2;
+                        const scrollY = realRow * cellH * (canvas.clientHeight / canvas.height);
+                        canvas.parentElement?.scrollTo({ top: scrollY - canvas.clientHeight / 3, behavior: 'smooth' });
+                    };
+
                     if (e.key === 'ArrowDown') {
                         e.preventDefault();
                         setActiveRow(prev => {
-                            const next = Math.min(prev + 1, (result?.pattern?.height ?? 1) - 1);
-                            // Scroll automático
-                            const canvas = numbersCanvasRef.current;
-                            if (canvas) {
-                                const cellH = canvas.height / ((result?.pattern?.height ?? 1) + 0.5);
-                                const scrollY = next * cellH * (canvas.clientHeight / canvas.height);
-                                canvas.parentElement?.scrollTo({ top: scrollY - canvas.clientHeight / 3, behavior: 'smooth' });
-                            }
+                            const next = Math.min(prev + 1, totalSteps);
+                            scrollToRow(next);
                             return next;
                         });
                     } else if (e.key === 'ArrowUp') {
                         e.preventDefault();
                         setActiveRow(prev => {
                             const next = Math.max(prev - 1, 0);
-                            const canvas = numbersCanvasRef.current;
-                            if (canvas) {
-                                const cellH = canvas.height / ((result?.pattern?.height ?? 1) + 0.5);
-                                const scrollY = next * cellH * (canvas.clientHeight / canvas.height);
-                                canvas.parentElement?.scrollTo({ top: scrollY - canvas.clientHeight / 3, behavior: 'smooth' });
-                            }
+                            scrollToRow(next);
                             return next;
                         });
                     }
@@ -4863,7 +4909,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                 fontSize: '0.85rem',
                                                 color: 'var(--text)'
                                             }}>
-                                                🔆 Fila {activeRow + 1} / {result?.pattern?.height} &nbsp; <span style={{opacity:0.6}}>↑↓</span>
+                                                🔆 Fila {activeRow % 2 === 0 ? (activeRow / 2 + 1) : ((activeRow - 1) / 2 + 1) + '.5'} / {result?.pattern?.height} &nbsp; <span style={{opacity:0.6}}>↑↓</span>
                                             </span>
                                         )}
 
