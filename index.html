@@ -1251,7 +1251,7 @@
                                 const col = xPos + i;
                                 if (col % 2 === 0) { // columnas pares = semilínea desplazada
                                     const canvasX = (col + 0.5) * cellW;
-                                    const canvasY = (rowIndex + 0.5) * cellH + (cellH / 2);
+                                    const canvasY = (rowIndex + 1) * cellH;
                                     ctx.fillStyle = textColor;
                                     ctx.fillText(String(segCounter), canvasX, canvasY);
                                     segCounter++;
