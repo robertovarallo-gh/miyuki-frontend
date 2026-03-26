@@ -698,6 +698,10 @@
             const [isPainting, setIsPainting] = useState(false);
             const [editedPattern, setEditedPattern] = useState(null);
             const [showNumbers, setShowNumbers] = useState(false);  // ← AGREGAR
+            const [activeRow, setActiveRow] = useState(0); // Fila resaltada en peyote
+
+            // Reset activeRow cuando cambia el patrón
+            React.useEffect(() => { setActiveRow(0); }, [result]);
             const [showAxes, setShowAxes] = useState(false);
             const fileInputRef = useRef(null);
             const canvasRef = useRef(null);
@@ -1141,14 +1145,11 @@
                 if (!numbersCanvasRef.current || !result || !showNumbers || !result.rowGuide) return;
                 if (activeTab !== 'editor') return;
                 
-                // Pequeño delay para que el canvas tenga las dimensiones correctas al volver de otro tab
                 const draw = () => {
                 const mainCanvas = canvasRef.current;
                 if (!mainCanvas) return;
 
                 const canvas = numbersCanvasRef.current;
-
-                // Usar dimensiones visuales para que coincida con el canvas mostrado
                 const rect = mainCanvas.getBoundingClientRect();
                 canvas.width = mainCanvas.width;
                 canvas.height = mainCanvas.height;
@@ -1160,49 +1161,120 @@
 
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
-                const cellWidth = mainCanvas.width / beadsWidth;
-                const cellHeight = mainCanvas.height / beadsHeight;
+                const isPeyotePattern = (result.pattern_type === 'peyote');
 
-                // Calcular tamaño de fuente
-                const fontSize = Math.max(8, Math.min(cellWidth, cellHeight) * 0.4);
+                const cellW = mainCanvas.width / beadsWidth;
+                const cellH = isPeyotePattern
+                    ? mainCanvas.height / (beadsHeight + 0.5)
+                    : mainCanvas.height / beadsHeight;
+
+                const fontSize = Math.max(8, Math.min(cellW, cellH) * 0.4);
                 ctx.font = `bold ${fontSize}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
-                // Función para obtener color de contraste
                 const getContrastColor = (rgb) => {
                     const brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
                     return brightness > 128 ? 'black' : 'white';
                 };
 
-                // Cargar paleta completa para obtener RGB
                 const colorMap = {};
                 if (result.colors && result.colors.colors) {
-                    result.colors.colors.forEach(c => {
-                        colorMap[c.code] = c.rgb;
-                    });
+                    result.colors.colors.forEach(c => { colorMap[c.code] = c.rgb; });
                 }
 
-                // Dibujar números usando rowGuide
-                result.rowGuide.rows.forEach((row, rowIndex) => {
-                    let xPos = 0;
-                    row.sequence.forEach(segment => {
-                        const rgb = colorMap[segment.code] || [128, 128, 128];
-                        const textColor = getContrastColor(rgb);
-                        for (let i = 0; i < segment.count; i++) {
-                            const x = xPos + i;
-                            const canvasX = (x + 0.5) * cellWidth;
-                            const canvasY = (rowIndex + 0.5) * cellHeight;
-                            ctx.fillStyle = textColor;
-                            ctx.fillText(String(i + 1), canvasX, canvasY);
+                if (isPeyotePattern) {
+                    // PEYOTE: numerar solo columnas pares (no desplazadas), por fila
+                    // Columnas pares (0,2,4...) son las no desplazadas
+                    result.rowGuide.rows.forEach((row, rowIndex) => {
+                        // Resaltar fila activa
+                        if (rowIndex === activeRow) {
+                            ctx.fillStyle = 'rgba(255, 220, 0, 0.3)';
+                            // Calcular altura de la fila considerando el offset peyote
+                            const yTop = rowIndex * cellH;
+                            ctx.fillRect(0, yTop, canvas.width, cellH);
                         }
-                        xPos += segment.count;
+
+                        let colIndex = 0; // índice real de columna en el canvas
+                        let numCounter = 1; // número visible (solo columnas no desplazadas)
+                        let xPos = 0;
+
+                        row.sequence.forEach(segment => {
+                            const rgb = colorMap[segment.code] || [128, 128, 128];
+                            const textColor = getContrastColor(rgb);
+                            for (let i = 0; i < segment.count; i++) {
+                                const col = xPos + i; // columna real en el patrón
+                                // Solo numerar columnas pares (no desplazadas)
+                                if (col % 2 === 0) {
+                                    const offsetY = (col % 2 === 1) ? (cellH / 2) : 0;
+                                    const canvasX = (col + 0.5) * cellW;
+                                    const canvasY = (rowIndex + 0.5) * cellH + offsetY;
+                                    ctx.fillStyle = textColor;
+                                    ctx.fillText(String(numCounter), canvasX, canvasY);
+                                    numCounter++;
+                                }
+                            }
+                            xPos += segment.count;
+                        });
                     });
-                });
-                
+                } else {
+                    // CUADRÍCULA: comportamiento original
+                    result.rowGuide.rows.forEach((row, rowIndex) => {
+                        let xPos = 0;
+                        row.sequence.forEach(segment => {
+                            const rgb = colorMap[segment.code] || [128, 128, 128];
+                            const textColor = getContrastColor(rgb);
+                            for (let i = 0; i < segment.count; i++) {
+                                const x = xPos + i;
+                                const canvasX = (x + 0.5) * cellW;
+                                const canvasY = (rowIndex + 0.5) * cellH;
+                                ctx.fillStyle = textColor;
+                                ctx.fillText(String(i + 1), canvasX, canvasY);
+                            }
+                            xPos += segment.count;
+                        });
+                    });
+                }
                 };
                 setTimeout(draw, 50);
-            }, [result, showNumbers, activeTab, beadSize, beadSizeVersion]);
+            }, [result, showNumbers, activeTab, beadSize, beadSizeVersion, activeRow]);
+
+            // Navegación de filas con teclado en peyote
+            React.useEffect(() => {
+                if (!showNumbers || result?.pattern_type !== 'peyote') return;
+
+                const handleKeyDown = (e) => {
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        setActiveRow(prev => {
+                            const next = Math.min(prev + 1, (result?.pattern?.height ?? 1) - 1);
+                            // Scroll automático
+                            const canvas = numbersCanvasRef.current;
+                            if (canvas) {
+                                const cellH = canvas.height / ((result?.pattern?.height ?? 1) + 0.5);
+                                const scrollY = next * cellH * (canvas.clientHeight / canvas.height);
+                                canvas.parentElement?.scrollTo({ top: scrollY - canvas.clientHeight / 3, behavior: 'smooth' });
+                            }
+                            return next;
+                        });
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        setActiveRow(prev => {
+                            const next = Math.max(prev - 1, 0);
+                            const canvas = numbersCanvasRef.current;
+                            if (canvas) {
+                                const cellH = canvas.height / ((result?.pattern?.height ?? 1) + 0.5);
+                                const scrollY = next * cellH * (canvas.clientHeight / canvas.height);
+                                canvas.parentElement?.scrollTo({ top: scrollY - canvas.clientHeight / 3, behavior: 'smooth' });
+                            }
+                            return next;
+                        });
+                    }
+                };
+
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [showNumbers, result, activeRow]);
 
             // Vista Editor - Dibujar ejes X/Y overlay
             React.useEffect(() => {
@@ -4762,7 +4834,7 @@ if (!colorToUse || !canvasRef.current) return;
                                         >
                                             ✏️ Editor
                                         </button>
-                                       {activeTab === 'editor' && (editMode || isBlankCanvas) && result.pattern_type !== 'peyote' && (
+                                       {activeTab === 'editor' && (editMode || isBlankCanvas) && (
                                             <button 
                                                 onClick={() => setShowNumbers(!showNumbers)}
                                                 style={{
@@ -4778,6 +4850,21 @@ if (!colorToUse || !canvasRef.current) return;
                                             >
                                                 {showNumbers ? i18n.t('results.hideNumbers') : i18n.t('results.showNumbers')}
                                             </button>
+                                        )}
+
+                                        {/* Indicador de fila activa en peyote */}
+                                        {activeTab === 'editor' && showNumbers && result?.pattern_type === 'peyote' && (
+                                            <span style={{
+                                                marginLeft: '10px',
+                                                padding: '6px 12px',
+                                                background: 'rgba(255,220,0,0.2)',
+                                                border: '1px solid rgba(255,220,0,0.6)',
+                                                borderRadius: '8px',
+                                                fontSize: '0.85rem',
+                                                color: 'var(--text)'
+                                            }}>
+                                                🔆 Fila {activeRow + 1} / {result?.pattern?.height} &nbsp; <span style={{opacity:0.6}}>↑↓</span>
+                                            </span>
                                         )}
 
                                         {/* AGREGAR AQUÍ: */}
