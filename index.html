@@ -728,6 +728,7 @@
             const [user, setUser] = React.useState(null);
             const [userData, setUserData] = React.useState(null);
             const [showAuthModal, setShowAuthModal] = React.useState(false);
+            const [showTermsModal, setShowTermsModal] = React.useState(false);
             const [emailActionModal, setEmailActionModal] = React.useState(null); // {type, status, message}
             const [galleryPatterns, setGalleryPatterns] = React.useState([]);
             const [isFromGallery, setIsFromGallery] = React.useState(false);
@@ -3774,6 +3775,110 @@ if (!colorToUse || !canvasRef.current) return;
                         </div>
                     )}
 
+                    {/* Modal Términos y Condiciones */}
+                    {showTermsModal && (
+                        <div style={{
+                            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                            background: 'rgba(0,0,0,0.85)',
+                            display: 'flex', justifyContent: 'center', alignItems: 'center',
+                            zIndex: 2000, padding: '20px'
+                        }}>
+                            <div style={{
+                                background: 'var(--surface)',
+                                padding: '40px',
+                                borderRadius: '20px',
+                                maxWidth: '650px',
+                                width: '100%',
+                                maxHeight: '80vh',
+                                overflowY: 'auto',
+                                border: '1px solid var(--border)',
+                                position: 'relative'
+                            }}>
+                                <button
+                                    onClick={() => setShowTermsModal(false)}
+                                    style={{
+                                        position: 'absolute', top: '16px', right: '20px',
+                                        background: 'none', border: 'none',
+                                        color: 'var(--text)', fontSize: '1.5rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >✕</button>
+
+                                {i18n.currentLanguage === 'es' ? (
+                                    <div style={{fontSize: '0.9rem', lineHeight: '1.7', color: 'var(--text)'}}>
+                                        <h2 style={{color: 'var(--primary)', marginBottom: '6px'}}>Términos y Condiciones</h2>
+                                        <p style={{color: 'var(--text-dim)', fontSize: '0.8rem', marginBottom: '24px'}}>easycuentas.com | myeasybeads.com — Última actualización: marzo 2026</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>1. Aceptación</h3>
+                                        <p style={{marginBottom: '16px'}}>Al usar Easy Cuentas aceptas estos términos. Si no estás de acuerdo, no uses la app.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>2. Operador</h3>
+                                        <p style={{marginBottom: '16px'}}>Easy Cuentas opera bajo los dominios easycuentas.com y myeasybeads.com, con sede en Colombia.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>3. Cuenta de usuario</h3>
+                                        <p style={{marginBottom: '16px'}}>Para usar la app debes registrarte con un email válido. Eres responsable de mantener la seguridad de tu cuenta. Recopilamos: email, nombre, plan activo y contadores de uso de patrones.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>4. Planes y pagos</h3>
+                                        <p style={{marginBottom: '8px'}}>• El plan Free incluye un límite mensual de patrones.</p>
+                                        <p style={{marginBottom: '8px'}}>• El plan Premium se cobra mensual o anualmente según la opción elegida.</p>
+                                        <p style={{marginBottom: '16px'}}>• <strong>No hay reembolsos.</strong> Una vez realizado el pago, el acceso Premium permanece activo hasta el final del período contratado, incluso si cancelas antes.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>5. Propiedad intelectual</h3>
+                                        <p style={{marginBottom: '8px'}}>• Los patrones incluidos en la app (galería, ejemplos) son propiedad de Easy Cuentas. Se otorga al usuario una licencia de uso personal, no comercial.</p>
+                                        <p style={{marginBottom: '16px'}}>• Los patrones creados por el usuario a partir de sus propias imágenes o desde cero son propiedad del usuario.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>6. Uso aceptable</h3>
+                                        <p style={{marginBottom: '16px'}}>No está permitido usar la app para fines ilegales, revender el servicio, ni intentar acceder a funciones no autorizadas.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>7. Limitación de responsabilidad</h3>
+                                        <p style={{marginBottom: '16px'}}>Easy Cuentas no garantiza que el servicio esté disponible de forma ininterrumpida. No somos responsables por pérdida de datos o daños derivados del uso de la app.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>8. Cambios</h3>
+                                        <p style={{marginBottom: '16px'}}>Podemos actualizar estos términos en cualquier momento. Los cambios serán notificados por email o dentro de la app.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>9. Contacto</h3>
+                                        <p>Dudas o sugerencias: <a href="mailto:arapystudio@gmail.com" style={{color: 'var(--primary)'}}>arapystudio@gmail.com</a></p>
+                                    </div>
+                                ) : (
+                                    <div style={{fontSize: '0.9rem', lineHeight: '1.7', color: 'var(--text)'}}>
+                                        <h2 style={{color: 'var(--primary)', marginBottom: '6px'}}>Terms and Conditions</h2>
+                                        <p style={{color: 'var(--text-dim)', fontSize: '0.8rem', marginBottom: '24px'}}>easycuentas.com | myeasybeads.com — Last updated: March 2026</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>1. Acceptance</h3>
+                                        <p style={{marginBottom: '16px'}}>By using My Easy Beads you agree to these terms. If you disagree, please do not use the app.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>2. Operator</h3>
+                                        <p style={{marginBottom: '16px'}}>My Easy Beads operates under the domains easycuentas.com and myeasybeads.com, based in Colombia.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>3. User account</h3>
+                                        <p style={{marginBottom: '16px'}}>You must register with a valid email to use the app. You are responsible for keeping your account secure. We collect: email, name, active plan, and pattern usage counters.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>4. Plans and payments</h3>
+                                        <p style={{marginBottom: '8px'}}>• The Free plan includes a monthly pattern limit.</p>
+                                        <p style={{marginBottom: '8px'}}>• The Premium plan is billed monthly or annually depending on the option chosen.</p>
+                                        <p style={{marginBottom: '16px'}}>• <strong>No refunds.</strong> Once payment is made, Premium access remains active until the end of the contracted period, even if you cancel early.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>5. Intellectual property</h3>
+                                        <p style={{marginBottom: '8px'}}>• Patterns included in the app (gallery, examples) are property of Easy Cuentas / My Easy Beads. Users are granted a personal, non-commercial license to use them.</p>
+                                        <p style={{marginBottom: '16px'}}>• Patterns created by the user from their own images or from scratch are the user's property.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>6. Acceptable use</h3>
+                                        <p style={{marginBottom: '16px'}}>You may not use the app for illegal purposes, resell the service, or attempt to access unauthorized features.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>7. Limitation of liability</h3>
+                                        <p style={{marginBottom: '16px'}}>Easy Cuentas / My Easy Beads does not guarantee uninterrupted service availability. We are not responsible for data loss or damages resulting from use of the app.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>8. Changes</h3>
+                                        <p style={{marginBottom: '16px'}}>We may update these terms at any time. Changes will be notified by email or within the app.</p>
+
+                                        <h3 style={{marginBottom: '6px'}}>9. Contact</h3>
+                                        <p>Questions or suggestions: <a href="mailto:arapystudio@gmail.com" style={{color: 'var(--primary)'}}>arapystudio@gmail.com</a></p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     {showAuthModal && (
                         <div style={{
                             position: 'fixed',
@@ -6294,6 +6399,22 @@ if (!colorToUse || !canvasRef.current) return;
                             >
                                 arapystudio@gmail.com
                             </a>
+                            <br/>
+                            <button
+                                onClick={() => setShowTermsModal(true)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--text-dim)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem',
+                                    textDecoration: 'underline',
+                                    padding: '4px 0',
+                                    marginTop: '4px'
+                                }}
+                            >
+                                {i18n.currentLanguage === 'es' ? 'Términos y Condiciones' : 'Terms & Conditions'}
+                            </button>
                         </div>
                         
                         {/* Derecha: Copyright */}
