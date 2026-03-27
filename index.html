@@ -1242,8 +1242,14 @@
                         });
                     });
                 } else {
-                    // CUADRÍCULA: comportamiento original
+                    // CUADRÍCULA: highlight fila activa + números por segmento
                     result.rowGuide.rows.forEach((row, rowIndex) => {
+                        // Highlight fila activa
+                        if (rowIndex === activeRow) {
+                            ctx.strokeStyle = 'rgba(255, 50, 50, 0.9)';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(1, rowIndex * cellH + 1, canvas.width - 2, cellH - 2);
+                        }
                         let xPos = 0;
                         row.sequence.forEach(segment => {
                             const rgb = colorMap[segment.code] || [128, 128, 128];
@@ -1267,11 +1273,14 @@
 
             // Navegación de filas con teclado en peyote
             React.useEffect(() => {
-                if (!showNumbers || result?.pattern_type !== 'peyote') return;
+                if (!showNumbers) return;
 
                 const handleKeyDown = (e) => {
-                    // Total de pasos: cada fila tiene fila entera + semilínea = beadsHeight * 2
-                    const totalSteps = (result?.pattern?.height ?? 1) * 2 - 1;
+                    const isPeyote = result?.pattern_type === 'peyote';
+                    // Peyote: filas + semifilas = height*2-1; Cuadrícula: solo filas = height-1
+                    const totalSteps = isPeyote
+                        ? (result?.pattern?.height ?? 1) * 2 - 1
+                        : (result?.pattern?.height ?? 1) - 1;
 
                     const scrollToRow = (rowStep) => {
                         const canvas = numbersCanvasRef.current;
@@ -4880,7 +4889,7 @@ if (!colorToUse || !canvasRef.current) return;
                                         )}
 
                                         {/* Indicador de fila activa en peyote */}
-                                        {activeTab === 'editor' && showNumbers && result?.pattern_type === 'peyote' && (
+                                        {activeTab === 'editor' && showNumbers && result && (
                                             <span style={{
                                                 marginLeft: '10px',
                                                 padding: '6px 12px',
@@ -4890,7 +4899,10 @@ if (!colorToUse || !canvasRef.current) return;
                                                 fontSize: '0.85rem',
                                                 color: 'var(--text)'
                                             }}>
-                                                🔆 Fila {activeRow % 2 === 0 ? (activeRow / 2 + 1) : ((activeRow - 1) / 2 + 1) + '.5'} / {result?.pattern?.height} &nbsp; <span style={{opacity:0.6}}>↑↓</span>
+                                                🔆 Fila {result?.pattern_type === 'peyote'
+                                                    ? (activeRow % 2 === 0 ? (activeRow / 2 + 1) : ((activeRow - 1) / 2 + 1) + '.5')
+                                                    : (activeRow + 1)
+                                                } / {result?.pattern?.height} &nbsp; <span style={{opacity:0.6}}>↑↓</span>
                                             </span>
                                         )}
 
