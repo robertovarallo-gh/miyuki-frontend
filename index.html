@@ -1261,20 +1261,6 @@
                     });
                 }
 
-                        row.sequence.forEach(segment => {
-                            const rgb = colorMap[segment.code] || [128, 128, 128];
-                            const textColor = getContrastColor(rgb);
-                            for (let i = 0; i < segment.count; i++) {
-                                const x = xPos + i;
-                                const canvasX = (x + 0.5) * cellW;
-                                const canvasY = (rowIndex + 0.5) * cellH;
-                                ctx.fillStyle = textColor;
-                                ctx.fillText(String(i + 1), canvasX, canvasY);
-                            }
-                            xPos += segment.count;
-                        });
-                    });
-                }
                 };
                 setTimeout(draw, 50);
             }, [result, showNumbers, activeTab, beadSize, beadSizeVersion, activeRow]);
