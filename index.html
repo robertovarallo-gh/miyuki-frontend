@@ -1847,6 +1847,54 @@
                 }
             };
 
+            const cancelSubscription = async () => {
+                const confirm1 = window.confirm(
+                    i18n.currentLanguage === 'es'
+                        ? '¿Estás seguro que quieres cancelar tu plan Premium?\n\nTu acceso continuará activo hasta el final del período contratado.'
+                        : 'Are you sure you want to cancel your Premium plan?\n\nYour access will remain active until the end of the current billing period.'
+                );
+                if (!confirm1) return;
+
+                try {
+                    const userRef = window.firebaseDoc(window.firebaseDB, 'users', user.uid);
+                    const userSnap = await window.firebaseGetDoc(userRef);
+                    const subscriptionId = userSnap.data()?.subscriptionId;
+
+                    if (!subscriptionId) {
+                        alert(i18n.currentLanguage === 'es'
+                            ? '❌ No se encontró información de suscripción.'
+                            : '❌ Subscription information not found.');
+                        return;
+                    }
+
+                    const response = await fetch(`${API_URL}/cancel-subscription`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            subscriptionId: subscriptionId,
+                            userId: user.uid
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update local userData
+                        setUserData(prev => ({ ...prev, subscriptionStatus: 'canceled' }));
+                        const cancelDate = new Date(data.cancelAt * 1000).toLocaleDateString();
+                        alert(i18n.currentLanguage === 'es'
+                            ? `✅ Plan cancelado correctamente.\n\nTu acceso Premium estará activo hasta el ${cancelDate}.`
+                            : `✅ Plan cancelled successfully.\n\nYour Premium access will remain active until ${cancelDate}.`
+                        );
+                    } else {
+                        alert('❌ Error: ' + data.error);
+                    }
+                } catch (error) {
+                    console.error('Error cancelando suscripción:', error);
+                    alert('❌ Error al cancelar: ' + error.message);
+                }
+            };
+
             const handleUpgrade = async (plan) => {
                 if (!user) {
                     alert('Debes iniciar sesión primero');
@@ -2008,6 +2056,12 @@
                 if (!result) return;
                 
                 try {
+                    const patType = result.pattern_type || 'grid';
+                    const patLabel = patType === 'peyote' ? 'peyote' : 'cuadricula';
+                    const filename = i18n.currentLanguage === 'es'
+                        ? `guia-de-montaje-por-fila-${patLabel}.pdf`
+                        : `row-by-row-assembly-guide-${patLabel}.pdf`;
+
                     const response = await fetch(`${API_URL}/generate-assembly-guide`, {
                         method: 'POST',
                         headers: {
@@ -2015,6 +2069,7 @@
                         },
                         body: JSON.stringify({
                             rows: result.rowGuide.rows,
+                            pattern_type: patType,
                             patternInfo: {
                                 width: result.pattern.width,
                                 height: result.pattern.height,
@@ -2025,7 +2080,7 @@
                     
                     const data = await response.json();
                     if (data.success) {
-                        downloadPDF(data.pdf, 'guia-montaje-por-fila.pdf');
+                        downloadPDF(data.pdf, filename);
                     }
                 } catch (err) {
                     console.error('Error generating assembly guide:', err);
@@ -3640,6 +3695,40 @@ if (!colorToUse || !canvasRef.current) return;
                                             >
                                                 💎 Upgrade a Premium
                                             </button>
+                                        )}
+
+                                        {/* Botón Cancelar Plan - solo si es Premium activo */}
+                                        {userData?.plan === 'premium' && userData?.subscriptionStatus !== 'canceled' && (
+                                            <button
+                                                onClick={cancelSubscription}
+                                                style={{
+                                                    padding: '6px 14px',
+                                                    background: 'transparent',
+                                                    border: '1px solid #FF6B6B',
+                                                    borderRadius: '8px',
+                                                    color: '#FF6B6B',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.8rem'
+                                                }}
+                                            >
+                                                {i18n.currentLanguage === 'es' ? '❌ Cancelar Plan' : '❌ Cancel Plan'}
+                                            </button>
+                                        )}
+
+                                        {/* Aviso si ya está cancelado */}
+                                        {userData?.plan === 'premium' && userData?.subscriptionStatus === 'canceled' && (
+                                            <div style={{
+                                                fontSize: '0.75rem',
+                                                color: '#FF6B6B',
+                                                textAlign: 'center',
+                                                padding: '4px 8px',
+                                                border: '1px solid #FF6B6B',
+                                                borderRadius: '6px'
+                                            }}>
+                                                {i18n.currentLanguage === 'es'
+                                                    ? '⚠️ Plan cancelado — activo hasta fin del período'
+                                                    : '⚠️ Plan cancelled — active until period end'}
+                                            </div>
                                         )}
 
                                         <button
