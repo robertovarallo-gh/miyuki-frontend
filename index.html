@@ -5143,7 +5143,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                 {result.rowGuide.rows.map((row) => (
                                                     <div key={row.row} className="row-item">
                                                         <div className="row-header">
-                                                            <div className="row-number">Fila {row.row}</div>
+                                                            <div className="row-number">Fila {row.row_label || row.row}</div>
                                                             <div className="row-totals">
                                                                 {row.totals && row.totals.map((total, idx) => (
                                                                     <span key={idx}>
