@@ -1197,15 +1197,17 @@
                         const thisFullRow  = rowIndex * 2;       // índice nav de fila entera
                         const thisHalfRow  = rowIndex * 2 + 1;   // índice nav de semilínea
 
-                        // Resaltar fila entera (columnas impares)
+                        // Resaltar fila entera — borde rojo
                         if (thisFullRow === activeIndexFull) {
-                            ctx.fillStyle = 'rgba(255, 220, 0, 0.3)';
-                            ctx.fillRect(0, rowIndex * cellH, canvas.width, cellH);
+                            ctx.strokeStyle = 'rgba(255, 50, 50, 0.9)';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(1, rowIndex * cellH + 1, canvas.width - 2, cellH - 2);
                         }
-                        // Resaltar semilínea (columnas pares, desplazadas)
+                        // Resaltar semilínea — borde rojo
                         if (thisHalfRow === activeIndexFull) {
-                            ctx.fillStyle = 'rgba(255, 220, 0, 0.3)';
-                            ctx.fillRect(0, rowIndex * cellH + cellH / 2, canvas.width, cellH);
+                            ctx.strokeStyle = 'rgba(255, 50, 50, 0.9)';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(1, rowIndex * cellH + cellH / 2 + 1, canvas.width - 2, cellH - 2);
                         }
 
                         // Dibujar números — filas enteras: columnas impares (col % 2 === 1)
