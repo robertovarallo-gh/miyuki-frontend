@@ -1191,7 +1191,9 @@
                     // fila real en rowGuide = Math.floor(activeRow / 2)
                     // es .5 si activeRow es impar
 
-                    result.rowGuide.rows.forEach((row, rowIndex) => {
+                    // Para peyote, rowGuide tiene filas y semifilas — filtrar solo filas enteras
+                    const fullRows = result.rowGuide.rows.filter(r => !String(r.row_label || r.row).includes('.'));
+                    fullRows.forEach((row, rowIndex) => {
                         // Filas completas: impares (rowIndex*2) y semifilas: pares (rowIndex*2+1)
                         const activeIndexFull = activeRow;  // índice global en la navegación
                         const thisFullRow  = rowIndex * 2;       // índice nav de fila entera
@@ -1238,11 +1240,16 @@
                             xPos += segment.count;
                         });
 
-                        // -- Semilínea (columnas IMPARES, x%2==1, desplazadas cellH/2 hacia abajo) --
-                        xPos = 0;
-                        lastCode = null;
-                        segCounter = 1;
-                        row.sequence.forEach(segment => {
+                    });
+
+                    // -- Semifilas (columnas IMPARES, x%2==1, desplazadas cellH/2 hacia abajo) --
+                    const halfRows = result.rowGuide.rows.filter(r => String(r.row_label || r.row).includes('.'));
+                    halfRows.forEach((halfRow, halfIndex) => {
+                        // halfIndex corresponde al mismo rowIndex de la fila entera anterior
+                        let xPos = 0;
+                        let lastCode = null;
+                        let segCounter = 1;
+                        halfRow.sequence.forEach(segment => {
                             const rgb = colorMap[segment.code] || [128, 128, 128];
                             const textColor = getContrastColor(rgb);
                             if (segment.code !== lastCode) {
@@ -1250,22 +1257,21 @@
                                 lastCode = segment.code;
                             }
                             for (let i = 0; i < segment.count; i++) {
-                                const col = xPos + i;
-                                if (col % 2 === 1) { // columnas impares = desplazadas = semilínea
-                                    const canvasX = (col + 0.5) * cellW;
-                                    // centro = rowIndex*cellH + offset(cellH/2) + cellH/2
-                                    const canvasY = (rowIndex + 1) * cellH;
-                                    ctx.fillStyle = textColor;
-                                    ctx.fillText(String(segCounter), canvasX, canvasY);
-                                    segCounter++;
-                                }
+                                const col = xPos * 2 + 1 + i * 2; // columnas impares reales
+                                const canvasX = (col + 0.5) * cellW;
+                                const canvasY = (halfIndex + 1) * cellH;
+                                ctx.fillStyle = textColor;
+                                ctx.fillText(String(segCounter), canvasX, canvasY);
+                                segCounter++;
                             }
                             xPos += segment.count;
                         });
                     });
                 } else {
                     // CUADRÍCULA: comportamiento original
-                    result.rowGuide.rows.forEach((row, rowIndex) => {
+                    // Para peyote, rowGuide tiene filas y semifilas — filtrar solo filas enteras
+                    const fullRows = result.rowGuide.rows.filter(r => !String(r.row_label || r.row).includes('.'));
+                    fullRows.forEach((row, rowIndex) => {
                         let xPos = 0;
                         row.sequence.forEach(segment => {
                             const rgb = colorMap[segment.code] || [128, 128, 128];
@@ -4853,14 +4859,12 @@ if (!colorToUse || !canvasRef.current) return;
                                         >
                                             🎨 Colores
                                         </button>
-                                        {result.pattern_type !== 'peyote' && (
-                                            <button 
-                                                className={`tab ${activeTab === 'guide' ? 'active' : ''}`}
-                                                onClick={() => handleTabChange('guide')}
-                                            >
-                                                📋 Guía
-                                            </button>
-                                        )}
+                                        <button 
+                                            className={`tab ${activeTab === 'guide' ? 'active' : ''}`}
+                                            onClick={() => handleTabChange('guide')}
+                                        >
+                                            📋 Guía
+                                        </button>
                                         <button 
                                             className={`tab ${activeTab === 'editor' ? 'active' : ''}`}
                                             onClick={async () => {
