@@ -1982,7 +1982,7 @@
                         const limit = 1;
                         
                         if (used >= limit) {
-                            alert(`⚠️ Has alcanzado tu límite de patrones desde FOTO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a Premium para patrones ilimitados.`);
+                            setShowUpgradeModal(true);
                             return false;
                         }
                     } else if (patternType === 'scratch') {
@@ -1990,7 +1990,7 @@
                         const limit = 3;
                         
                         if (used >= limit) {
-                            alert(`⚠️ Has alcanzado tu límite de patrones DESDE CERO\n\n📊 Usados: ${used}/${limit} este mes\n\n💎 Upgrade a Premium para patrones ilimitados.`);
+                            setShowUpgradeModal(true);
                             return false;
                         }
                     }
@@ -4911,7 +4911,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                         key={pattern.id}
                                                         onClick={() => {
                                                             if (!pattern.isBasic && !isPremiumUser()) {
-                                                                alert('⚠️ Este patrón está disponible solo en el plan Premium\n\n💎 Upgrade a Premium para acceso completo a la galería');
+                                                                setShowUpgradeModal(true);
                                                                 return;
                                                             }
                                                             loadPatternFromGallery(pattern);
@@ -5191,7 +5191,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                     return;
                                                 }
                                                 if (!isPremiumUser()) {
-                                                    alert('⚠️ Guardar patrones está disponible solo en el plan Premium\n\n💎 Upgrade a Premium para guardar y descargar patrones ilimitados');
+                                                    setShowUpgradeModal(true);
                                                     return;
                                                 }
                                                 savePattern();
@@ -5298,7 +5298,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                         return;
                                                     }
                                                     if (!isPremiumUser()) {
-                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                        setShowUpgradeModal(true);
                                                         return;
                                                     }
                                                     downloadColorGuide();
@@ -5365,7 +5365,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                         return;
                                                     }
                                                     if (!isPremiumUser()) {
-                                                        alert('⚠️ Las descargas están disponibles solo en el plan Premium\n\n💎 Upgrade a Premium para descargar patrones ilimitados');
+                                                        setShowUpgradeModal(true);
                                                         return;
                                                     }
                                                     downloadAssemblyGuide();
@@ -6536,8 +6536,8 @@ if (!colorToUse || !canvasRef.current) return;
                                 maxHeight: '90vh',
                                 overflow: 'auto'
                             }}>
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                                    <h2 style={{margin: 0}}>💎 Upgrade a Premium</h2>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+                                    <h2 style={{margin: 0}}>💎 Hazte Premium</h2>
                                     <button 
                                         onClick={() => setShowUpgradeModal(false)}
                                         style={{
@@ -6552,8 +6552,8 @@ if (!colorToUse || !canvasRef.current) return;
                                     </button>
                                 </div>
 
-                                <p style={{color: 'var(--text-dim)', marginBottom: '30px'}}>
-                                    Desbloquea todas las funciones de Easy Cuentas
+                                <p style={{color: 'var(--text-dim)', marginBottom: '25px', fontSize: '0.95rem'}}>
+                                    🎉 ¡Ya creaste tu primer patrón! Da el siguiente paso y crea sin límites.
                                 </p>
 
                                 {/* Comparación Free vs Premium */}
@@ -6561,7 +6561,7 @@ if (!colorToUse || !canvasRef.current) return;
                                     display: 'grid',
                                     gridTemplateColumns: '1fr 1fr',
                                     gap: '20px',
-                                    marginBottom: '30px'
+                                    marginBottom: '25px'
                                 }}>
                                     {/* Plan Free */}
                                     <div style={{
@@ -6569,14 +6569,15 @@ if (!colorToUse || !canvasRef.current) return;
                                         borderRadius: '12px',
                                         padding: '20px'
                                     }}>
-                                        <h3>🆓 Free</h3>
+                                        <h3 style={{marginTop: 0}}>🆓 Gratis</h3>
                                         <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
                                             $0
                                         </div>
-                                        <ul style={{listStyle: 'none', padding: 0, color: 'var(--text-dim)', fontSize: '0.9rem'}}>
+                                        <ul style={{listStyle: 'none', padding: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: '1.8'}}>
                                             <li>✅ 1 patrón/mes desde foto</li>
                                             <li>✅ 3 patrones/mes desde cero</li>
-                                            <li>❌ Sin descargas</li>
+                                            <li>❌ Sin descargas de guías</li>
+                                            <li>❌ Sin guardar patrones</li>
                                             <li>❌ Galería limitada</li>
                                         </ul>
                                     </div>
@@ -6588,15 +6589,18 @@ if (!colorToUse || !canvasRef.current) return;
                                         padding: '20px',
                                         background: 'linear-gradient(135deg, rgba(0, 206, 209, 0.1) 0%, rgba(255, 217, 61, 0.1) 100%)'
                                     }}>
-                                        <h3>💎 Premium</h3>
+                                        <h3 style={{marginTop: 0}}>💎 Premium</h3>
                                         <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
                                             $4.99<span style={{fontSize: '1rem', fontWeight: 'normal'}}>/mes</span>
                                         </div>
-                                        <ul style={{listStyle: 'none', padding: 0, fontSize: '0.9rem'}}>
-                                            <li>✅ Patrones ilimitados</li>
-                                            <li>✅ Descargas ilimitadas</li>
+                                        <ul style={{listStyle: 'none', padding: 0, fontSize: '0.9rem', lineHeight: '1.8'}}>
+                                            <li>✅ Patrones ilimitados desde foto</li>
+                                            <li>✅ Patrones ilimitados desde cero</li>
+                                            <li>✅ Descarga guías de colores (PDF)</li>
+                                            <li>✅ Descarga guías de montaje (PDF)</li>
+                                            <li>✅ Guarda tus creaciones para siempre</li>
                                             <li>✅ Galería completa</li>
-                                            <li>✅ Soporte prioritario</li>
+                                            <li>✅ Más de 400 colores Miyuki</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -6617,7 +6621,8 @@ if (!colorToUse || !canvasRef.current) return;
                                             fontSize: '1rem'
                                         }}
                                     >
-                                        Mensual - $4.99/mes
+                                        Mensual
+                                        <div style={{fontSize: '0.85rem', fontWeight: 'normal'}}>$4.99 / mes</div>
                                     </button>
                                     <button
                                         onClick={() => handleUpgrade('yearly')}
@@ -6633,10 +6638,8 @@ if (!colorToUse || !canvasRef.current) return;
                                             fontSize: '1rem'
                                         }}
                                     >
-                                        Anual - $48/año
-                                        <div style={{fontSize: '0.75rem', fontWeight: 'normal'}}>
-                                            (Ahorra 20%)
-                                        </div>
+                                        ⭐ Anual — Mejor valor
+                                        <div style={{fontSize: '0.85rem', fontWeight: 'normal'}}>$48 / año · Ahorras 20%</div>
                                     </button>
                                 </div>
 
