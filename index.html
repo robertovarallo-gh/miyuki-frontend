@@ -1175,8 +1175,8 @@
                 ctx.textBaseline = 'middle';
 
                 const getContrastColor = (rgb) => {
-                    const brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
-                    return brightness > 128 ? 'black' : 'white';
+                    // Siempre negro para mejor legibilidad
+                    return 'black';
                 };
 
                 const colorMap = {};
@@ -1215,7 +1215,10 @@
                             for (let i = 0; i < segment.count; i++) {
                                 const canvasX = (beadNum * 2 + 0.5) * cellW;
                                 const canvasY = (rowIndex + 0.5) * cellH;
-                                ctx.fillStyle = textColor;
+                                ctx.strokeStyle = 'white';
+                                ctx.lineWidth = 2;
+                                ctx.strokeText(String(segCounter), canvasX, canvasY);
+                                ctx.fillStyle = 'black';
                                 ctx.fillText(String(segCounter), canvasX, canvasY);
                                 segCounter++;
                                 beadNum++;
@@ -1235,7 +1238,10 @@
                             for (let i = 0; i < segment.count; i++) {
                                 const canvasX = (beadNum * 2 + 1 + 0.5) * cellW;
                                 const canvasY = (halfIndex + 1) * cellH;
-                                ctx.fillStyle = textColor;
+                                ctx.strokeStyle = 'white';
+                                ctx.lineWidth = 2;
+                                ctx.strokeText(String(segCounter), canvasX, canvasY);
+                                ctx.fillStyle = 'black';
                                 ctx.fillText(String(segCounter), canvasX, canvasY);
                                 segCounter++;
                                 beadNum++;
@@ -1259,7 +1265,10 @@
                             for (let i = 0; i < segment.count; i++) {
                                 const canvasX = (xPos + i + 0.5) * cellW;
                                 const canvasY = (rowIndex + 0.5) * cellH;
-                                ctx.fillStyle = textColor;
+                                ctx.strokeStyle = 'white';
+                                ctx.lineWidth = 2;
+                                ctx.strokeText(String(segCounter), canvasX, canvasY);
+                                ctx.fillStyle = 'black';
                                 ctx.fillText(String(segCounter), canvasX, canvasY);
                                 segCounter++;
                             }
