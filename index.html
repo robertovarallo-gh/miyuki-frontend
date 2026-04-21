@@ -2431,45 +2431,20 @@
                         // Restaurar todo el estado
                         const loadedPatternType = patternData.pattern.pattern_type || patternData.settings?.patternType || 'grid';
 
-                        // Si es peyote y el rowGuide no tiene filas .5, reconstruirlo
+                        // Si es peyote y el rowGuide no tiene filas .5,
+                        // agregar row_label a las filas existentes (JSON viejo)
+                        // Las semifilas se generarán cuando el patrón sea regenerado
                         let loadedRowGuide = patternData.rowGuide;
                         if (loadedPatternType === 'peyote' && loadedRowGuide?.rows) {
                             const hasHalfRows = loadedRowGuide.rows.some(r => String(r.row_label || r.row).includes('.'));
                             if (!hasHalfRows) {
-                                // Reconstruir: intercalar filas enteras y semifilas
-                                const newRows = [];
-                                loadedRowGuide.rows.forEach(row => {
-                                    // Fila entera: tomar beads en posiciones pares (cada 2)
-                                    const fullSeq = [];
-                                    let beadIdx = 0;
-                                    row.sequence.forEach(seg => {
-                                        const fullCount = Math.ceil(seg.count / 2);
-                                        const halfCount = Math.floor(seg.count / 2);
-                                        if (fullCount > 0) fullSeq.push({ code: seg.code, count: fullCount });
-                                        beadIdx += seg.count;
-                                    });
-                                    newRows.push({
-                                        row: row.row,
-                                        row_label: String(row.row),
-                                        sequence: fullSeq.length ? fullSeq : row.sequence,
-                                        totals: row.totals
-                                    });
-                                    // Semifila: tomar beads en posiciones impares
-                                    const halfSeq = [];
-                                    row.sequence.forEach(seg => {
-                                        const halfCount = Math.floor(seg.count / 2);
-                                        if (halfCount > 0) halfSeq.push({ code: seg.code, count: halfCount });
-                                    });
-                                    if (halfSeq.length > 0) {
-                                        newRows.push({
-                                            row: row.row + 0.5,
-                                            row_label: `${row.row}.5`,
-                                            sequence: halfSeq,
-                                            totals: halfSeq.map(s => ({ code: s.code, count: s.count }))
-                                        });
-                                    }
-                                });
-                                loadedRowGuide = { rows: newRows };
+                                // Solo agregar row_label si falta — no reconstruir semifilas
+                                loadedRowGuide = {
+                                    rows: loadedRowGuide.rows.map(r => ({
+                                        ...r,
+                                        row_label: r.row_label || String(r.row)
+                                    }))
+                                };
                             }
                         }
 
