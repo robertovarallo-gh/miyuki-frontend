@@ -2826,38 +2826,50 @@ if (!colorToUse || !canvasRef.current) return;
 
                 // Guardar para deshacer
                 setUndoStack(prev => [...prev.slice(-2), canvasRef.current.toDataURL()]);
-                
+
                 const canvas = canvasRef.current;
                 const rect = canvas.getBoundingClientRect();
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                
+
                 const beadsWidth = result.pattern.width;
                 const beadsHeight = result.pattern.height;
                 const isPeyote = result.pattern_type === 'peyote';
+                const pixelWidth = canvas.width / beadsWidth;
+                const pixelHeight = isPeyote ? canvas.height / (beadsHeight + 0.5) : canvas.height / beadsHeight;
 
-                let beadX, beadY, pixelWidth, pixelHeight, x, y;
+                // Calcular bead destino donde se hace click
+                const canvasClickX = ((e.clientX - rect.left) / rect.width) * canvas.width;
+                const canvasClickY = ((e.clientY - rect.top) / rect.height) * canvas.height;
+                const destBeadX = Math.floor(canvasClickX / pixelWidth);
+                const destOffsetY = isPeyote ? (destBeadX % 2 === 1 ? pixelHeight / 2 : 0) : 0;
+                const destBeadY = Math.floor((canvasClickY - destOffsetY) / pixelHeight);
 
-                if (isPeyote) {
-                    pixelWidth = canvas.width / beadsWidth;
-                    pixelHeight = canvas.height / (beadsHeight + 0.5);
-                    const canvasClickX = ((e.clientX - rect.left) / rect.width) * canvas.width;
-                    const canvasClickY = ((e.clientY - rect.top) / rect.height) * canvas.height;
-                    beadX = Math.floor(canvasClickX / pixelWidth);
-                    const offsetY = (beadX % 2 === 1) ? (pixelHeight / 2) : 0;
-                    beadY = Math.floor((canvasClickY - offsetY) / pixelHeight);
-                    x = Math.floor(beadX * pixelWidth);
-                    y = Math.floor(beadY * pixelHeight + offsetY);
+                console.log(`📐 Pegando en (${destBeadX}, ${destBeadY})`);
+
+                // Pegar bead por bead usando colores guardados
+                const { beadColors, width, height } = clipboard;
+
+                // Fallback para clipboards viejos con imageData
+                if (!beadColors) {
+                    const x = Math.floor(destBeadX * pixelWidth);
+                    const y = Math.floor(destBeadY * pixelHeight + destOffsetY);
+                    ctx.putImageData(clipboard.imageData, x, y);
                 } else {
-                    pixelWidth = canvas.width / beadsWidth;
-                    pixelHeight = canvas.height / beadsHeight;
-                    beadX = Math.floor((e.clientX - rect.left) / rect.width * beadsWidth);
-                    beadY = Math.floor((e.clientY - rect.top) / rect.height * beadsHeight);
-                    x = Math.floor(beadX * pixelWidth);
-                    y = Math.floor(beadY * pixelHeight);
+                    for (let dy = 0; dy < height; dy++) {
+                        for (let dx = 0; dx < width; dx++) {
+                            const bx = destBeadX + dx;
+                            const by = destBeadY + dy;
+                            if (bx < 0 || bx >= beadsWidth || by < 0 || by >= beadsHeight) continue;
+                            const [r, g, b, a] = beadColors[dy][dx];
+                            if (a === 0) continue; // skip transparent
+                            const offsetY = isPeyote ? (bx % 2 === 1 ? pixelHeight / 2 : 0) : 0;
+                            const px = Math.floor(bx * pixelWidth);
+                            const py = Math.floor(by * pixelHeight + offsetY);
+                            ctx.fillStyle = `rgb(${r},${g},${b})`;
+                            ctx.fillRect(px, py, Math.ceil(pixelWidth), Math.ceil(pixelHeight));
+                        }
+                    }
                 }
-                
-                console.log(`📐 Pegando en (${beadX}, ${beadY})`);
-                ctx.putImageData(clipboard.imageData, x, y);
 
                 setHasUnsavedChanges(true);
                 setUsedColorsVersion(v => v + 1);
@@ -5666,32 +5678,39 @@ if (!colorToUse || !canvasRef.current) return;
                                                                 const startY = Math.min(selection.startY, selection.endY);
                                                                 const width = Math.abs(selection.endX - selection.startX) + 1;
                                                                 const height = Math.abs(selection.endY - selection.startY) + 1;
-                                                                
-                                                                // Calcular píxeles en canvas
+
                                                                 const beadsWidth = result.pattern.width;
                                                                 const beadsHeight = result.pattern.height;
                                                                 const isPeyote = result.pattern_type === 'peyote';
                                                                 const pixelWidth = canvas.width / beadsWidth;
                                                                 const pixelHeight = isPeyote ? canvas.height / (beadsHeight + 0.5) : canvas.height / beadsHeight;
-                                                                const offsetY = isPeyote ? (startX % 2 === 1 ? pixelHeight / 2 : 0) : 0;
-                                                                
-                                                                const x = Math.floor(startX * pixelWidth);
-                                                                const y = Math.floor(startY * pixelHeight + offsetY);
-                                                                const w = Math.ceil(width * pixelWidth);
-                                                                const h = Math.ceil(height * pixelHeight);
-                                                                
-                                                                // Copiar píxeles
-                                                                const imageData = ctx.getImageData(x, y, w, h);
-                                                                
+
+                                                                // Copiar bead por bead — guardar color de cada celda lógica
+                                                                const beadColors = [];
+                                                                for (let dy = 0; dy < height; dy++) {
+                                                                    const row = [];
+                                                                    for (let dx = 0; dx < width; dx++) {
+                                                                        const bx = startX + dx;
+                                                                        const by = startY + dy;
+                                                                        const offsetY = isPeyote ? (bx % 2 === 1 ? pixelHeight / 2 : 0) : 0;
+                                                                        // Sample center pixel of this bead
+                                                                        const px = Math.floor(bx * pixelWidth + pixelWidth / 2);
+                                                                        const py = Math.floor(by * pixelHeight + offsetY + pixelHeight / 2);
+                                                                        const pixel = ctx.getImageData(px, py, 1, 1).data;
+                                                                        row.push([pixel[0], pixel[1], pixel[2], pixel[3]]);
+                                                                    }
+                                                                    beadColors.push(row);
+                                                                }
+
                                                                 setClipboard({
-                                                                    imageData: imageData,
+                                                                    beadColors: beadColors,
                                                                     width: width,
                                                                     height: height
                                                                 });
-                                                                
+
                                                                 setToolMode('paste');
                                                                 setSelection(null);
-                                                                
+
                                                                 alert(`✅ Área copiada: ${width}×${height} píxeles. Click para pegar.`);
                                                             }}
                                                             disabled={!selection}
