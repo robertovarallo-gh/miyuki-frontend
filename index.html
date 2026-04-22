@@ -1176,12 +1176,18 @@
 
                 const getContrastColor = (rgb) => {
                     const brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
-                    return brightness > 150 ? 'black' : 'white';
+                    return brightness > 128 ? 'black' : 'white';
                 };
 
                 const colorMap = {};
                 if (result.colors && result.colors.colors) {
-                    result.colors.colors.forEach(c => { colorMap[c.code] = c.rgb; });
+                    result.colors.colors.forEach(c => {
+                        // Index by both 'code' and 'miyuki' to handle DB0879 vs 0879
+                        if (c.code) colorMap[c.code] = c.rgb;
+                        if (c.miyuki) colorMap[c.miyuki] = c.rgb;
+                        // Also index without DB prefix
+                        if (c.miyuki) colorMap[c.miyuki.replace('DB', '')] = c.rgb;
+                    });
                 }
 
                 if (isPeyotePattern) {
