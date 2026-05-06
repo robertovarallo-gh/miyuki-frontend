@@ -4988,8 +4988,11 @@ if (!colorToUse || !canvasRef.current) return;
                                                             alt={pattern.name}
                                                             style={{
                                                                 width: '100%',
+                                                                height: '150px',
+                                                                objectFit: 'contain',
                                                                 imageRendering: 'pixelated',
-                                                                borderRadius: '5px'
+                                                                borderRadius: '5px',
+                                                                background: 'var(--background)'
                                                             }}
                                                         />
                                                         
