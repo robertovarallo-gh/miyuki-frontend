@@ -748,6 +748,7 @@
             const [numbersReady, setNumbersReady] = React.useState(false);
             const [patternVersion, setPatternVersion] = React.useState(0);
             const [hoveredPattern, setHoveredPattern] = React.useState(null);
+            const [loadedFileName, setLoadedFileName] = React.useState('');
 
 
             const CATEGORIES = {
@@ -2377,7 +2378,7 @@
                 // Pedir nombre al usuario con tipo de patrón en el nombre
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
                 const patternTypeText = result.pattern_type === 'peyote' ? 'peyote' : 'cuadricula';  // ← NUEVA LÍNEA
-                const defaultName = `miyuki-${patternTypeText}-${timestamp}`;  // ← MODIFICADA
+                const defaultName = loadedFileName || `miyuki-${patternTypeText}-${timestamp}`;
                 const userFileName = prompt('Nombre del archivo (sin extensión):', defaultName);
 
                 // Si el usuario cancela, no guardar
@@ -2411,6 +2412,7 @@
             const loadPattern = async (event) => {
                 const file = event.target.files[0];
                 if (!file) return;
+                setLoadedFileName(file.name.replace('.json', '').replace(/_fixed$/, ''));
 
                 if (!file.name.endsWith('.json')) {
                     alert('⚠️ Por favor selecciona un archivo .json válido');
