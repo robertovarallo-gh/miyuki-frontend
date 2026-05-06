@@ -747,6 +747,7 @@
             const paintTimeoutRef = React.useRef(null);
             const [numbersReady, setNumbersReady] = React.useState(false);
             const [patternVersion, setPatternVersion] = React.useState(0);
+            const [hoveredPattern, setHoveredPattern] = React.useState(null);
 
 
             const CATEGORIES = {
@@ -4963,8 +4964,8 @@ if (!colorToUse || !canvasRef.current) return;
                                                             transition: 'all 0.3s ease',
                                                             opacity: (!pattern.isBasic && !isPremiumUser()) ? 0.6 : 1
                                                         }}
-                                                        onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
-                                                        onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+                                                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; setHoveredPattern(pattern.id); }}
+                                                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; setHoveredPattern(null); }}
                                                     >
                                                         {/* Candado para premium */}
                                                         {!pattern.isBasic && !isPremiumUser() && (
@@ -4988,11 +4989,12 @@ if (!colorToUse || !canvasRef.current) return;
                                                             alt={pattern.name}
                                                             style={{
                                                                 width: '100%',
-                                                                height: '150px',
+                                                                height: hoveredPattern === pattern.id ? '350px' : '150px',
                                                                 objectFit: 'contain',
                                                                 imageRendering: 'pixelated',
                                                                 borderRadius: '5px',
-                                                                background: 'var(--background)'
+                                                                background: 'var(--background)',
+                                                                transition: 'height 0.3s ease'
                                                             }}
                                                         />
                                                         
