@@ -836,7 +836,7 @@
                         console.log('✅ useEffect: Cargando COORDENADAS');
                     } else {
                         imageToLoad = editedPattern || result.images.grid;
-                        console.log('✅ useEffect: Cargando GRID');
+                        console.log('✅ useEffect: Cargando', editedPattern ? 'EDITED' : 'GRID');
                     }
                     
                     img.onload = () => {
@@ -2516,6 +2516,7 @@
 
                         console.log('✅ Patrón cargado exitosamente');
                         setPatternVersion(v => v + 1);
+                        setGridViewReady(0);
                         const patternTypeText = (patternData.pattern.pattern_type || 'grid') === 'peyote' ? 'Peyote' : 'Cuadrícula';  // ← NUEVA LÍNEA
                         alert(`✅ Patrón cargado exitosamente (${patternTypeText})\nPuedes continuar editando o descargar las imágenes`);  // ← MODIFICADA
 
