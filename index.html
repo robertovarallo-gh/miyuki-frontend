@@ -1006,7 +1006,9 @@
                     const isPeyote = result.pattern_type === 'peyote';
                     
                     const cellWidth = rect.width / beadsWidth;
-                    const cellHeight = rect.height / beadsHeight;
+                    const cellHeight = isPeyote
+                        ? rect.height / (beadsHeight + 0.5)
+                        : rect.height / beadsHeight;
                     
                     ctx.strokeStyle = 'rgba(180, 180, 180, 0.8)';
                     ctx.lineWidth = 1;
@@ -1233,6 +1235,8 @@
 
                     // Semifilas (columnas impares x%2==1): bead 0→col 1, bead 1→col 3...
                     halfRows.forEach((halfRow, halfIndex) => {
+                        const halfLabel = parseFloat(halfRow.row_label || halfRow.row);
+                        const rowY = Math.floor(halfLabel) - 1;
                         let beadNum = 0;
                         let segCounter = 1;
                         let lastCode = null;
@@ -1242,7 +1246,7 @@
                             const textColor = getContrastColor(rgb);
                             for (let i = 0; i < segment.count; i++) {
                                 const canvasX = (beadNum * 2 + 1 + 0.5) * cellW;
-                                const canvasY = (halfIndex + 1) * cellH;
+                                const canvasY = rowY * cellH + cellH + cellH / 2;
                                 ctx.fillStyle = textColor;
                                 ctx.fillText(String(segCounter), canvasX, canvasY);
                                 segCounter++;
