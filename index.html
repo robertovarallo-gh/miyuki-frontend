@@ -2515,6 +2515,7 @@
                         setFullPalette(palette);
 
                         console.log('✅ Patrón cargado exitosamente');
+                        setPatternVersion(v => v + 1);
                         const patternTypeText = (patternData.pattern.pattern_type || 'grid') === 'peyote' ? 'Peyote' : 'Cuadrícula';  // ← NUEVA LÍNEA
                         alert(`✅ Patrón cargado exitosamente (${patternTypeText})\nPuedes continuar editando o descargar las imágenes`);  // ← MODIFICADA
 
@@ -3493,7 +3494,7 @@ if (!colorToUse || !canvasRef.current) return;
                             basic: pattern.imageData
                         },
                         colors: normalizeColors(pattern.colors),
-                        rowGuide: pattern.fullData?.rowGuide || { rows: [] },
+                        rowGuide: pattern.rowGuide || pattern.fullData?.rowGuide || { rows: [] },
                         pattern_type: pattern.patternType
                     });
 
