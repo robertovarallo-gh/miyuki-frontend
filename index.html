@@ -835,7 +835,7 @@
                         imageToLoad = result.images.coordinates;
                         console.log('✅ useEffect: Cargando COORDENADAS');
                     } else {
-                        imageToLoad = result.images.grid;
+                        imageToLoad = editedPattern || result.images.grid;
                         console.log('✅ useEffect: Cargando GRID');
                     }
                     
@@ -892,7 +892,7 @@
                     console.log('🔍 Loading image:', imageToLoad);
                     img.src = imageToLoad;
                 }
-            }, [activeTab, lastViewedTab, result]); 
+            }, [activeTab, lastViewedTab, result, editedPattern]);
 
             // Vista Cuadricula - Dibujar grid cuando el canvas aparece (Cuadricula y Peyote)
             React.useEffect(() => {
