@@ -1246,7 +1246,7 @@
                             const textColor = getContrastColor(rgb);
                             for (let i = 0; i < segment.count; i++) {
                                 const canvasX = (beadNum * 2 + 1 + 0.5) * cellW;
-                                const canvasY = rowY * cellH + cellH + cellH / 2;
+                                const canvasY = (rowY + 0.5) * cellH + cellH / 2;
                                 ctx.fillStyle = textColor;
                                 ctx.fillText(String(segCounter), canvasX, canvasY);
                                 segCounter++;
