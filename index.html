@@ -2431,6 +2431,7 @@
                         }
 
                         console.log('📂 Cargando patrón guardado...');
+                        console.log('🔍 rowGuide en JSON:', patternData.rowGuide?.rows?.length, 'filas');
 
                         // Si es desde cero, cargar paleta
                         if (patternData.isBlankCanvas) {
@@ -2515,6 +2516,7 @@
                         setFullPalette(palette);
 
                         console.log('✅ Patrón cargado exitosamente');
+                        console.log('🔍 result.rowGuide después de setResult:', loadedRowGuide?.rows?.length, 'filas');
                         setPatternVersion(v => v + 1);
                         setGridViewReady(0);
                         const patternTypeText = (patternData.pattern.pattern_type || 'grid') === 'peyote' ? 'Peyote' : 'Cuadrícula';  // ← NUEVA LÍNEA
