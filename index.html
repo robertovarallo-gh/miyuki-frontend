@@ -3480,6 +3480,10 @@ if (!colorToUse || !canvasRef.current) return;
                 setProcessing(true);
                 
                 try {
+                    
+                    console.log('🔍 rowGuide desde Firestore:', JSON.stringify(pattern.rowGuide)?.slice(0, 200));
+                    console.log('🔍 colors desde Firestore:', JSON.stringify(pattern.colors)?.slice(0, 200));                    
+                    
                     // Cargar el patrón directamente
                     setResult({
                         success: true,
