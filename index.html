@@ -892,7 +892,7 @@
                     console.log('🔍 Loading image:', imageToLoad);
                     img.src = imageToLoad;
                 }
-            }, [activeTab, lastViewedTab, result, editedPattern]);
+            }, [activeTab, lastViewedTab, result, editedPattern, editMode]);
 
             // Vista Cuadricula - Dibujar grid cuando el canvas aparece (Cuadricula y Peyote)
             React.useEffect(() => {
