@@ -3535,7 +3535,10 @@ if (!colorToUse || !canvasRef.current) return;
                     setEditedPattern(null);
                     setIsBlankCanvas(false);
                     setIsFromGallery(true);  // ← AGREGAR AQUÍ
-                    setEditMode(true);
+                    setTimeout(() => {
+                        setEditMode(true);
+                        setGridViewReady(v => v + 1);
+                    }, 200);
                     
                     // Cargar paleta completa
                     const palette = await loadFullPalette();
