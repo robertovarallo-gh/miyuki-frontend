@@ -1348,7 +1348,10 @@
                 const displayW = rect.width;
                 const displayH = rect.height;
                 const cellW = displayW / beadsWidth;
-                const cellH = displayH / beadsHeight;
+                const isPeyoteAxes = result.pattern_type === 'peyote';
+                const cellH = isPeyoteAxes
+                    ? displayH / (beadsHeight + 0.5)
+                    : displayH / beadsHeight;
 
                 // Barra fija de 28px (igual que el padding del contenedor)
                 const barW = 28;
