@@ -750,6 +750,9 @@
             const [patternVersion, setPatternVersion] = React.useState(0);
             const [hoveredPattern, setHoveredPattern] = React.useState(null);
             const [loadedFileName, setLoadedFileName] = React.useState('');
+            const [purchaseModal, setPurchaseModal] = React.useState(null);
+            const [purchaseEmail, setPurchaseEmail] = React.useState('');
+            const [purchaseLoading, setPurchaseLoading] = React.useState(false);
 
 
             const CATEGORIES = {
@@ -3481,6 +3484,37 @@ if (!colorToUse || !canvasRef.current) return;
                 }
             };
 
+            const handlePatternPurchase = async () => {
+                if (!purchaseEmail || !purchaseEmail.includes('@')) {
+                    alert('Por favor ingresa un email válido');
+                    return;
+                }
+                setPurchaseLoading(true);
+                try {
+                    const userPlan = isPremiumUser() ? 'premium_monthly' : 'free';
+                    const response = await fetch(`${API_URL}/create-pattern-purchase`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            patternId: purchaseModal.id,
+                            patternName: purchaseModal.name,
+                            email: purchaseEmail,
+                            userPlan: userPlan
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.sessionId) {
+                        const stripe = window.Stripe('pk_live_51T2ZWG6r7v0eroiuAu9BtWwNCjouKcdEWX0OAJTxJpxiD6vVJ4re9z8GSY6hJ5lKjIyxdFoQtXbWkB6sjl8zMGY700z243YfEC');
+                        await stripe.redirectToCheckout({ sessionId: data.sessionId });
+                    } else {
+                        alert('Error iniciando el pago: ' + (data.error || 'Error desconocido'));
+                    }
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                }
+                setPurchaseLoading(false);
+            };
+
             const loadPatternFromGallery = async (pattern) => {
                 // Verificar límites (consume 1 "desde cero")
                 const canProceed = await checkUserLimits('scratch');
@@ -5042,6 +5076,96 @@ if (!colorToUse || !canvasRef.current) return;
                                                 </div>
                                             </div>
 
+                                            {/* Modal de compra */}
+                                            {purchaseModal && (
+                                                <div style={{
+                                                    position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                                                    background: 'rgba(0,0,0,0.7)', zIndex: 99999,
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                }}
+                                                    onClick={() => setPurchaseModal(null)}
+                                                >
+                                                    <div
+                                                        onClick={e => e.stopPropagation()}
+                                                        style={{
+                                                            background: 'var(--surface)',
+                                                            borderRadius: '16px',
+                                                            padding: '32px',
+                                                            maxWidth: '420px',
+                                                            width: '90%',
+                                                            boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+                                                        }}
+                                                    >
+                                                        <h3 style={{margin: '0 0 8px'}}>💰 Comprar Patrón</h3>
+                                                        <p style={{color: 'var(--text-dim)', fontSize: '0.9rem', margin: '0 0 20px'}}>
+                                                            <strong>{purchaseModal.name}</strong><br/>
+                                                            {purchaseModal.width}×{purchaseModal.height} • {purchaseModal.patternType}
+                                                        </p>
+
+                                                        <div style={{
+                                                            background: 'var(--background)',
+                                                            borderRadius: '10px',
+                                                            padding: '16px',
+                                                            marginBottom: '20px',
+                                                            fontSize: '0.85rem'
+                                                        }}>
+                                                            <div style={{marginBottom: '8px'}}>📦 Incluye:</div>
+                                                            <div>✅ PDF Guía de colores</div>
+                                                            <div>✅ PDF Guía de montaje con imagen</div>
+                                                            <div>✅ Archivo JSON para usar en la app</div>
+                                                            <div style={{marginTop: '12px', fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)'}}>
+                                                                {isPremiumUser() ? '$1.00 USD' : '$2.00 USD'}
+                                                                {isPremiumUser() && <span style={{fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 'normal'}}> (precio premium)</span>}
+                                                            </div>
+                                                        </div>
+
+                                                        <label style={{display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold'}}>
+                                                            Email para recibir el patrón
+                                                        </label>
+                                                        <input
+                                                            type="email"
+                                                            value={purchaseEmail}
+                                                            onChange={e => setPurchaseEmail(e.target.value)}
+                                                            placeholder="tu@email.com"
+                                                            style={{
+                                                                width: '100%', padding: '10px', borderRadius: '8px',
+                                                                border: '1px solid var(--border)', background: 'var(--background)',
+                                                                color: 'var(--text)', fontSize: '1rem', boxSizing: 'border-box',
+                                                                marginBottom: '16px'
+                                                            }}
+                                                        />
+
+                                                        <button
+                                                            onClick={handlePatternPurchase}
+                                                            disabled={purchaseLoading}
+                                                            style={{
+                                                                width: '100%', padding: '12px',
+                                                                background: purchaseLoading ? '#666' : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                                                color: 'white', border: 'none', borderRadius: '8px',
+                                                                fontSize: '1rem', fontWeight: 'bold', cursor: purchaseLoading ? 'not-allowed' : 'pointer',
+                                                                marginBottom: '10px'
+                                                            }}
+                                                        >
+                                                            {purchaseLoading ? '⏳ Procesando...' : '💳 Pagar y Descargar'}
+                                                        </button>
+
+                                                        <button
+                                                            onClick={() => setPurchaseModal(null)}
+                                                            style={{
+                                                                width: '100%', padding: '10px',
+                                                                background: 'none', border: '1px solid var(--border)',
+                                                                color: 'var(--text)', borderRadius: '8px',
+                                                                fontSize: '0.9rem', cursor: 'pointer'
+                                                            }}
+                                                        >Cancelar</button>
+
+                                                        <p style={{fontSize: '0.72rem', color: 'var(--text-dim)', textAlign: 'center', marginTop: '12px', marginBottom: 0}}>
+                                                            🔒 Pago seguro procesado por Stripe
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {/* Grid de patrones */}
                                             <div style={{
                                                 flex: 1,
@@ -5070,12 +5194,10 @@ if (!colorToUse || !canvasRef.current) return;
                                                                 <div
                                                                     key={pattern.id}
                                                                     onClick={() => {
-                                                                        if (!pattern.isBasic && !isPremiumUser()) {
-                                                                            setShowUpgradeModal(true);
-                                                                            return;
+                                                                        if (pattern.isBasic || isPremiumUser()) {
+                                                                            setCreationMode(null);
+                                                                            loadPatternFromGallery(pattern);
                                                                         }
-                                                                        setCreationMode(null);
-                                                                        loadPatternFromGallery(pattern);
                                                                     }}
                                                                     onMouseEnter={() => setHoveredPattern(pattern.id)}
                                                                     onMouseLeave={() => setHoveredPattern(null)}
@@ -5105,14 +5227,24 @@ if (!colorToUse || !canvasRef.current) return;
                                                                         {pattern.isBasic ? 'Free' : '💎 Premium'}
                                                                     </div>
 
-                                                                    {/* Candado */}
+                                                                    {/* Botón comprar o candado */}
                                                                     {!pattern.isBasic && !isPremiumUser() && (
-                                                                        <div style={{
-                                                                            position: 'absolute',
-                                                                            top: '8px',
-                                                                            right: '8px',
-                                                                            fontSize: '1.1rem'
-                                                                        }}>🔒</div>
+                                                                        <div
+                                                                            onClick={e => { e.stopPropagation(); setPurchaseModal(pattern); setPurchaseEmail(user?.email || ''); }}
+                                                                            style={{
+                                                                                position: 'absolute',
+                                                                                top: '8px',
+                                                                                right: '8px',
+                                                                                background: 'rgba(251,191,36,0.9)',
+                                                                                color: '#000',
+                                                                                padding: '3px 8px',
+                                                                                borderRadius: '5px',
+                                                                                fontSize: '0.7rem',
+                                                                                fontWeight: 'bold',
+                                                                                cursor: 'pointer',
+                                                                                zIndex: 2
+                                                                            }}
+                                                                        >💰 Comprar</div>
                                                                     )}
 
                                                                     {/* Thumbnail */}
