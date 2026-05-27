@@ -4956,8 +4956,10 @@ if (!colorToUse || !canvasRef.current) return;
                                     {!result && creationMode === 'gallery' && (
                                         <div style={{
                                             position: 'fixed',
-                                            top: 0, left: 0, right: 0, bottom: 0,
-                                            background: 'var(--background)',
+                                            top: 0, left: 0,
+                                            width: '100vw',
+                                            height: '100vh',
+                                            backgroundColor: '#0A0E27',
                                             zIndex: 9999,
                                             display: 'flex',
                                             flexDirection: 'column',
