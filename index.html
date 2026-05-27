@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -731,6 +731,8 @@
             const [showTermsModal, setShowTermsModal] = React.useState(false);
             const [emailActionModal, setEmailActionModal] = React.useState(null); // {type, status, message}
             const [galleryPatterns, setGalleryPatterns] = React.useState([]);
+            const [galleryFilter, setGalleryFilter] = React.useState({ type: 'all', access: 'all', category: 'all' });
+            const [hoveredPattern, setHoveredPattern] = React.useState(null);
             const [isFromGallery, setIsFromGallery] = React.useState(false);
             const gridCanvasRef = React.useRef(null);
             const [showGridInView, setShowGridInView] = React.useState(true);
@@ -4953,87 +4955,198 @@ if (!colorToUse || !canvasRef.current) return;
                                     )}
 
                                     {!result && creationMode === 'gallery' && (
-                                        <div className="card" style={{marginTop: '20px'}}>
-                                            <h2>📚 Galería de Patrones</h2>
-                                            
+                                        <div style={{
+                                            position: 'fixed',
+                                            top: 0, left: 0, right: 0, bottom: 0,
+                                            background: 'var(--background)',
+                                            zIndex: 1000,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            overflow: 'hidden'
+                                        }}>
+                                            {/* Header */}
+                                            <div style={{
+                                                padding: '16px 24px',
+                                                borderBottom: '1px solid var(--border)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '16px',
+                                                flexWrap: 'wrap',
+                                                background: 'var(--surface)'
+                                            }}>
+                                                <button
+                                                    onClick={() => setCreationMode(null)}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: '1px solid var(--border)',
+                                                        borderRadius: '8px',
+                                                        padding: '6px 12px',
+                                                        cursor: 'pointer',
+                                                        color: 'var(--text)',
+                                                        fontSize: '0.9rem'
+                                                    }}
+                                                >← Volver</button>
+
+                                                <h2 style={{margin: 0, fontSize: '1.2rem'}}>📚 Galería de Patrones</h2>
+
+                                                {/* Filtros */}
+                                                <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', marginLeft: 'auto'}}>
+                                                    {/* Tipo */}
+                                                    <select
+                                                        value={galleryFilter.type}
+                                                        onChange={e => setGalleryFilter(f => ({...f, type: e.target.value}))}
+                                                        style={{padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', fontSize: '0.85rem'}}
+                                                    >
+                                                        <option value="all">Todos los tipos</option>
+                                                        <option value="grid">Cuadrícula</option>
+                                                        <option value="peyote">Peyote</option>
+                                                    </select>
+
+                                                    {/* Acceso */}
+                                                    <select
+                                                        value={galleryFilter.access}
+                                                        onChange={e => setGalleryFilter(f => ({...f, access: e.target.value}))}
+                                                        style={{padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', fontSize: '0.85rem'}}
+                                                    >
+                                                        <option value="all">Todos</option>
+                                                        <option value="free">Free</option>
+                                                        <option value="premium">Premium</option>
+                                                    </select>
+
+                                                    {/* Categoría */}
+                                                    <select
+                                                        value={galleryFilter.category}
+                                                        onChange={e => setGalleryFilter(f => ({...f, category: e.target.value}))}
+                                                        style={{padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', fontSize: '0.85rem'}}
+                                                    >
+                                                        <option value="all">Todas las categorías</option>
+                                                        {[...new Set(galleryPatterns.map(p => p.category).filter(Boolean))].sort().map(cat => (
+                                                            <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                                                        ))}
+                                                    </select>
+
+                                                    {/* Contador */}
+                                                    <div style={{padding: '6px 10px', fontSize: '0.85rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center'}}>
+                                                        {galleryPatterns.filter(p => {
+                                                            if (galleryFilter.type !== 'all' && p.patternType !== galleryFilter.type) return false;
+                                                            if (galleryFilter.access === 'free' && !p.isBasic) return false;
+                                                            if (galleryFilter.access === 'premium' && p.isBasic) return false;
+                                                            if (galleryFilter.category !== 'all' && p.category !== galleryFilter.category) return false;
+                                                            return true;
+                                                        }).length} patrones
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             {/* Grid de patrones */}
                                             <div style={{
-                                                display: 'grid',
-                                                gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                                                gap: '15px',
-                                                marginTop: '20px'
+                                                flex: 1,
+                                                overflowY: 'auto',
+                                                padding: '20px 24px'
                                             }}>
-                                                {galleryPatterns.map(pattern => (
-                                                    <div
-                                                        key={pattern.id}
-                                                        onClick={() => {
-                                                            if (!pattern.isBasic && !isPremiumUser()) {
-                                                                setShowUpgradeModal(true);
-                                                                return;
-                                                            }
-                                                            loadPatternFromGallery(pattern);
-                                                        }}
-                                                        style={{
-                                                            border: '2px solid var(--border)',
-                                                            borderRadius: '8px',
-                                                            padding: '10px',
-                                                            cursor: 'pointer',
-                                                            position: 'relative',
-                                                            transition: 'all 0.3s ease',
-                                                            opacity: (!pattern.isBasic && !isPremiumUser()) ? 0.6 : 1
-                                                        }}
-                                                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; setHoveredPattern(pattern.id); }}
-                                                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; setHoveredPattern(null); }}
-                                                    >
-                                                        {/* Candado para premium */}
-                                                        {!pattern.isBasic && !isPremiumUser() && (
-                                                            <div style={{
-                                                                position: 'absolute',
-                                                                top: '10px',
-                                                                right: '10px',
-                                                                background: 'rgba(0,0,0,0.7)',
-                                                                color: 'white',
-                                                                padding: '5px 10px',
-                                                                borderRadius: '5px',
-                                                                fontSize: '0.8rem'
-                                                            }}>
-                                                                🔒 Premium
-                                                            </div>
-                                                        )}
-                                                        
-                                                        {/* Thumbnail */}
-                                                        <img 
-                                                            src={pattern.thumbnail} 
-                                                            alt={pattern.name}
-                                                            style={{
-                                                                width: '100%',
-                                                                height: hoveredPattern === pattern.id ? '900px' : '150px',
-                                                                objectFit: 'contain',
-                                                                imageRendering: 'pixelated',
-                                                                borderRadius: '5px',
-                                                                background: 'var(--background)',
-                                                                transition: 'height 0.3s ease'
-                                                            }}
-                                                        />
-                                                        
-                                                        {/* Info */}
-                                                        <div style={{marginTop: '10px', textAlign: 'center'}}>
-                                                            <div style={{fontWeight: 'bold', fontSize: '0.9rem'}}>
-                                                                {pattern.name}
-                                                            </div>
-                                                            <div style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>
-                                                                {pattern.width}x{pattern.height} • {pattern.patternType}
-                                                            </div>
-                                                        </div>
+                                                {galleryPatterns.length === 0 ? (
+                                                    <div style={{textAlign: 'center', padding: '60px', color: 'var(--text-dim)'}}>
+                                                        Cargando patrones...
                                                     </div>
-                                                ))}
+                                                ) : (
+                                                    <div style={{
+                                                        display: 'grid',
+                                                        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+                                                        gap: '16px'
+                                                    }}>
+                                                        {galleryPatterns
+                                                            .filter(p => {
+                                                                if (galleryFilter.type !== 'all' && p.patternType !== galleryFilter.type) return false;
+                                                                if (galleryFilter.access === 'free' && !p.isBasic) return false;
+                                                                if (galleryFilter.access === 'premium' && p.isBasic) return false;
+                                                                if (galleryFilter.category !== 'all' && p.category !== galleryFilter.category) return false;
+                                                                return true;
+                                                            })
+                                                            .map(pattern => (
+                                                                <div
+                                                                    key={pattern.id}
+                                                                    onClick={() => {
+                                                                        if (!pattern.isBasic && !isPremiumUser()) {
+                                                                            setShowUpgradeModal(true);
+                                                                            return;
+                                                                        }
+                                                                        setCreationMode(null);
+                                                                        loadPatternFromGallery(pattern);
+                                                                    }}
+                                                                    onMouseEnter={() => setHoveredPattern(pattern.id)}
+                                                                    onMouseLeave={() => setHoveredPattern(null)}
+                                                                    style={{
+                                                                        border: `2px solid ${hoveredPattern === pattern.id ? 'var(--primary)' : 'var(--border)'}`,
+                                                                        borderRadius: '10px',
+                                                                        padding: '10px',
+                                                                        cursor: 'pointer',
+                                                                        position: 'relative',
+                                                                        transition: 'all 0.2s ease',
+                                                                        background: 'var(--surface)',
+                                                                        opacity: (!pattern.isBasic && !isPremiumUser()) ? 0.7 : 1
+                                                                    }}
+                                                                >
+                                                                    {/* Badge acceso */}
+                                                                    <div style={{
+                                                                        position: 'absolute',
+                                                                        top: '8px',
+                                                                        left: '8px',
+                                                                        background: pattern.isBasic ? 'rgba(34,197,94,0.85)' : 'rgba(168,85,247,0.85)',
+                                                                        color: 'white',
+                                                                        padding: '2px 7px',
+                                                                        borderRadius: '4px',
+                                                                        fontSize: '0.7rem',
+                                                                        fontWeight: 'bold'
+                                                                    }}>
+                                                                        {pattern.isBasic ? 'Free' : '💎 Premium'}
+                                                                    </div>
+
+                                                                    {/* Candado */}
+                                                                    {!pattern.isBasic && !isPremiumUser() && (
+                                                                        <div style={{
+                                                                            position: 'absolute',
+                                                                            top: '8px',
+                                                                            right: '8px',
+                                                                            fontSize: '1.1rem'
+                                                                        }}>🔒</div>
+                                                                    )}
+
+                                                                    {/* Thumbnail */}
+                                                                    <img
+                                                                        src={pattern.thumbnail}
+                                                                        alt={pattern.name}
+                                                                        style={{
+                                                                            width: '100%',
+                                                                            height: hoveredPattern === pattern.id ? '300px' : '120px',
+                                                                            objectFit: 'contain',
+                                                                            imageRendering: 'pixelated',
+                                                                            borderRadius: '5px',
+                                                                            background: 'var(--background)',
+                                                                            transition: 'height 0.3s ease',
+                                                                            marginTop: '24px'
+                                                                        }}
+                                                                    />
+
+                                                                    {/* Info */}
+                                                                    <div style={{marginTop: '8px', textAlign: 'center'}}>
+                                                                        <div style={{fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '2px'}}>
+                                                                            {pattern.name}
+                                                                        </div>
+                                                                        <div style={{fontSize: '0.72rem', color: 'var(--text-dim)'}}>
+                                                                            {pattern.width}×{pattern.height} • {pattern.patternType}
+                                                                        </div>
+                                                                        {pattern.category && (
+                                                                            <div style={{fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: '2px'}}>
+                                                                                {pattern.category}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            ))
+                                                        }
+                                                    </div>
+                                                )}
                                             </div>
-                                            
-                                            {galleryPatterns.length === 0 && (
-                                                <div style={{textAlign: 'center', padding: '40px', color: 'var(--text-dim)'}}>
-                                                    Cargando patrones...
-                                                </div>
-                                            )}
                                         </div>
                                     )}
 
