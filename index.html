@@ -1950,7 +1950,7 @@
 
                     if (data.sessionId) {
                         // Redirigir a Stripe Checkout
-                        const stripe = window.Stripe('pk_test_51T2ZWG6r7v0eroiu4dM4iXbPnxithywxL8UqWXji15JLxusQYeogmxFhWzeUOapdFiUFrZyEUmZkcaiv9E0pND3x00nn0RW7Aa');
+                        const stripe = window.Stripe('pk_live_51T2ZWG6r7v0eroiuAu9BtWwNCjouKcdEWX0OAJTxJpxiD6vVJ4re9z8GSY6hJ5lKjIyxdFoQtXbWkB6sjl8zMGY700z243YfEC');
                         stripe.redirectToCheckout({ sessionId: data.sessionId });
                     } else {
                         alert('Error al crear sesión de pago: ' + data.error);
@@ -3513,7 +3513,7 @@ if (!colorToUse || !canvasRef.current) return;
                     });
                     const data = await response.json();
                     if (data.sessionId) {
-                        const stripe = window.Stripe('pk_test_51T2ZWG6r7v0eroiu4dM4iXbPnxithywxL8UqWXji15JLxusQYeogmxFhWzeUOapdFiUFrZyEUmZkcaiv9E0pND3x00nn0RW7Aa');
+                        const stripe = window.Stripe('pk_live_51T2ZWG6r7v0eroiuAu9BtWwNCjouKcdEWX0OAJTxJpxiD6vVJ4re9z8GSY6hJ5lKjIyxdFoQtXbWkB6sjl8zMGY700z243YfEC');
                         await stripe.redirectToCheckout({ sessionId: data.sessionId });
                     } else {
                         alert('Error iniciando el pago: ' + (data.error || 'Error desconocido'));
