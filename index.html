@@ -3555,21 +3555,21 @@ if (!colorToUse || !canvasRef.current) return;
             const loadPatternFromGallery = async (pattern) => {
                 setProcessing(true);
 
-                try {
-                    // Verificar créditos si es patrón premium
-                    if (!pattern.isBasic) {
-                        const planType = getPlanType();
-                        const purchasedPatterns = userData?.purchasedPatterns || [];
-                        
-                        // Si no es premium y no compró el patrón → mostrar upgrade
-                        if (planType === 'free' && !purchasedPatterns.includes(pattern.id)) {
-                            setShowUpgradeModal(true);
-                            setProcessing(false);
-                            return;
-                        }
+                // Verificar créditos si es patrón premium
+                if (!pattern.isBasic) {
+                    const planType = getPlanType();
+                    const purchasedPatterns = userData?.purchasedPatterns || [];
+                    
+                    // Si no es premium y no compró el patrón → mostrar upgrade
+                    if (planType === 'free' && !purchasedPatterns.includes(pattern.id)) {
+                        setShowUpgradeModal(true);
+                        setProcessing(false);
+                        return;
+                    }
 
-                        // Si es premium mensual o anual → verificar créditos en backend
-                        if (planType !== 'free') {
+                    // Si es premium mensual o anual → verificar créditos en backend
+                    if (planType !== 'free') {
+                        try {
                             const response = await fetch(`${API_URL}/use-gallery-pattern`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -3583,7 +3583,6 @@ if (!colorToUse || !canvasRef.current) return;
 
                             if (!creditData.success && creditData.limit_exceeded) {
                                 setProcessing(false);
-                                // Ofrecer compra a $1
                                 setPurchaseModal(pattern);
                                 setPurchaseEmail(user?.email || '');
                                 return;
@@ -3594,12 +3593,15 @@ if (!colorToUse || !canvasRef.current) return;
                                 alert('Error verificando créditos: ' + (creditData.error || 'Error desconocido'));
                                 return;
                             }
+                        } catch (err) {
+                            setProcessing(false);
+                            alert('Error verificando créditos: ' + err.message);
+                            return;
                         }
                     }
+                }
 
-                
                 try {
-                    
                     console.log('🔍 rowGuide desde Firestore:', JSON.stringify(pattern.rowGuide)?.slice(0, 200));
                     console.log('🔍 colors desde Firestore:', JSON.stringify(pattern.colors)?.slice(0, 200));                    
                     
@@ -3626,8 +3628,8 @@ if (!colorToUse || !canvasRef.current) return;
                     setWidth(pattern.width);
                     setHeight(pattern.height);  
 
-                    setActiveTab('grid');  // ← AGREGAR
-                    setGridViewReady(0);  // Resetear
+                    setActiveTab('grid');
+                    setGridViewReady(0);
                     setPatternVersion(v => v + 1);
                     
                     // Incrementar contador
@@ -3646,12 +3648,10 @@ if (!colorToUse || !canvasRef.current) return;
                         }
                     }
                     
-                    // Cambiar a pestaña Grid primero
                     setActiveTab('grid');
-
                     setEditedPattern(null);
                     setIsBlankCanvas(false);
-                    setIsFromGallery(true);  // ← AGREGAR AQUÍ
+                    setIsFromGallery(true);
                     setTimeout(() => {
                         setEditMode(true);
                         setGridViewReady(v => v + 1);
