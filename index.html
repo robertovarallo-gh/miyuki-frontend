@@ -3583,7 +3583,7 @@ if (!colorToUse || !canvasRef.current) return;
 
                             if (!creditData.success && creditData.limit_exceeded) {
                                 setProcessing(false);
-                                setPurchaseModal(pattern);
+                                setPurchaseModal({...pattern, limitExceeded: true});
                                 setPurchaseEmail(user?.email || '');
                                 return;
                             }
@@ -5209,28 +5209,96 @@ if (!colorToUse || !canvasRef.current) return;
                                                             boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
                                                         }}
                                                     >
-                                                        <h3 style={{margin: '0 0 8px'}}>💰 Comprar Patrón</h3>
-                                                        <p style={{color: 'var(--text-dim)', fontSize: '0.9rem', margin: '0 0 20px'}}>
+
+                                                        <h3 style={{margin: '0 0 8px'}}>
+                                                            {purchaseModal.limitExceeded ? '🔓 Límite mensual alcanzado' : '💰 Comprar Patrón'}
+                                                        </h3>
+                                                        <p style={{color: 'var(--text-dim)', fontSize: '0.9rem', margin: '0 0 16px'}}>
                                                             <strong>{purchaseModal.name}</strong><br/>
                                                             {purchaseModal.width}×{purchaseModal.height} • {purchaseModal.patternType}
                                                         </p>
 
-                                                        <div style={{
-                                                            background: 'var(--background)',
-                                                            borderRadius: '10px',
-                                                            padding: '16px',
-                                                            marginBottom: '20px',
-                                                            fontSize: '0.85rem'
-                                                        }}>
-                                                            <div style={{marginBottom: '8px'}}>📦 Incluye:</div>
-                                                            <div>✅ PDF Guía de colores</div>
-                                                            <div>✅ PDF Guía de montaje con imagen</div>
-                                                            <div>✅ Archivo JSON para usar en la app</div>
-                                                            <div style={{marginTop: '12px', fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)'}}>
-                                                                {isPremiumUser() ? '$1.00 USD' : '$2.00 USD'}
-                                                                {isPremiumUser() && <span style={{fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 'normal'}}> (precio premium)</span>}
+                                                        {purchaseModal.limitExceeded && (
+                                                            <>
+                                                                {/* Opción 1: Compra individual */}
+                                                                <div style={{
+                                                                    background: 'var(--background)',
+                                                                    borderRadius: '10px',
+                                                                    padding: '16px',
+                                                                    marginBottom: '12px',
+                                                                    border: '1px solid var(--border)'
+                                                                }}>
+                                                                    <div style={{fontWeight: 'bold', marginBottom: '8px', fontSize: '0.9rem'}}>
+                                                                        💰 Opción 1 — Solo este patrón
+                                                                    </div>
+                                                                    <div style={{fontSize: '0.82rem', color: 'var(--text-dim)', marginBottom: '8px'}}>
+                                                                        ✅ PDF Guía de colores<br/>
+                                                                        ✅ PDF Guía de montaje con imagen<br/>
+                                                                        ✅ Archivo JSON para la app
+                                                                    </div>
+                                                                    <div style={{fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)'}}>
+                                                                        $1.00 USD <span style={{fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 'normal'}}>(precio premium)</span>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Opción 2: Plan anual */}
+                                                                <div style={{
+                                                                    background: 'rgba(139,92,246,0.1)',
+                                                                    borderRadius: '10px',
+                                                                    padding: '16px',
+                                                                    marginBottom: '16px',
+                                                                    border: '1px solid #8b5cf6'
+                                                                }}>
+                                                                    <div style={{fontWeight: 'bold', marginBottom: '8px', fontSize: '0.9rem', color: '#8b5cf6'}}>
+                                                                        ⭐ Opción 2 — Premium Anual (recomendado)
+                                                                    </div>
+                                                                    <div style={{fontSize: '0.82rem', color: 'var(--text-dim)', marginBottom: '8px'}}>
+                                                                        ✅ Patrones de galería <strong>ilimitados</strong><br/>
+                                                                        ✅ Crea tus propios patrones desde fotos<br/>
+                                                                        ✅ Acceso a todos los patrones premium<br/>
+                                                                        ✅ Descarga PDFs y JSON sin límite
+                                                                    </div>
+                                                                    <div style={{fontWeight: 'bold', fontSize: '1.1rem', color: '#8b5cf6'}}>
+                                                                        $48.00 USD/año
+                                                                        <span style={{fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 'normal'}}> ($4/mes)</span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <button
+                                                                    onClick={() => handleUpgrade('yearly')}
+                                                                    style={{
+                                                                        width: '100%', padding: '12px',
+                                                                        background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                                                                        color: 'white', border: 'none', borderRadius: '8px',
+                                                                        fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer',
+                                                                        marginBottom: '8px'
+                                                                    }}
+                                                                >⭐ Suscribirme al Plan Anual</button>
+
+                                                                <div style={{textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '12px'}}>
+                                                                    — o —
+                                                                </div>
+                                                            </>
+                                                        )}
+
+                                                        {!purchaseModal.limitExceeded && (
+                                                            <div style={{
+                                                                background: 'var(--background)',
+                                                                borderRadius: '10px',
+                                                                padding: '16px',
+                                                                marginBottom: '20px',
+                                                                fontSize: '0.85rem'
+                                                            }}>
+                                                                <div style={{marginBottom: '8px'}}>📦 Incluye:</div>
+                                                                <div>✅ PDF Guía de colores</div>
+                                                                <div>✅ PDF Guía de montaje con imagen</div>
+                                                                <div>✅ Archivo JSON para usar en la app</div>
+                                                                <div style={{marginTop: '12px', fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)'}}>
+                                                                    {isPremiumUser() ? '$1.00 USD' : '$2.00 USD'}
+                                                                    {isPremiumUser() && <span style={{fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 'normal'}}> (precio premium)</span>}
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        )}
 
                                                         <label style={{display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold'}}>
                                                             Email para recibir el patrón
