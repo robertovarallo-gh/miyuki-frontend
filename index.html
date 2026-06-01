@@ -754,6 +754,7 @@
             const [purchaseModal, setPurchaseModal] = React.useState(null);
             const [purchaseEmail, setPurchaseEmail] = React.useState('');
             const [purchaseLoading, setPurchaseLoading] = React.useState(false);
+            const [userCredits, setUserCredits] = React.useState(null);
 
 
             const CATEGORIES = {
@@ -1508,7 +1509,28 @@
                 
                 console.log('✅ Grid overlay dibujado');
                 
-            }, [result, canvasRef.current?.width, canvasRef.current?.height, beadSize, beadSizeVersion]);         
+            }, [result, canvasRef.current?.width, canvasRef.current?.height, beadSize, beadSizeVersion]);  
+            
+            React.useEffect(() => {
+                if (!userData || !isPremiumUser()) return;
+                const planType = getPlanType();
+                if (planType === 'premium_yearly') {
+                    setUserCredits({ unlimited: true });
+                    return;
+                }
+                const monthly = userData.monthlyUsedPatterns || [];
+                const reset = userData.monthlyUsedPatternsReset;
+                
+                // Verificar si el reset ya pasó
+                let validMonthly = monthly;
+                if (reset) {
+                    const resetDate = reset.toDate ? reset.toDate() : new Date(reset);
+                    if (new Date() >= resetDate) {
+                        validMonthly = [];
+                    }
+                }
+                setUserCredits({ used: validMonthly.length, limit: 5 });
+            }, [userData]);
          
             // Detectar estado de autenticación
             React.useEffect(() => {
@@ -3531,13 +3553,50 @@ if (!colorToUse || !canvasRef.current) return;
             };
 
             const loadPatternFromGallery = async (pattern) => {
-                // Verificar límites (consume 1 "desde cero")
-                const canProceed = await checkUserLimits('scratch');
-                if (!canProceed) {
-                    return;
-                }
-                
                 setProcessing(true);
+
+                try {
+                    // Verificar créditos si es patrón premium
+                    if (!pattern.isBasic) {
+                        const planType = getPlanType();
+                        const purchasedPatterns = userData?.purchasedPatterns || [];
+                        
+                        // Si no es premium y no compró el patrón → mostrar upgrade
+                        if (planType === 'free' && !purchasedPatterns.includes(pattern.id)) {
+                            setShowUpgradeModal(true);
+                            setProcessing(false);
+                            return;
+                        }
+
+                        // Si es premium mensual o anual → verificar créditos en backend
+                        if (planType !== 'free') {
+                            const response = await fetch(`${API_URL}/use-gallery-pattern`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    userId: user.uid,
+                                    patternId: pattern.id,
+                                    userPlan: planType
+                                })
+                            });
+                            const creditData = await response.json();
+
+                            if (!creditData.success && creditData.limit_exceeded) {
+                                setProcessing(false);
+                                // Ofrecer compra a $1
+                                setPurchaseModal(pattern);
+                                setPurchaseEmail(user?.email || '');
+                                return;
+                            }
+
+                            if (!creditData.success) {
+                                setProcessing(false);
+                                alert('Error verificando créditos: ' + (creditData.error || 'Error desconocido'));
+                                return;
+                            }
+                        }
+                    }
+
                 
                 try {
                     
@@ -5096,6 +5155,19 @@ if (!colorToUse || !canvasRef.current) return;
                                                             <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
                                                         ))}
                                                     </select>
+
+                                                    {/* Créditos del mes */}
+                                                    {isPremiumUser() && userCredits && (
+                                                        <div style={{
+                                                            padding: '6px 12px', fontSize: '0.82rem',
+                                                            background: userCredits.unlimited ? 'rgba(16,185,129,0.15)' : 'rgba(139,92,246,0.15)',
+                                                            border: `1px solid ${userCredits.unlimited ? '#10b981' : '#8b5cf6'}`,
+                                                            borderRadius: '6px', color: userCredits.unlimited ? '#10b981' : '#8b5cf6',
+                                                            fontWeight: 'bold'
+                                                        }}>
+                                                            {userCredits.unlimited ? '∞ Ilimitado' : `${userCredits.used}/5 patrones este mes`}
+                                                        </div>
+                                                    )}
 
                                                     {/* Contador */}
                                                     <div style={{padding: '6px 10px', fontSize: '0.85rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center'}}>
