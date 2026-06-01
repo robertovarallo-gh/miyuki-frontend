@@ -3672,6 +3672,7 @@ if (!colorToUse || !canvasRef.current) return;
                         setSelectedColor(pattern.colors.colors[0]);
                     }
                     
+                    setCreationMode(null);
                     setProcessing(false);
                     alert(`✅ Patrón "${pattern.name}" cargado correctamente`);
                     
@@ -5307,7 +5308,6 @@ if (!colorToUse || !canvasRef.current) return;
                                                                     key={pattern.id}
                                                                     onClick={() => {
                                                                         if (pattern.isBasic || isPremiumUser()) {
-                                                                            setCreationMode(null);
                                                                             loadPatternFromGallery(pattern);
                                                                         }
                                                                     }}
