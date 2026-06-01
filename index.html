@@ -3593,6 +3593,12 @@ if (!colorToUse || !canvasRef.current) return;
                                 alert('Error verificando créditos: ' + (creditData.error || 'Error desconocido'));
                                 return;
                             }
+
+                            // Actualizar contador local
+                            if (!creditData.unlimited && !creditData.already_unlocked) {
+                                setUserCredits({ used: creditData.monthly_used, limit: creditData.monthly_limit });
+                            }
+
                         } catch (err) {
                             setProcessing(false);
                             alert('Error verificando créditos: ' + err.message);
