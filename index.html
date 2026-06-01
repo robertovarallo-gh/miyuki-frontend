@@ -5220,64 +5220,88 @@ if (!colorToUse || !canvasRef.current) return;
 
                                                         {purchaseModal.limitExceeded && (
                                                             <>
-                                                                {/* Opción 1: Compra individual */}
-                                                                <div style={{
-                                                                    background: 'var(--background)',
-                                                                    borderRadius: '10px',
-                                                                    padding: '16px',
-                                                                    marginBottom: '12px',
-                                                                    border: '1px solid var(--border)'
-                                                                }}>
-                                                                    <div style={{fontWeight: 'bold', marginBottom: '8px', fontSize: '0.9rem'}}>
-                                                                        💰 Opción 1 — Solo este patrón
-                                                                    </div>
-                                                                    <div style={{fontSize: '0.82rem', color: 'var(--text-dim)', marginBottom: '8px'}}>
-                                                                        ✅ PDF Guía de colores<br/>
-                                                                        ✅ PDF Guía de montaje con imagen<br/>
-                                                                        ✅ Archivo JSON para la app
-                                                                    </div>
-                                                                    <div style={{fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)'}}>
-                                                                        $1.00 USD <span style={{fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 'normal'}}>(precio premium)</span>
-                                                                    </div>
-                                                                </div>
-
-                                                                {/* Opción 2: Plan anual */}
-                                                                <div style={{
-                                                                    background: 'rgba(139,92,246,0.1)',
-                                                                    borderRadius: '10px',
-                                                                    padding: '16px',
-                                                                    marginBottom: '16px',
-                                                                    border: '1px solid #8b5cf6'
-                                                                }}>
-                                                                    <div style={{fontWeight: 'bold', marginBottom: '8px', fontSize: '0.9rem', color: '#8b5cf6'}}>
-                                                                        ⭐ Opción 2 — Premium Anual (recomendado)
-                                                                    </div>
-                                                                    <div style={{fontSize: '0.82rem', color: 'var(--text-dim)', marginBottom: '8px'}}>
-                                                                        ✅ Patrones de galería <strong>ilimitados</strong><br/>
-                                                                        ✅ Crea tus propios patrones desde fotos<br/>
-                                                                        ✅ Acceso a todos los patrones premium<br/>
-                                                                        ✅ Descarga PDFs y JSON sin límite
-                                                                    </div>
-                                                                    <div style={{fontWeight: 'bold', fontSize: '1.1rem', color: '#8b5cf6'}}>
-                                                                        $48.00 USD/año
-                                                                        <span style={{fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 'normal'}}> ($4/mes)</span>
-                                                                    </div>
-                                                                </div>
-
-                                                                <button
-                                                                    onClick={() => handleUpgrade('yearly')}
-                                                                    style={{
-                                                                        width: '100%', padding: '12px',
-                                                                        background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
-                                                                        color: 'white', border: 'none', borderRadius: '8px',
-                                                                        fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer',
-                                                                        marginBottom: '8px'
-                                                                    }}
-                                                                >⭐ Suscribirme al Plan Anual</button>
-
-                                                                <div style={{textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '12px'}}>
-                                                                    — o —
-                                                                </div>
+                                                                {/* Botones lado a lado */}
+                                                                <table width="100%" cellPadding="0" cellSpacing="0" style={{marginBottom: '12px'}}>
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td style={{paddingRight: '6px', verticalAlign: 'top'}}>
+                                                                                <div style={{
+                                                                                    background: 'var(--background)',
+                                                                                    borderRadius: '10px',
+                                                                                    padding: '12px',
+                                                                                    border: '1px solid var(--border)',
+                                                                                    marginBottom: '8px'
+                                                                                }}>
+                                                                                    <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '0.85rem'}}>
+                                                                                        💰 Solo este patrón
+                                                                                    </div>
+                                                                                    <div style={{fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: '8px'}}>
+                                                                                        ✅ PDF colores<br/>
+                                                                                        ✅ PDF montaje<br/>
+                                                                                        ✅ JSON para la app
+                                                                                    </div>
+                                                                                    <div style={{fontWeight: 'bold', fontSize: '1rem', color: 'var(--primary)', marginBottom: '8px'}}>
+                                                                                        $1.00 USD
+                                                                                    </div>
+                                                                                    <input
+                                                                                        type="email"
+                                                                                        value={purchaseEmail}
+                                                                                        onChange={e => setPurchaseEmail(e.target.value)}
+                                                                                        placeholder="tu@email.com"
+                                                                                        style={{
+                                                                                            width: '100%', padding: '7px', borderRadius: '6px',
+                                                                                            border: '1px solid var(--border)', background: 'var(--surface)',
+                                                                                            color: 'var(--text)', fontSize: '0.8rem', boxSizing: 'border-box',
+                                                                                            marginBottom: '8px'
+                                                                                        }}
+                                                                                    />
+                                                                                    <button
+                                                                                        onClick={handlePatternPurchase}
+                                                                                        disabled={purchaseLoading}
+                                                                                        style={{
+                                                                                            width: '100%', padding: '8px',
+                                                                                            background: purchaseLoading ? '#666' : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                                                                            color: 'white', border: 'none', borderRadius: '6px',
+                                                                                            fontSize: '0.82rem', fontWeight: 'bold',
+                                                                                            cursor: purchaseLoading ? 'not-allowed' : 'pointer'
+                                                                                        }}
+                                                                                    >{purchaseLoading ? '⏳...' : '💳 Pagar'}</button>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td style={{paddingLeft: '6px', verticalAlign: 'top'}}>
+                                                                                <div style={{
+                                                                                    background: 'rgba(139,92,246,0.1)',
+                                                                                    borderRadius: '10px',
+                                                                                    padding: '12px',
+                                                                                    border: '1px solid #8b5cf6',
+                                                                                    marginBottom: '8px'
+                                                                                }}>
+                                                                                    <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '0.85rem', color: '#8b5cf6'}}>
+                                                                                        ⭐ Premium Anual
+                                                                                    </div>
+                                                                                    <div style={{fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: '8px'}}>
+                                                                                        ✅ Galería <strong>ilimitada</strong><br/>
+                                                                                        ✅ Crea desde fotos<br/>
+                                                                                        ✅ PDFs y JSON sin límite
+                                                                                    </div>
+                                                                                    <div style={{fontWeight: 'bold', fontSize: '1rem', color: '#8b5cf6', marginBottom: '8px'}}>
+                                                                                        $48.00 USD/año
+                                                                                    </div>
+                                                                                    <button
+                                                                                        onClick={() => { setPurchaseModal(null); handleUpgrade('yearly'); }}
+                                                                                        style={{
+                                                                                            width: '100%', padding: '8px',
+                                                                                            background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                                                                                            color: 'white', border: 'none', borderRadius: '6px',
+                                                                                            fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer',
+                                                                                            marginTop: '26px'
+                                                                                        }}
+                                                                                    >⭐ Suscribirme</button>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
                                                             </>
                                                         )}
 
