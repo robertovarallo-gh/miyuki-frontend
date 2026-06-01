@@ -2036,6 +2036,12 @@
                 return userData?.plan === 'premium';
             };
 
+            const getPlanType = () => {
+                if (!userData) return 'free';
+                if (userData.plan !== 'premium') return 'free';
+                return userData.planType || 'premium_monthly';
+            };
+
             const downloadImage = (imageData, filename) => {
                 const link = document.createElement('a');
                 link.download = filename;
