@@ -7110,91 +7110,107 @@ if (!colorToUse || !canvasRef.current) return;
                                     🎉 ¡Ya creaste tu primer patrón! Da el siguiente paso y crea sin límites.
                                 </p>
 
-                                {/* Comparación Free vs Premium */}
+                                {/* Comparación 3 planes */}
                                 <div style={{
                                     display: 'grid',
-                                    gridTemplateColumns: '1fr 1fr',
-                                    gap: '20px',
+                                    gridTemplateColumns: '1fr 1fr 1fr',
+                                    gap: '12px',
                                     marginBottom: '25px'
                                 }}>
                                     {/* Plan Free */}
                                     <div style={{
                                         border: '1px solid var(--border)',
                                         borderRadius: '12px',
-                                        padding: '20px'
+                                        padding: '16px',
+                                        fontSize: '0.85rem'
                                     }}>
-                                        <h3 style={{marginTop: 0}}>🆓 Gratis</h3>
-                                        <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
-                                            $0
-                                        </div>
-                                        <ul style={{listStyle: 'none', padding: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: '1.8'}}>
+                                        <h3 style={{marginTop: 0, fontSize: '1rem'}}>🆓 Gratis</h3>
+                                        <div style={{fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '10px'}}>$0</div>
+                                        <ul style={{listStyle: 'none', padding: 0, color: 'var(--text-dim)', lineHeight: '1.9'}}>
                                             <li>✅ 1 patrón/mes desde foto</li>
                                             <li>✅ 3 patrones/mes desde cero</li>
+                                            <li>✅ Patrones free de galería</li>
+                                            <li>✅ Compra patrones individuales ($2 USD)</li>
                                             <li>❌ Sin descargas de guías</li>
                                             <li>❌ Sin guardar patrones</li>
-                                            <li>❌ Galería limitada</li>
+                                            <li>❌ Patrones premium de galería</li>
                                         </ul>
                                     </div>
 
-                                    {/* Plan Premium */}
+                                    {/* Plan Premium Mensual */}
                                     <div style={{
                                         border: '2px solid var(--primary)',
                                         borderRadius: '12px',
-                                        padding: '20px',
-                                        background: 'linear-gradient(135deg, rgba(0, 206, 209, 0.1) 0%, rgba(255, 217, 61, 0.1) 100%)'
+                                        padding: '16px',
+                                        background: 'linear-gradient(135deg, rgba(0,206,209,0.1) 0%, rgba(255,217,61,0.1) 100%)',
+                                        fontSize: '0.85rem'
                                     }}>
-                                        <h3 style={{marginTop: 0}}>💎 Premium</h3>
-                                        <div style={{fontSize: '2rem', fontWeight: 'bold', marginBottom: '10px'}}>
-                                            $4.99<span style={{fontSize: '1rem', fontWeight: 'normal'}}>/mes</span>
+                                        <h3 style={{marginTop: 0, fontSize: '1rem'}}>💎 Premium Mensual</h3>
+                                        <div style={{fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '10px'}}>
+                                            $4.99<span style={{fontSize: '0.9rem', fontWeight: 'normal'}}>/mes</span>
                                         </div>
-                                        <ul style={{listStyle: 'none', padding: 0, fontSize: '0.9rem', lineHeight: '1.8'}}>
+                                        <ul style={{listStyle: 'none', padding: 0, lineHeight: '1.9'}}>
                                             <li>✅ Patrones ilimitados desde foto</li>
                                             <li>✅ Patrones ilimitados desde cero</li>
-                                            <li>✅ Descarga guías de colores (PDF)</li>
-                                            <li>✅ Descarga guías de montaje (PDF)</li>
-                                            <li>✅ Guarda tus creaciones para siempre</li>
-                                            <li>✅ Galería completa</li>
-                                            <li>✅ Más de 400 colores Miyuki</li>
+                                            <li>✅ Descarga guías PDF</li>
+                                            <li>✅ Guarda tus patrones</li>
+                                            <li>✅ <strong>5 patrones de galería/mes</strong></li>
+                                            <li>✅ Patrones extra a $1 USD c/u</li>
+                                            <li>✅ +600 colores Miyuki</li>
                                         </ul>
+                                        <button
+                                            onClick={() => handleUpgrade('monthly')}
+                                            style={{
+                                                width: '100%', padding: '10px',
+                                                background: 'var(--primary)',
+                                                border: 'none', borderRadius: '8px',
+                                                color: '#000', cursor: 'pointer',
+                                                fontWeight: 'bold', fontSize: '0.9rem',
+                                                marginTop: '12px'
+                                            }}
+                                        >Suscribirme Mensual</button>
                                     </div>
-                                </div>
 
-                                {/* Botones de pago */}
-                                <div style={{display: 'flex', gap: '15px'}}>
-                                    <button
-                                        onClick={() => handleUpgrade('monthly')}
-                                        style={{
-                                            flex: 1,
-                                            padding: '15px',
-                                            background: 'var(--primary)',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            color: '#000000',
-                                            cursor: 'pointer',
-                                            fontWeight: 'bold',
-                                            fontSize: '1rem'
-                                        }}
-                                    >
-                                        Mensual
-                                        <div style={{fontSize: '0.85rem', fontWeight: 'normal'}}>$4.99 / mes</div>
-                                    </button>
-                                    <button
-                                        onClick={() => handleUpgrade('yearly')}
-                                        style={{
-                                            flex: 1,
-                                            padding: '15px',
-                                            background: 'linear-gradient(135deg, var(--primary) 0%, #FFD93D 100%)',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            color: '#000000',
-                                            cursor: 'pointer',
-                                            fontWeight: 'bold',
-                                            fontSize: '1rem'
-                                        }}
-                                    >
-                                        ⭐ Anual — Mejor valor
-                                        <div style={{fontSize: '0.85rem', fontWeight: 'normal'}}>$48 / año · Ahorras 20%</div>
-                                    </button>
+                                    {/* Plan Premium Anual */}
+                                    <div style={{
+                                        border: '2px solid #FFD93D',
+                                        borderRadius: '12px',
+                                        padding: '16px',
+                                        background: 'linear-gradient(135deg, rgba(255,217,61,0.1) 0%, rgba(139,92,246,0.1) 100%)',
+                                        fontSize: '0.85rem',
+                                        position: 'relative'
+                                    }}>
+                                        <div style={{
+                                            position: 'absolute', top: '-10px', right: '12px',
+                                            background: '#FFD93D', color: '#000',
+                                            padding: '2px 10px', borderRadius: '10px',
+                                            fontSize: '0.72rem', fontWeight: 'bold'
+                                        }}>⭐ MEJOR VALOR</div>
+                                        <h3 style={{marginTop: 0, fontSize: '1rem'}}>⭐ Premium Anual</h3>
+                                        <div style={{fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '4px'}}>
+                                            $48<span style={{fontSize: '0.9rem', fontWeight: 'normal'}}>/año</span>
+                                        </div>
+                                        <div style={{fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: '10px'}}>$4/mes · Ahorras 20%</div>
+                                        <ul style={{listStyle: 'none', padding: 0, lineHeight: '1.9'}}>
+                                            <li>✅ Patrones ilimitados desde foto</li>
+                                            <li>✅ Patrones ilimitados desde cero</li>
+                                            <li>✅ Descarga guías PDF</li>
+                                            <li>✅ Guarda tus patrones</li>
+                                            <li>✅ <strong>Galería ilimitada</strong></li>
+                                            <li>✅ +600 colores Miyuki</li>
+                                        </ul>
+                                        <button
+                                            onClick={() => handleUpgrade('yearly')}
+                                            style={{
+                                                width: '100%', padding: '10px',
+                                                background: 'linear-gradient(135deg, #FFD93D, #f59e0b)',
+                                                border: 'none', borderRadius: '8px',
+                                                color: '#000', cursor: 'pointer',
+                                                fontWeight: 'bold', fontSize: '0.9rem',
+                                                marginTop: '12px'
+                                            }}
+                                        >⭐ Suscribirme Anual</button>
+                                    </div>
                                 </div>
 
                                 <p style={{
