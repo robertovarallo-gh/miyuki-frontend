@@ -5224,13 +5224,14 @@ if (!colorToUse || !canvasRef.current) return;
                                                                 <table width="100%" cellPadding="0" cellSpacing="0" style={{marginBottom: '12px'}}>
                                                                     <tbody>
                                                                         <tr>
-                                                                            <td style={{paddingRight: '6px', verticalAlign: 'top'}}>
+                                                                            <td style={{paddingRight: '6px', verticalAlign: 'top', width: '45%'}}>
                                                                                 <div style={{
                                                                                     background: 'var(--background)',
                                                                                     borderRadius: '10px',
                                                                                     padding: '12px',
-                                                                                    border: '1px solid var(--border)',
-                                                                                    marginBottom: '8px'
+                                                                                    border: '1px solid #f59e0b',
+                                                                                    marginBottom: '8px',
+                                                                                    height: '100%'
                                                                                 }}>
                                                                                     <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '0.85rem'}}>
                                                                                         💰 Solo este patrón
@@ -5242,6 +5243,9 @@ if (!colorToUse || !canvasRef.current) return;
                                                                                     </div>
                                                                                     <div style={{fontWeight: 'bold', fontSize: '1rem', color: 'var(--primary)', marginBottom: '8px'}}>
                                                                                         $1.00 USD
+                                                                                    </div>
+                                                                                    <div style={{fontSize: '0.72rem', color: 'var(--text-dim)', marginBottom: '4px'}}>
+                                                                                        Email para envío:
                                                                                     </div>
                                                                                     <input
                                                                                         type="email"
@@ -5268,13 +5272,14 @@ if (!colorToUse || !canvasRef.current) return;
                                                                                     >{purchaseLoading ? '⏳...' : '💳 Pagar'}</button>
                                                                                 </div>
                                                                             </td>
-                                                                            <td style={{paddingLeft: '6px', verticalAlign: 'top'}}>
+                                                                            <td style={{paddingLeft: '6px', verticalAlign: 'top', width: '55%'}}>
                                                                                 <div style={{
                                                                                     background: 'rgba(139,92,246,0.1)',
                                                                                     borderRadius: '10px',
                                                                                     padding: '12px',
                                                                                     border: '1px solid #8b5cf6',
-                                                                                    marginBottom: '8px'
+                                                                                    marginBottom: '8px',
+                                                                                    height: '100%'
                                                                                 }}>
                                                                                     <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '0.85rem', color: '#8b5cf6'}}>
                                                                                         ⭐ Premium Anual
