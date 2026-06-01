@@ -5306,53 +5306,54 @@ if (!colorToUse || !canvasRef.current) return;
                                                         )}
 
                                                         {!purchaseModal.limitExceeded && (
-                                                            <div style={{
-                                                                background: 'var(--background)',
-                                                                borderRadius: '10px',
-                                                                padding: '16px',
-                                                                marginBottom: '20px',
-                                                                fontSize: '0.85rem'
-                                                            }}>
-                                                                <div style={{marginBottom: '8px'}}>📦 Incluye:</div>
-                                                                <div>✅ PDF Guía de colores</div>
-                                                                <div>✅ PDF Guía de montaje con imagen</div>
-                                                                <div>✅ Archivo JSON para usar en la app</div>
-                                                                <div style={{marginTop: '12px', fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)'}}>
-                                                                    {isPremiumUser() ? '$1.00 USD' : '$2.00 USD'}
-                                                                    {isPremiumUser() && <span style={{fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 'normal'}}> (precio premium)</span>}
+                                                            <>
+                                                                <div style={{
+                                                                    background: 'var(--background)',
+                                                                    borderRadius: '10px',
+                                                                    padding: '16px',
+                                                                    marginBottom: '20px',
+                                                                    fontSize: '0.85rem'
+                                                                }}>
+                                                                    <div style={{marginBottom: '8px'}}>📦 Incluye:</div>
+                                                                    <div>✅ PDF Guía de colores</div>
+                                                                    <div>✅ PDF Guía de montaje con imagen</div>
+                                                                    <div>✅ Archivo JSON para usar en la app</div>
+                                                                    <div style={{marginTop: '12px', fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)'}}>
+                                                                        {isPremiumUser() ? '$1.00 USD' : '$2.00 USD'}
+                                                                        {isPremiumUser() && <span style={{fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 'normal'}}> (precio premium)</span>}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
+
+                                                                <label style={{display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold'}}>
+                                                                    Email para recibir el patrón
+                                                                </label>
+                                                                <input
+                                                                    type="email"
+                                                                    value={purchaseEmail}
+                                                                    onChange={e => setPurchaseEmail(e.target.value)}
+                                                                    placeholder="tu@email.com"
+                                                                    style={{
+                                                                        width: '100%', padding: '10px', borderRadius: '8px',
+                                                                        border: '1px solid var(--border)', background: 'var(--background)',
+                                                                        color: 'var(--text)', fontSize: '1rem', boxSizing: 'border-box',
+                                                                        marginBottom: '16px'
+                                                                    }}
+                                                                />
+                                                                <button
+                                                                    onClick={handlePatternPurchase}
+                                                                    disabled={purchaseLoading}
+                                                                    style={{
+                                                                        width: '100%', padding: '12px',
+                                                                        background: purchaseLoading ? '#666' : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                                                        color: 'white', border: 'none', borderRadius: '8px',
+                                                                        fontSize: '1rem', fontWeight: 'bold', cursor: purchaseLoading ? 'not-allowed' : 'pointer',
+                                                                        marginBottom: '10px'
+                                                                    }}
+                                                                >
+                                                                    {purchaseLoading ? '⏳ Procesando...' : '💳 Pagar y Descargar'}
+                                                                </button>
+                                                            </>
                                                         )}
-
-                                                        <label style={{display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold'}}>
-                                                            Email para recibir el patrón
-                                                        </label>
-                                                        <input
-                                                            type="email"
-                                                            value={purchaseEmail}
-                                                            onChange={e => setPurchaseEmail(e.target.value)}
-                                                            placeholder="tu@email.com"
-                                                            style={{
-                                                                width: '100%', padding: '10px', borderRadius: '8px',
-                                                                border: '1px solid var(--border)', background: 'var(--background)',
-                                                                color: 'var(--text)', fontSize: '1rem', boxSizing: 'border-box',
-                                                                marginBottom: '16px'
-                                                            }}
-                                                        />
-
-                                                        <button
-                                                            onClick={handlePatternPurchase}
-                                                            disabled={purchaseLoading}
-                                                            style={{
-                                                                width: '100%', padding: '12px',
-                                                                background: purchaseLoading ? '#666' : 'linear-gradient(135deg, #f59e0b, #d97706)',
-                                                                color: 'white', border: 'none', borderRadius: '8px',
-                                                                fontSize: '1rem', fontWeight: 'bold', cursor: purchaseLoading ? 'not-allowed' : 'pointer',
-                                                                marginBottom: '10px'
-                                                            }}
-                                                        >
-                                                            {purchaseLoading ? '⏳ Procesando...' : '💳 Pagar y Descargar'}
-                                                        </button>
 
                                                         <button
                                                             onClick={() => setPurchaseModal(null)}
@@ -5360,7 +5361,8 @@ if (!colorToUse || !canvasRef.current) return;
                                                                 width: '100%', padding: '10px',
                                                                 background: 'none', border: '1px solid var(--border)',
                                                                 color: 'var(--text)', borderRadius: '8px',
-                                                                fontSize: '0.9rem', cursor: 'pointer'
+                                                                fontSize: '0.9rem', cursor: 'pointer',
+                                                                marginTop: '8px'
                                                             }}
                                                         >Cancelar</button>
 
