@@ -755,6 +755,8 @@
             const [purchaseEmail, setPurchaseEmail] = React.useState('');
             const [purchaseLoading, setPurchaseLoading] = React.useState(false);
             const [userCredits, setUserCredits] = React.useState(null);
+            const [lightboxPattern, setLightboxPattern] = React.useState(null);
+            const [lightboxView, setLightboxView] = React.useState('photo'); // 'photo' o 'pattern'
 
 
             const CATEGORIES = {
@@ -5193,6 +5195,83 @@ if (!colorToUse || !canvasRef.current) return;
                                                 </div>
                                             </div>
 
+                                            {/* Lightbox */}
+                                            {lightboxPattern && (
+                                                <div
+                                                    onClick={() => setLightboxPattern(null)}
+                                                    style={{
+                                                        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                                                        background: 'rgba(0,0,0,0.92)', zIndex: 99999,
+                                                        display: 'flex', flexDirection: 'column',
+                                                        alignItems: 'center', justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    {/* X cerrar */}
+                                                    <div
+                                                        onClick={() => setLightboxPattern(null)}
+                                                        style={{
+                                                            position: 'absolute', top: '20px', right: '24px',
+                                                            color: 'white', fontSize: '2rem', cursor: 'pointer',
+                                                            lineHeight: 1, fontWeight: 'bold'
+                                                        }}
+                                                    >✕</div>
+
+                                                    {/* Nombre del patrón */}
+                                                    <div style={{color: 'white', fontSize: '1rem', fontWeight: 'bold', marginBottom: '16px'}}>
+                                                        {lightboxPattern.name}
+                                                    </div>
+
+                                                    {/* Toggle foto/patrón */}
+                                                    {lightboxPattern.photoUrl && (
+                                                        <div style={{
+                                                            display: 'flex', gap: '8px', marginBottom: '16px'
+                                                        }}
+                                                            onClick={e => e.stopPropagation()}
+                                                        >
+                                                            <button
+                                                                onClick={() => setLightboxView('photo')}
+                                                                style={{
+                                                                    padding: '6px 16px', borderRadius: '6px', border: 'none',
+                                                                    cursor: 'pointer', fontWeight: 'bold',
+                                                                    background: lightboxView === 'photo' ? '#00CED1' : 'rgba(255,255,255,0.2)',
+                                                                    color: lightboxView === 'photo' ? '#000' : '#fff'
+                                                                }}
+                                                            >📸 Foto</button>
+                                                            <button
+                                                                onClick={() => setLightboxView('pattern')}
+                                                                style={{
+                                                                    padding: '6px 16px', borderRadius: '6px', border: 'none',
+                                                                    cursor: 'pointer', fontWeight: 'bold',
+                                                                    background: lightboxView === 'pattern' ? '#00CED1' : 'rgba(255,255,255,0.2)',
+                                                                    color: lightboxView === 'pattern' ? '#000' : '#fff'
+                                                                }}
+                                                            >🎨 Patrón</button>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Imagen */}
+                                                    <img
+                                                        onClick={e => e.stopPropagation()}
+                                                        src={lightboxView === 'photo' && lightboxPattern.photoUrl
+                                                            ? lightboxPattern.photoUrl
+                                                            : lightboxPattern.thumbnail}
+                                                        alt={lightboxPattern.name}
+                                                        style={{
+                                                            maxWidth: '90vw',
+                                                            maxHeight: '75vh',
+                                                            objectFit: 'contain',
+                                                            borderRadius: '8px',
+                                                            imageRendering: lightboxView === 'pattern' ? 'pixelated' : 'auto'
+                                                        }}
+                                                    />
+
+                                                    {/* Info */}
+                                                    <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginTop: '12px'}}>
+                                                        {lightboxPattern.width}×{lightboxPattern.height} • {lightboxPattern.patternType} • {lightboxPattern.category}
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {/* Modal de compra */}
                                             {purchaseModal && (
                                                 <div style={{
@@ -5469,6 +5548,11 @@ if (!colorToUse || !canvasRef.current) return;
 
                                                                     {/* Thumbnail */}
                                                                     <img
+                                                                         onClick={e => {
+                                                                            e.stopPropagation();
+                                                                            setLightboxPattern(pattern);
+                                                                            setLightboxView(pattern.photoUrl ? 'photo' : 'pattern');
+                                                                        }}
                                                                         src={hoveredPattern === pattern.id && pattern.photoUrl
                                                                             ? pattern.thumbnail
                                                                             : (pattern.photoUrl || pattern.thumbnail)}
