@@ -5475,8 +5475,8 @@ if (!colorToUse || !canvasRef.current) return;
                                                                         alt={pattern.name}
                                                                         style={{
                                                                             width: '100%',
-                                                                            height: hoveredPattern === pattern.id ? '900px' : '160px',
-                                                                            objectFit: hoveredPattern === pattern.id ? 'contain' : (pattern.photoUrl ? 'cover' : 'contain'),
+                                                                            height: hoveredPattern === pattern.id ? '900px' : '180px',
+                                                                            objectFit: hoveredPattern === pattern.id ? 'contain' : 'cover',
                                                                             imageRendering: hoveredPattern === pattern.id || !pattern.photoUrl ? 'pixelated' : 'auto',
                                                                             borderRadius: '5px',
                                                                             background: 'var(--background)',
