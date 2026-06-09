@@ -5553,15 +5553,15 @@ if (!colorToUse || !canvasRef.current) return;
                                                                             setLightboxPattern(pattern);
                                                                             setLightboxView(pattern.photoUrl ? 'photo' : 'pattern');
                                                                         }}
-                                                                        src={hoveredPattern === pattern.id && pattern.photoUrl
+                                                                        src={hoveredPattern === pattern.id
                                                                             ? pattern.thumbnail
                                                                             : (pattern.photoUrl || pattern.thumbnail)}
                                                                         alt={pattern.name}
                                                                         style={{
                                                                             width: '100%',
-                                                                            height: hoveredPattern === pattern.id ? '900px' : '300px',
-                                                                            objectFit: hoveredPattern === pattern.id ? 'contain' : (pattern.photoUrl ? 'cover' : 'contain'),
-                                                                            imageRendering: hoveredPattern === pattern.id || !pattern.photoUrl ? 'pixelated' : 'auto',
+                                                                            height: '300px',
+                                                                            objectFit: pattern.photoUrl && hoveredPattern !== pattern.id ? 'cover' : 'contain',
+                                                                            imageRendering: !pattern.photoUrl || hoveredPattern === pattern.id ? 'pixelated' : 'auto',
                                                                             borderRadius: '5px',
                                                                             background: 'var(--background)',
                                                                             transition: 'height 0.3s ease',
