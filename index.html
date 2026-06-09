@@ -5569,6 +5569,18 @@ if (!colorToUse || !canvasRef.current) return;
                                                                         }}
                                                                     />
 
+                                                                    {/* Tip clic */}
+                                                                    <div style={{
+                                                                        textAlign: 'center',
+                                                                        fontSize: '0.68rem',
+                                                                        color: 'var(--text-dim)',
+                                                                        marginTop: '4px',
+                                                                        opacity: hoveredPattern === pattern.id ? 1 : 0,
+                                                                        transition: 'opacity 0.2s ease'
+                                                                    }}>
+                                                                        🔍 Clic para ampliar
+                                                                    </div>
+
                                                                     {/* Info */}
                                                                     <div style={{marginTop: '8px', textAlign: 'center'}}>
                                                                         <div style={{fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '2px'}}>
