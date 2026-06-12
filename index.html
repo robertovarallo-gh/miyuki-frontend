@@ -5511,11 +5511,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                             .map(pattern => (
                                                                 <div
                                                                     key={pattern.id}
-                                                                    onClick={() => {
-                                                                        if (pattern.isBasic || isPremiumUser()) {
-                                                                            loadPatternFromGallery(pattern);
-                                                                        }
-                                                                    }}
+                                                                    onClick={() => {}}
                                                                     onMouseEnter={() => setHoveredPattern(pattern.id)}
                                                                     onMouseLeave={() => setHoveredPattern(null)}
                                                                     style={{
@@ -5649,6 +5645,24 @@ if (!colorToUse || !canvasRef.current) return;
                                                                                 {pattern.category}
                                                                             </div>
                                                                         )}
+                                                                        {/* Botón Cargar — para quien tiene acceso */}
+                                                                        {(pattern.isBasic || isPremiumUser()) && (
+                                                                            <div
+                                                                                onClick={e => { e.stopPropagation(); loadPatternFromGallery(pattern); }}
+                                                                                style={{
+                                                                                    marginTop: '8px',
+                                                                                    background: 'var(--primary)',
+                                                                                    color: '#000',
+                                                                                    padding: '4px 10px',
+                                                                                    borderRadius: '5px',
+                                                                                    fontSize: '0.72rem',
+                                                                                    fontWeight: 'bold',
+                                                                                    cursor: 'pointer',
+                                                                                    display: 'inline-block'
+                                                                                }}
+                                                                            >▶ Cargar</div>
+                                                                        )}
+                                                                        {/* Botón Comprar — para usuarios free en patrones premium */}
                                                                         {!pattern.isBasic && !isPremiumUser() && (
                                                                             <div
                                                                                 onClick={e => { e.stopPropagation(); setPurchaseModal(pattern); setPurchaseEmail(user?.email || ''); }}
