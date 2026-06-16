@@ -5307,7 +5307,7 @@ if (!colorToUse || !canvasRef.current) return;
 
                                                     {/* Info */}
                                                     <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginTop: '12px'}}>
-                                                        {lightboxPattern.width}×{lightboxPattern.height} • {lightboxPattern.patternType} • {lightboxPattern.category}
+                                                        {lightboxPattern.width}×{lightboxPattern.height} • {lightboxPattern.patternType === 'peyote' ? 'Peyote' : 'Cuadrícula'} • {lightboxPattern.category}
                                                     </div>
                                                 </div>
                                             )}
@@ -5338,7 +5338,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                         </h3>
                                                         <p style={{color: 'var(--text-dim)', fontSize: '0.9rem', margin: '0 0 16px'}}>
                                                             <strong>{purchaseModal.name}</strong><br/>
-                                                            {purchaseModal.width}×{purchaseModal.height} • {purchaseModal.patternType}
+                                                            {purchaseModal.width}×{purchaseModal.height} • {purchaseModal.patternType === 'peyote' ? 'Peyote' : 'Cuadrícula'}
                                                         </p>
 
                                                         {purchaseModal.limitExceeded && (
@@ -5661,7 +5661,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                                             {pattern.name}
                                                                         </div>
                                                                         <div style={{fontSize: '0.72rem', color: 'var(--text-dim)'}}>
-                                                                            {pattern.width}×{pattern.height} • {pattern.patternType}
+                                                                            {pattern.width}×{pattern.height} • {pattern.patternType === 'peyote' ? 'Peyote' : 'Cuadrícula'}
                                                                         </div>
                                                                         {pattern.category && (
                                                                             <div style={{fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: '2px'}}>
