@@ -671,6 +671,13 @@
             const [isBlankCanvas, setIsBlankCanvas] = useState(false);
             const [fullPalette, setFullPalette] = useState(null);
             const [patternType, setPatternType] = useState('grid'); // 'grid' o 'peyote'
+
+            // Helper: asegura que una imagen base64 tenga el prefijo data URI
+            const ensureDataUri = (b64) => {
+                if (!b64) return null;
+                if (b64.startsWith('data:')) return b64;
+                return 'data:image/png;base64,' + b64;
+            };
             const [imageDimensions, setImageDimensions] = useState(null);
             const coordsTextCanvasRef = React.useRef(null);
             const [coordsTextReady, setCoordsTextReady] = React.useState(false);
@@ -5282,7 +5289,7 @@ if (!colorToUse || !canvasRef.current) return;
                                                         onClick={e => e.stopPropagation()}
                                                         src={lightboxView === 'photo' && lightboxPattern.photoUrl
                                                             ? lightboxPattern.photoUrl
-                                                            : lightboxPattern.thumbnail}
+                                                            : ensureDataUri(lightboxPattern.thumbnail)}
                                                         alt={lightboxPattern.name}
                                                         style={{
                                                             maxWidth: '90vw',
@@ -5593,8 +5600,8 @@ if (!colorToUse || !canvasRef.current) return;
                                                                             setLightboxView(pattern.photoUrl ? 'photo' : 'pattern');
                                                                         }}
                                                                         src={hoveredPattern === pattern.id
-                                                                            ? pattern.thumbnail
-                                                                            : (pattern.photoUrl || pattern.thumbnail)}
+                                                                            ? ensureDataUri(pattern.thumbnail)
+                                                                            : (pattern.photoUrl || ensureDataUri(pattern.thumbnail))}
                                                                         alt={pattern.name}
                                                                         style={{
                                                                             width: '100%',
