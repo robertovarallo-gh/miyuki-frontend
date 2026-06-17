@@ -2374,6 +2374,77 @@
 
             // ========== GUARDAR Y CARGAR PATRÓN ==========
             
+            // Regenera el rowGuide (guía fila por fila) a partir de una imagen "basic"
+            // (1px por bead). Garantiza que la guía de montaje siempre coincida
+            // exactamente con los colores reales de la imagen, sin depender de
+            // que el flujo previo la haya actualizado.
+            const regenerateRowGuideFromImage = (basicDataUrl, beadsWidth, beadsHeight, isPeyote) => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = beadsWidth;
+                        tempCanvas.height = beadsHeight;
+                        const ctx = tempCanvas.getContext('2d', { willReadFrequently: true });
+                        ctx.imageSmoothingEnabled = false;
+                        ctx.drawImage(img, 0, 0, beadsWidth, beadsHeight);
+
+                        const buildSequenceAndTotals = (codes) => {
+                            const sequence = [];
+                            let currentCode = null, currentCount = 0;
+                            for (const code of codes) {
+                                if (code === currentCode) {
+                                    currentCount++;
+                                } else {
+                                    if (currentCode !== null) sequence.push({ code: currentCode, count: currentCount });
+                                    currentCode = code;
+                                    currentCount = 1;
+                                }
+                            }
+                            if (currentCode !== null) sequence.push({ code: currentCode, count: currentCount });
+
+                            const colorCounts = {};
+                            for (const code of codes) colorCounts[code] = (colorCounts[code] || 0) + 1;
+                            const totals = Object.entries(colorCounts).map(([code, count]) => ({ code, count }));
+                            return { sequence, totals };
+                        };
+
+                        const getRowCodes = (y) => {
+                            const codes = [];
+                            for (let x = 0; x < beadsWidth; x++) {
+                                const [r, g, b] = ctx.getImageData(x, y, 1, 1).data;
+                                const color = findClosestColor([r, g, b]);
+                                codes.push(color ? color.code : '???');
+                            }
+                            return codes;
+                        };
+
+                        const rows = [];
+                        for (let y = 0; y < beadsHeight; y++) {
+                            const rowCodes = getRowCodes(y);
+
+                            if (isPeyote) {
+                                const fullCodes = rowCodes.filter((_, x) => x % 2 === 0);
+                                const { sequence: seqFull, totals: totFull } = buildSequenceAndTotals(fullCodes);
+                                rows.push({ row: y + 1, row_label: String(y + 1), sequence: seqFull, totals: totFull });
+
+                                const halfCodes = rowCodes.filter((_, x) => x % 2 === 1);
+                                if (halfCodes.length > 0) {
+                                    const { sequence: seqHalf, totals: totHalf } = buildSequenceAndTotals(halfCodes);
+                                    rows.push({ row: y + 1.5, row_label: `${y + 1}.5`, sequence: seqHalf, totals: totHalf });
+                                }
+                            } else {
+                                const { sequence, totals } = buildSequenceAndTotals(rowCodes);
+                                rows.push({ row: y + 1, row_label: String(y + 1), sequence, totals });
+                            }
+                        }
+                        resolve({ rows });
+                    };
+                    img.onerror = () => resolve(null);
+                    img.src = basicDataUrl;
+                });
+            };
+
             const savePattern = async() => {
                 if (!result) {
                     alert('⚠️ No hay patrón para guardar');
@@ -2389,6 +2460,25 @@
                 let currentImage = editedPattern;
                 if ((editMode || isBlankCanvas) && canvasRef.current) {
                     currentImage = canvasRef.current.toDataURL();
+                }
+
+                // Recalcular SIEMPRE el rowGuide a partir de la imagen final,
+                // para garantizar que la guía de montaje coincida con los colores reales
+                const basicForRowGuide = currentImage || result.images.basic;
+                let freshRowGuide = result.rowGuide;
+                if (basicForRowGuide) {
+                    const regenerated = await regenerateRowGuideFromImage(
+                        basicForRowGuide,
+                        result.pattern.width,
+                        result.pattern.height,
+                        (result.pattern_type || 'grid') === 'peyote'
+                    );
+                    if (regenerated) {
+                        freshRowGuide = regenerated;
+                        // Actualizar también el estado para que la pestaña "Guía" en pantalla
+                        // refleje los colores correctos inmediatamente
+                        setResult(prev => prev ? { ...prev, rowGuide: regenerated } : prev);
+                    }
                 }
 
                 // Generar thumbnail (max 300px ancho) desde la imagen basic
@@ -2437,7 +2527,7 @@
                         color_mode: result.colors.color_mode,
                         colors: result.colors.colors
                     },
-                    rowGuide: result.rowGuide,
+                    rowGuide: freshRowGuide,
                     isBlankCanvas: isBlankCanvas,
                     editedPattern: editedPattern,
                     settings: {
