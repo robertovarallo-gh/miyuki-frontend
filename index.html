@@ -860,7 +860,7 @@
                         imageToLoad = result.images.coordinates;
                         console.log('✅ useEffect: Cargando COORDENADAS');
                     } else {
-                        imageToLoad = editedPattern || result.images.grid;
+                        imageToLoad = editedPattern || ensureDataUri(result.images.grid);
                         console.log('✅ useEffect: Cargando', editedPattern ? 'EDITED' : 'GRID');
                     }
                     
@@ -1097,7 +1097,7 @@
                     console.error('❌ Error cargando imagen para grid en Coordenadas');
                 };
                 
-                img.src = result.images.grid;
+                img.src = ensureDataUri(result.images.grid);
                 
             }, [gridCoordsReady, result, activeTab, beadSize, beadSizeVersion]);
 
@@ -1166,7 +1166,7 @@
                     console.log('✅ Coordenadas dibujadas en frontend');
                 };
                 
-                img.src = result.images.grid;
+                img.src = ensureDataUri(result.images.grid);
                 
             }, [coordsTextReady, result, activeTab, beadSize, beadSizeVersion]);     
             
@@ -2318,7 +2318,7 @@
                     tempImg.onerror = (err) => {
                         console.error('❌ Error cargando imagen:', err);
                     };
-                    tempImg.src = editedPattern || result.images.basic;
+                    tempImg.src = editedPattern || ensureDataUri(result.images.basic);
                     console.log('Iniciando carga de:', tempImg.src.substring(0, 50));
                     return;
                     
@@ -2720,7 +2720,7 @@
                             ctx.imageSmoothingEnabled = false;
                             ctx.drawImage(img, 0, 0);
                         };
-                        img.src = editedPattern || result.images.basic;
+                        img.src = editedPattern || ensureDataUri(result.images.basic);
                     }
                 }, 100);
             };
@@ -3747,9 +3747,9 @@ if (!colorToUse || !canvasRef.current) return;
                             pattern_type: pattern.patternType
                         },
                         images: {
-                            grid: pattern.imageData,
-                            coordinates: pattern.fullData?.images?.coordinates || pattern.imageData,
-                            basic: pattern.imageData
+                            grid: ensureDataUri(pattern.imageData),
+                            coordinates: ensureDataUri(pattern.fullData?.images?.coordinates || pattern.imageData),
+                            basic: ensureDataUri(pattern.basicImage || pattern.imageData)
                         },
                         colors: normalizeColors(pattern.colors),
                         rowGuide: pattern.rowGuide || pattern.fullData?.rowGuide || { rows: [] },
@@ -6070,7 +6070,7 @@ if (!colorToUse || !canvasRef.current) return;
                                             {/* Canvas con grid overlay */}
                                             <div style={{position: 'relative', display: 'inline-block', overflow: 'visible'}}>
                                                 <img 
-                                                    src={result.images.grid} 
+                                                    src={ensureDataUri(result.images.grid)} 
                                                     className="pattern-canvas"
                                                     onLoad={() => setGridViewReady(r => r + 1)}
                                                     style={{
