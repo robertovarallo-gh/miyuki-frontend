@@ -2685,6 +2685,10 @@
                         setImage(null);
                         setError(null);
 
+                        // Invalidar caché de colores para que no muestre colores del patrón anterior
+                        setUsedColorsVersion(v => v + 1);
+                        setCachedUsedColors([]);
+
                         // Siempre cargar paleta completa al cargar patrón
                         setFullPalette(null);
                         const palette = await loadFullPalette();
@@ -2700,6 +2704,11 @@
                     } catch (err) {
                         console.error('Error cargando patrón:', err);
                         alert('❌ Error cargando el patrón:\n' + err.message);
+                    } finally {
+                        // Resetear input para permitir cargar el mismo archivo u otro sin reiniciar
+                        if (loadPatternInputRef.current) {
+                            loadPatternInputRef.current.value = '';
+                        }
                     }
                 };
                 reader.readAsText(file);
