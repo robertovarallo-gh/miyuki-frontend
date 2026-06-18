@@ -2607,6 +2607,9 @@
 
                         console.log('📂 Cargando patrón guardado...');
                         console.log('🔍 rowGuide en JSON:', patternData.rowGuide?.rows?.length, 'filas');
+                        console.log('🔍 colors en JSON:', JSON.stringify(patternData.colors)?.slice(0, 300));
+                        console.log('🔍 colors.colors length:', patternData.colors?.colors?.length);
+                        console.log('🔍 colors.unique_colors:', patternData.colors?.unique_colors);
 
                         // Si es desde cero, cargar paleta
                         if (patternData.isBlankCanvas) {
