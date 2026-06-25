@@ -4359,6 +4359,14 @@ if (!colorToUse || !canvasRef.current) return;
                                                     email,
                                                     password
                                                 );
+
+                                                // 📊 GA4 / GTM: evento de inicio de sesión
+                                                window.dataLayer = window.dataLayer || [];
+                                                window.dataLayer.push({
+                                                    event: 'login',
+                                                    method: 'email'
+                                                });
+
                                                 setUser(userCredential.user);
                                                 setShowAuthModal(false);
                                                 alert(i18n.currentLanguage === 'es' ? '✅ Sesión iniciada correctamente' : '✅ Signed in successfully');
@@ -4399,6 +4407,14 @@ if (!colorToUse || !canvasRef.current) return;
                                                     patternsFromPhoto: 0,
                                                     patternsFromScratch: 0,
                                                     lastReset: new Date().toISOString()
+                                                });
+
+                                                // 📊 GA4 / GTM: evento de registro completado
+                                                window.dataLayer = window.dataLayer || [];
+                                                window.dataLayer.push({
+                                                    event: 'sign_up',
+                                                    method: 'email',
+                                                    user_language: i18n.currentLanguage || 'es'
                                                 });
                                                 
                                                 setUser(userCredential.user);
