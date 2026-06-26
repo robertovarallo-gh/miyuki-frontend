@@ -1974,9 +1974,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 }
 
                 try {
-                    const priceId = plan === 'monthly' 
-                        ? 'price_1T45eV6r7v0eroiuzzu2uchp'  // Live mensual
-                        : 'price_1T45ff6r7v0eroiuiH3IOeqg'; // Live anual
+                    // Obtener configuración de Stripe desde el backend (sin hardcodear claves)
+                    const configResponse = await fetch(`${API_URL}/stripe-config`);
+                    const stripeConfig = await configResponse.json();
+
+                    const priceId = plan === 'monthly'
+                        ? stripeConfig.priceMonthly
+                        : stripeConfig.priceYearly;
 
                     // Llamar al backend para crear sesión de checkout
                     const response = await fetch(`${API_URL}/create-checkout-session`, {
@@ -1993,8 +1997,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     const data = await response.json();
 
                     if (data.sessionId) {
+                        // 📊 GA4 / GTM: evento de inicio de checkout
+                        window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({
+                            event: 'begin_checkout',
+                            currency: 'USD',
+                            value: plan === 'monthly' ? 4.99 : 48,
+                            plan_type: plan
+                        });
+
                         // Redirigir a Stripe Checkout
-                        const stripe = window.Stripe('pk_live_51T2ZWG6r7v0eroiuAu9BtWwNCjouKcdEWX0OAJTxJpxiD6vVJ4re9z8GSY6hJ5lKjIyxdFoQtXbWkB6sjl8zMGY700z243YfEC');
+                        const stripe = window.Stripe(stripeConfig.publishableKey);
                         stripe.redirectToCheckout({ sessionId: data.sessionId });
                     } else {
                         alert('Error al crear sesión de pago: ' + data.error);
@@ -3690,7 +3703,9 @@ if (!colorToUse || !canvasRef.current) return;
                     });
                     const data = await response.json();
                     if (data.sessionId) {
-                        const stripe = window.Stripe('pk_live_51T2ZWG6r7v0eroiuAu9BtWwNCjouKcdEWX0OAJTxJpxiD6vVJ4re9z8GSY6hJ5lKjIyxdFoQtXbWkB6sjl8zMGY700z243YfEC');
+                        const configResponse = await fetch(`${API_URL}/stripe-config`);
+                        const stripeConfig = await configResponse.json();
+                        const stripe = window.Stripe(stripeConfig.publishableKey);
                         await stripe.redirectToCheckout({ sessionId: data.sessionId });
                     } else {
                         alert('Error iniciando el pago: ' + (data.error || 'Error desconocido'));
