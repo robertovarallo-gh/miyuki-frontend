@@ -664,6 +664,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         function App() {
             const [image, setImage] = useState(null);
+            const imageRef = React.useRef(null); // Ref para acceder siempre al valor más reciente en closures async
             const [width, setWidth] = useState(5.0);
             const [height, setHeight] = useState(5.0);            
             const [beadType, setBeadType] = useState('delica');
@@ -1659,6 +1660,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         // AGREGADO: Crear objeto Image para obtener dimensiones
                         const img = new Image();
                         img.onload = () => {
+                            imageRef.current = event.target.result; // ref siempre actualizada antes del estado
                             setImage(event.target.result);
                             
                             // AGREGADO: Guardar dimensiones de la imagen
@@ -1672,15 +1674,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             setError(null);
                             setEditMode(false);
 
-                            // AGREGAR ESTAS LÍNEAS:
                             setCachedUsedColors([]);
                             setLastCacheVersion(-1);
-
                         };
                         img.src = event.target.result;
                     };
                     reader.readAsDataURL(file);
                 }
+                // Resetear input para permitir seleccionar el mismo archivo u otro
+                e.target.value = '';
             };
 
             const handleDrop = (e) => {
@@ -1689,10 +1691,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = (event) => {
-                        setImage(event.target.result);
-                        setResult(null);
-                        setError(null);
-                        setEditMode(false);
+                        const img = new Image();
+                        img.onload = () => {
+                            imageRef.current = event.target.result;
+                            setImage(event.target.result);
+                            setImageDimensions({
+                                width: img.width,
+                                height: img.height,
+                                aspectRatio: img.width / img.height
+                            });
+                            setResult(null);
+                            setError(null);
+                            setEditMode(false);
+                            setCachedUsedColors([]);
+                            setLastCacheVersion(-1);
+                        };
+                        img.src = event.target.result;
                     };
                     reader.readAsDataURL(file);
                 }
@@ -1821,7 +1835,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             };
 
             const generatePattern = async () => {
-                if (!image || !apiConnected) return;
+                // Usar imageRef.current para garantizar el valor más reciente (evita closures stale)
+                const currentImage = imageRef.current || image;
+                if (!currentImage || !apiConnected) return;
                 
                 setIsFromGallery(false);  // Resetear bandera
                 setProcessing(true);
@@ -1858,7 +1874,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            image: image,
+                            image: currentImage,
                             width: widthToSend,
                             height: heightToSend,
                             beadType: beadType,
