@@ -708,6 +708,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const [lastViewedTab, setLastViewedTab] = useState('grid'); // Para saber qué imagen cargar en el editor
             const [error, setError] = useState(null);
             const [apiConnected, setApiConnected] = useState(false);
+            const [apiConnecting, setApiConnecting] = useState(true);
             const [editMode, setEditMode] = useState(false);
             const [selectedColor, setSelectedColor] = useState(null);
             const [toolMode, setToolMode] = useState('paint'); // 'paint', 'select', 'paste'
@@ -1641,14 +1642,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 
             const checkApiConnection = async () => {
+                setApiConnecting(true);
                 try {
-                    const response = await fetch(`${API_URL}/health`, { 
-                        signal: AbortSignal.timeout(10000) // 10 second timeout
+                    const response = await fetch(`${API_URL}/health`, {
+                        signal: AbortSignal.timeout(60000) // 60s timeout para cold start de Render
                     });
                     const data = await response.json();
-                    setApiConnected(data.status === 'ok');
+                    const ok = data.status === 'ok';
+                    setApiConnected(ok);
+                    setApiConnecting(!ok);
                 } catch (err) {
                     setApiConnected(false);
+                    setApiConnecting(false);
                 }
             };
 
@@ -4144,8 +4149,59 @@ if (!colorToUse || !canvasRef.current) return;
                         </div>
                         
                         {!apiConnected && (
-                            <div className="api-error" style={{maxWidth: '600px', margin: '20px auto', padding: '20px', borderRadius: '10px'}}>
-                                {/* ... código existente del mensaje de conexión ... */}
+                            <div style={{
+                                maxWidth: '560px', margin: '16px auto', padding: '20px 24px',
+                                borderRadius: '14px',
+                                background: apiConnecting
+                                    ? 'linear-gradient(135deg, rgba(0,206,209,0.12), rgba(0,206,209,0.05))'
+                                    : 'linear-gradient(135deg, rgba(255,107,107,0.12), rgba(255,107,107,0.05))',
+                                border: apiConnecting
+                                    ? '1px solid rgba(0,206,209,0.3)'
+                                    : '1px solid rgba(255,107,107,0.3)',
+                                textAlign: 'center'
+                            }}>
+                                {apiConnecting ? (
+                                    <>
+                                        <div style={{marginBottom: '10px'}}>
+                                            <span style={{
+                                                display: 'inline-block',
+                                                width: '28px', height: '28px',
+                                                border: '3px solid rgba(0,206,209,0.3)',
+                                                borderTopColor: '#00CED1',
+                                                borderRadius: '50%',
+                                                animation: 'spin 0.8s linear infinite'
+                                            }}></span>
+                                        </div>
+                                        <div style={{fontWeight: '700', fontSize: '1rem', color: '#00CED1', marginBottom: '6px'}}>
+                                            ☕ Despertando el servidor...
+                                        </div>
+                                        <div style={{fontSize: '0.82rem', color: '#A0AEC0', lineHeight: '1.5'}}>
+                                            El servidor entra en reposo cuando no hay actividad.<br/>
+                                            Esto puede tomar <strong style={{color: '#E8EDF5'}}>30–60 segundos</strong>. Por favor espera.
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{fontSize: '1.4rem', marginBottom: '8px'}}>⚠️</div>
+                                        <div style={{fontWeight: '700', fontSize: '1rem', color: '#FF6B6B', marginBottom: '6px'}}>
+                                            No se pudo conectar al servidor
+                                        </div>
+                                        <div style={{fontSize: '0.82rem', color: '#A0AEC0', marginBottom: '14px'}}>
+                                            El servidor no respondió. Verifica tu conexión a internet e intenta de nuevo.
+                                        </div>
+                                        <button
+                                            onClick={checkApiConnection}
+                                            style={{
+                                                background: 'linear-gradient(135deg, #00CED1, #008B8D)',
+                                                color: 'white', border: 'none', borderRadius: '8px',
+                                                padding: '10px 22px', fontSize: '0.9rem',
+                                                fontWeight: '600', cursor: 'pointer'
+                                            }}
+                                        >
+                                            🔄 Reintentar
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         )}
                     </header>   
